@@ -1,0 +1,453 @@
+
+Welcome to TOPAS, Tool for Particle Simulation (Version 4.0)
+Loading parameters starting from: exampleInVitroRPT_smoke.txt
+
+Geant4 Data directory has been specified by the
+TOPAS_G4_DATA_DIR environment variable as /Applications/GEANT4/G4DATA
+
+**************************************************************
+ Geant4 version Name: geant4-11-01-patch-03 [MT]   (10-November-2023)
+  << in Multi-threaded mode >> 
+                       Copyright : Geant4 Collaboration
+                      References : NIM A 506 (2003), 250-303
+                                 : IEEE-TNS 53 (2006), 270-278
+                                 : NIM A 835 (2016), 186-225
+                             WWW : http://geant4.org/
+**************************************************************
+
+TOPAS is in MT mode, setting number of threads to: 1
+
+TOPAS set the tolerances based on the World size to:
+      Surface tolerance = 6e-07 nm, and radial tolerance = 6e-07 nm.
+TsCellMonolayer constructor
+Number of Cells set to 2105
+Allocating cells: 1/2105Allocating cells: 2/2105Allocating cells: 3/2105Allocating cells: 4/2105Allocating cells: 5/2105Allocating cells: 6/2105Allocating cells: 7/2105Allocating cells: 8/2105Allocating cells: 9/2105Allocating cells: 10/2105Allocating cells: 11/2105Allocating cells: 12/2105Allocating cells: 13/2105Allocating cells: 14/2105Allocating cells: 15/2105Allocating cells: 16/2105Allocating cells: 17/2105Allocating cells: 18/2105Allocating cells: 19/2105Allocating cells: 20/2105Allocating cells: 21/2105Allocating cells: 22/2105Allocating cells: 23/2105Allocating cells: 24/2105Allocating cells: 25/2105Allocating cells: 26/2105Allocating cells: 27/2105Allocating cells: 28/2105Allocating cells: 29/2105Allocating cells: 30/2105Allocating cells: 31/2105Allocating cells: 32/2105Allocating cells: 33/2105Allocating cells: 34/2105Allocating cells: 35/2105Allocating cells: 36/2105Allocating cells: 37/2105Allocating cells: 38/2105Allocating cells: 39/2105Allocating cells: 40/2105Allocating cells: 41/2105Allocating cells: 42/2105Allocating cells: 43/2105Allocating cells: 44/2105Allocating cells: 45/2105Allocating cells: 46/2105Allocating cells: 47/2105Allocating cells: 48/2105Allocating cells: 49/2105Allocating cells: 50/2105Allocating cells: 51/2105Allocating cells: 52/2105Allocating cells: 53/2105Allocating cells: 54/2105Allocating cells: 55/2105Allocating cells: 56/2105Allocating cells: 57/2105Allocating cells: 58/2105Allocating cells: 59/2105Allocating cells: 60/2105Allocating cells: 61/2105Allocating cells: 62/2105Allocating cells: 63/2105Allocating cells: 64/2105Allocating cells: 65/2105Allocating cells: 66/2105Allocating cells: 67/2105Allocating cells: 68/2105Allocating cells: 69/2105Allocating cells: 70/2105Allocating cells: 71/2105Allocating cells: 72/2105Allocating cells: 73/2105Allocating cells: 74/2105Allocating cells: 75/2105Allocating cells: 76/2105Allocating cells: 77/2105Allocating cells: 78/2105Allocating cells: 79/2105Allocating cells: 80/2105Allocating cells: 81/2105Allocating cells: 82/2105Allocating cells: 83/2105Allocating cells: 84/2105Allocating cells: 85/2105Allocating cells: 86/2105Allocating cells: 87/2105Allocating cells: 88/2105Allocating cells: 89/2105Allocating cells: 90/2105Allocating cells: 91/2105Allocating cells: 92/2105Allocating cells: 93/2105Allocating cells: 94/2105Allocating cells: 95/2105Allocating cells: 96/2105Allocating cells: 97/2105Allocating cells: 98/2105Allocating cells: 99/2105Allocating cells: 100/2105Allocating cells: 101/2105Allocating cells: 102/2105Allocating cells: 103/2105Allocating cells: 104/2105Allocating cells: 105/2105Allocating cells: 106/2105Allocating cells: 107/2105Allocating cells: 108/2105Allocating cells: 109/2105Allocating cells: 110/2105Allocating cells: 111/2105Allocating cells: 112/2105Allocating cells: 113/2105Allocating cells: 114/2105Allocating cells: 115/2105Allocating cells: 116/2105Allocating cells: 117/2105Allocating cells: 118/2105Allocating cells: 119/2105Allocating cells: 120/2105Allocating cells: 121/2105Allocating cells: 122/2105Allocating cells: 123/2105Allocating cells: 124/2105Allocating cells: 125/2105Allocating cells: 126/2105Allocating cells: 127/2105Allocating cells: 128/2105Allocating cells: 129/2105Allocating cells: 130/2105Allocating cells: 131/2105Allocating cells: 132/2105Allocating cells: 133/2105Allocating cells: 134/2105Allocating cells: 135/2105Allocating cells: 136/2105Allocating cells: 137/2105Allocating cells: 138/2105Allocating cells: 139/2105Allocating cells: 140/2105Allocating cells: 141/2105Allocating cells: 142/2105Allocating cells: 143/2105Allocating cells: 144/2105Allocating cells: 145/2105Allocating cells: 146/2105Allocating cells: 147/2105Allocating cells: 148/2105Allocating cells: 149/2105Allocating cells: 150/2105Allocating cells: 151/2105Allocating cells: 152/2105Allocating cells: 153/2105Allocating cells: 154/2105Allocating cells: 155/2105Allocating cells: 156/2105Allocating cells: 157/2105Allocating cells: 158/2105Allocating cells: 159/2105Allocating cells: 160/2105Allocating cells: 161/2105Allocating cells: 162/2105Allocating cells: 163/2105Allocating cells: 164/2105Allocating cells: 165/2105Allocating cells: 166/2105Allocating cells: 167/2105Allocating cells: 168/2105Allocating cells: 169/2105Allocating cells: 170/2105Allocating cells: 171/2105Allocating cells: 172/2105Allocating cells: 173/2105Allocating cells: 174/2105Allocating cells: 175/2105Allocating cells: 176/2105Allocating cells: 177/2105Allocating cells: 178/2105Allocating cells: 179/2105Allocating cells: 180/2105Allocating cells: 181/2105Allocating cells: 182/2105Allocating cells: 183/2105Allocating cells: 184/2105Allocating cells: 185/2105Allocating cells: 186/2105Allocating cells: 187/2105Allocating cells: 188/2105Allocating cells: 189/2105Allocating cells: 190/2105Allocating cells: 191/2105Allocating cells: 192/2105Allocating cells: 193/2105Allocating cells: 194/2105Allocating cells: 195/2105Allocating cells: 196/2105Allocating cells: 197/2105Allocating cells: 198/2105Allocating cells: 199/2105Allocating cells: 200/2105Allocating cells: 201/2105Allocating cells: 202/2105Allocating cells: 203/2105Allocating cells: 204/2105Allocating cells: 205/2105Allocating cells: 206/2105Allocating cells: 207/2105Allocating cells: 208/2105Allocating cells: 209/2105Allocating cells: 210/2105Allocating cells: 211/2105Allocating cells: 212/2105Allocating cells: 213/2105Allocating cells: 214/2105Allocating cells: 215/2105Allocating cells: 216/2105Allocating cells: 217/2105Allocating cells: 218/2105Allocating cells: 219/2105Allocating cells: 220/2105Allocating cells: 221/2105Allocating cells: 222/2105Allocating cells: 223/2105Allocating cells: 224/2105Allocating cells: 225/2105Allocating cells: 226/2105Allocating cells: 227/2105Allocating cells: 228/2105Allocating cells: 229/2105Allocating cells: 230/2105Allocating cells: 231/2105Allocating cells: 232/2105Allocating cells: 233/2105Allocating cells: 234/2105Allocating cells: 235/2105Allocating cells: 236/2105Allocating cells: 237/2105Allocating cells: 238/2105Allocating cells: 239/2105Allocating cells: 240/2105Allocating cells: 241/2105Allocating cells: 242/2105Allocating cells: 243/2105Allocating cells: 244/2105Allocating cells: 245/2105Allocating cells: 246/2105Allocating cells: 247/2105Allocating cells: 248/2105Allocating cells: 249/2105Allocating cells: 250/2105Allocating cells: 251/2105Allocating cells: 252/2105Allocating cells: 253/2105Allocating cells: 254/2105Allocating cells: 255/2105Allocating cells: 256/2105Allocating cells: 257/2105Allocating cells: 258/2105Allocating cells: 259/2105Allocating cells: 260/2105Allocating cells: 261/2105Allocating cells: 262/2105Allocating cells: 263/2105Allocating cells: 264/2105Allocating cells: 265/2105Allocating cells: 266/2105Allocating cells: 267/2105Allocating cells: 268/2105Allocating cells: 269/2105Allocating cells: 270/2105Allocating cells: 271/2105Allocating cells: 272/2105Allocating cells: 273/2105Allocating cells: 274/2105Allocating cells: 275/2105Allocating cells: 276/2105Allocating cells: 277/2105Allocating cells: 278/2105Allocating cells: 279/2105Allocating cells: 280/2105Allocating cells: 281/2105Allocating cells: 282/2105Allocating cells: 283/2105Allocating cells: 284/2105Allocating cells: 285/2105Allocating cells: 286/2105Allocating cells: 287/2105Allocating cells: 288/2105Allocating cells: 289/2105Allocating cells: 290/2105Allocating cells: 291/2105Allocating cells: 292/2105Allocating cells: 293/2105Allocating cells: 294/2105Allocating cells: 295/2105Allocating cells: 296/2105Allocating cells: 297/2105Allocating cells: 298/2105Allocating cells: 299/2105Allocating cells: 300/2105Allocating cells: 301/2105Allocating cells: 302/2105Allocating cells: 303/2105Allocating cells: 304/2105Allocating cells: 305/2105Allocating cells: 306/2105Allocating cells: 307/2105Allocating cells: 308/2105Allocating cells: 309/2105Allocating cells: 310/2105Allocating cells: 311/2105Allocating cells: 312/2105Allocating cells: 313/2105Allocating cells: 314/2105Allocating cells: 315/2105Allocating cells: 316/2105Allocating cells: 317/2105Allocating cells: 318/2105Allocating cells: 319/2105Allocating cells: 320/2105Allocating cells: 321/2105Allocating cells: 322/2105Allocating cells: 323/2105Allocating cells: 324/2105Allocating cells: 325/2105Allocating cells: 326/2105Allocating cells: 327/2105Allocating cells: 328/2105Allocating cells: 329/2105Allocating cells: 330/2105Allocating cells: 331/2105Allocating cells: 332/2105Allocating cells: 333/2105Allocating cells: 334/2105Allocating cells: 335/2105Allocating cells: 336/2105Allocating cells: 337/2105Allocating cells: 338/2105Allocating cells: 339/2105Allocating cells: 340/2105Allocating cells: 341/2105Allocating cells: 342/2105Allocating cells: 343/2105Allocating cells: 344/2105Allocating cells: 345/2105Allocating cells: 346/2105Allocating cells: 347/2105Allocating cells: 348/2105Allocating cells: 349/2105Allocating cells: 350/2105Allocating cells: 351/2105Allocating cells: 352/2105Allocating cells: 353/2105Allocating cells: 354/2105Allocating cells: 355/2105Allocating cells: 356/2105Allocating cells: 357/2105Allocating cells: 358/2105Allocating cells: 359/2105Allocating cells: 360/2105Allocating cells: 361/2105Allocating cells: 362/2105Allocating cells: 363/2105Allocating cells: 364/2105Allocating cells: 365/2105Allocating cells: 366/2105Allocating cells: 367/2105Allocating cells: 368/2105Allocating cells: 369/2105Allocating cells: 370/2105Allocating cells: 371/2105Allocating cells: 372/2105Allocating cells: 373/2105Allocating cells: 374/2105Allocating cells: 375/2105Allocating cells: 376/2105Allocating cells: 377/2105Allocating cells: 378/2105Allocating cells: 379/2105Allocating cells: 380/2105Allocating cells: 381/2105Allocating cells: 382/2105Allocating cells: 383/2105Allocating cells: 384/2105Allocating cells: 385/2105Allocating cells: 386/2105Allocating cells: 387/2105Allocating cells: 388/2105Allocating cells: 389/2105Allocating cells: 390/2105Allocating cells: 391/2105Allocating cells: 392/2105Allocating cells: 393/2105Allocating cells: 394/2105Allocating cells: 395/2105Allocating cells: 396/2105Allocating cells: 397/2105Allocating cells: 398/2105Allocating cells: 399/2105Allocating cells: 400/2105Allocating cells: 401/2105Allocating cells: 402/2105Allocating cells: 403/2105Allocating cells: 404/2105Allocating cells: 405/2105Allocating cells: 406/2105Allocating cells: 407/2105Allocating cells: 408/2105Allocating cells: 409/2105Allocating cells: 410/2105Allocating cells: 411/2105Allocating cells: 412/2105Allocating cells: 413/2105Allocating cells: 414/2105Allocating cells: 415/2105Allocating cells: 416/2105Allocating cells: 417/2105Allocating cells: 418/2105Allocating cells: 419/2105Allocating cells: 420/2105Allocating cells: 421/2105Allocating cells: 422/2105Allocating cells: 423/2105Allocating cells: 424/2105Allocating cells: 425/2105Allocating cells: 426/2105Allocating cells: 427/2105Allocating cells: 428/2105Allocating cells: 429/2105Allocating cells: 430/2105Allocating cells: 431/2105Allocating cells: 432/2105Allocating cells: 433/2105Allocating cells: 434/2105Allocating cells: 435/2105Allocating cells: 436/2105Allocating cells: 437/2105Allocating cells: 438/2105Allocating cells: 439/2105Allocating cells: 440/2105Allocating cells: 441/2105Allocating cells: 442/2105Allocating cells: 443/2105Allocating cells: 444/2105Allocating cells: 445/2105Allocating cells: 446/2105Allocating cells: 447/2105Allocating cells: 448/2105Allocating cells: 449/2105Allocating cells: 450/2105Allocating cells: 451/2105Allocating cells: 452/2105Allocating cells: 453/2105Allocating cells: 454/2105Allocating cells: 455/2105Allocating cells: 456/2105Allocating cells: 457/2105Allocating cells: 458/2105Allocating cells: 459/2105Allocating cells: 460/2105Allocating cells: 461/2105Allocating cells: 462/2105Allocating cells: 463/2105Allocating cells: 464/2105Allocating cells: 465/2105Allocating cells: 466/2105Allocating cells: 467/2105Allocating cells: 468/2105Allocating cells: 469/2105Allocating cells: 470/2105Allocating cells: 471/2105Allocating cells: 472/2105Allocating cells: 473/2105Allocating cells: 474/2105Allocating cells: 475/2105Allocating cells: 476/2105Allocating cells: 477/2105Allocating cells: 478/2105Allocating cells: 479/2105Allocating cells: 480/2105Allocating cells: 481/2105Allocating cells: 482/2105Allocating cells: 483/2105Allocating cells: 484/2105Allocating cells: 485/2105Allocating cells: 486/2105Allocating cells: 487/2105Allocating cells: 488/2105Allocating cells: 489/2105Allocating cells: 490/2105Allocating cells: 491/2105Allocating cells: 492/2105Allocating cells: 493/2105Allocating cells: 494/2105Allocating cells: 495/2105Allocating cells: 496/2105Allocating cells: 497/2105Allocating cells: 498/2105Allocating cells: 499/2105Allocating cells: 500/2105Allocating cells: 501/2105Allocating cells: 502/2105Allocating cells: 503/2105Allocating cells: 504/2105Allocating cells: 505/2105Allocating cells: 506/2105Allocating cells: 507/2105Allocating cells: 508/2105Allocating cells: 509/2105Allocating cells: 510/2105Allocating cells: 511/2105Allocating cells: 512/2105Allocating cells: 513/2105Allocating cells: 514/2105Allocating cells: 515/2105Allocating cells: 516/2105Allocating cells: 517/2105Allocating cells: 518/2105Allocating cells: 519/2105Allocating cells: 520/2105Allocating cells: 521/2105Allocating cells: 522/2105Allocating cells: 523/2105Allocating cells: 524/2105Allocating cells: 525/2105Allocating cells: 526/2105Allocating cells: 527/2105Allocating cells: 528/2105Allocating cells: 529/2105Allocating cells: 530/2105Allocating cells: 531/2105Allocating cells: 532/2105Allocating cells: 533/2105Allocating cells: 534/2105Allocating cells: 535/2105Allocating cells: 536/2105Allocating cells: 537/2105Allocating cells: 538/2105Allocating cells: 539/2105Allocating cells: 540/2105Allocating cells: 541/2105Allocating cells: 542/2105Allocating cells: 543/2105Allocating cells: 544/2105Allocating cells: 545/2105Allocating cells: 546/2105Allocating cells: 547/2105Allocating cells: 548/2105Allocating cells: 549/2105Allocating cells: 550/2105Allocating cells: 551/2105Allocating cells: 552/2105Allocating cells: 553/2105Allocating cells: 554/2105Allocating cells: 555/2105Allocating cells: 556/2105Allocating cells: 557/2105Allocating cells: 558/2105Allocating cells: 559/2105Allocating cells: 560/2105Allocating cells: 561/2105Allocating cells: 562/2105Allocating cells: 563/2105Allocating cells: 564/2105Allocating cells: 565/2105Allocating cells: 566/2105Allocating cells: 567/2105Allocating cells: 568/2105Allocating cells: 569/2105Allocating cells: 570/2105Allocating cells: 571/2105Allocating cells: 572/2105Allocating cells: 573/2105Allocating cells: 574/2105Allocating cells: 575/2105Allocating cells: 576/2105Allocating cells: 577/2105Allocating cells: 578/2105Allocating cells: 579/2105Allocating cells: 580/2105Allocating cells: 581/2105Allocating cells: 582/2105Allocating cells: 583/2105Allocating cells: 584/2105Allocating cells: 585/2105Allocating cells: 586/2105Allocating cells: 587/2105Allocating cells: 588/2105Allocating cells: 589/2105Allocating cells: 590/2105Allocating cells: 591/2105Allocating cells: 592/2105Allocating cells: 593/2105Allocating cells: 594/2105Allocating cells: 595/2105Allocating cells: 596/2105Allocating cells: 597/2105Allocating cells: 598/2105Allocating cells: 599/2105Allocating cells: 600/2105Allocating cells: 601/2105Allocating cells: 602/2105Allocating cells: 603/2105Allocating cells: 604/2105Allocating cells: 605/2105Allocating cells: 606/2105Allocating cells: 607/2105Allocating cells: 608/2105Allocating cells: 609/2105Allocating cells: 610/2105Allocating cells: 611/2105Allocating cells: 612/2105Allocating cells: 613/2105Allocating cells: 614/2105Allocating cells: 615/2105Allocating cells: 616/2105Allocating cells: 617/2105Allocating cells: 618/2105Allocating cells: 619/2105Allocating cells: 620/2105Allocating cells: 621/2105Allocating cells: 622/2105Allocating cells: 623/2105Allocating cells: 624/2105Allocating cells: 625/2105Allocating cells: 626/2105Allocating cells: 627/2105Allocating cells: 628/2105Allocating cells: 629/2105Allocating cells: 630/2105Allocating cells: 631/2105Allocating cells: 632/2105Allocating cells: 633/2105Allocating cells: 634/2105Allocating cells: 635/2105Allocating cells: 636/2105Allocating cells: 637/2105Allocating cells: 638/2105Allocating cells: 639/2105Allocating cells: 640/2105Allocating cells: 641/2105Allocating cells: 642/2105Allocating cells: 643/2105Allocating cells: 644/2105Allocating cells: 645/2105Allocating cells: 646/2105Allocating cells: 647/2105Allocating cells: 648/2105Allocating cells: 649/2105Allocating cells: 650/2105Allocating cells: 651/2105Allocating cells: 652/2105Allocating cells: 653/2105Allocating cells: 654/2105Allocating cells: 655/2105Allocating cells: 656/2105Allocating cells: 657/2105Allocating cells: 658/2105Allocating cells: 659/2105Allocating cells: 660/2105Allocating cells: 661/2105Allocating cells: 662/2105Allocating cells: 663/2105Allocating cells: 664/2105Allocating cells: 665/2105Allocating cells: 666/2105Allocating cells: 667/2105Allocating cells: 668/2105Allocating cells: 669/2105Allocating cells: 670/2105Allocating cells: 671/2105Allocating cells: 672/2105Allocating cells: 673/2105Allocating cells: 674/2105Allocating cells: 675/2105Allocating cells: 676/2105Allocating cells: 677/2105Allocating cells: 678/2105Allocating cells: 679/2105Allocating cells: 680/2105Allocating cells: 681/2105Allocating cells: 682/2105Allocating cells: 683/2105Allocating cells: 684/2105Allocating cells: 685/2105Allocating cells: 686/2105Allocating cells: 687/2105Allocating cells: 688/2105Allocating cells: 689/2105Allocating cells: 690/2105Allocating cells: 691/2105Allocating cells: 692/2105Allocating cells: 693/2105Allocating cells: 694/2105Allocating cells: 695/2105Allocating cells: 696/2105Allocating cells: 697/2105Allocating cells: 698/2105Allocating cells: 699/2105Allocating cells: 700/2105Allocating cells: 701/2105Allocating cells: 702/2105Allocating cells: 703/2105Allocating cells: 704/2105Allocating cells: 705/2105Allocating cells: 706/2105Allocating cells: 707/2105Allocating cells: 708/2105Allocating cells: 709/2105Allocating cells: 710/2105Allocating cells: 711/2105Allocating cells: 712/2105Allocating cells: 713/2105Allocating cells: 714/2105Allocating cells: 715/2105Allocating cells: 716/2105Allocating cells: 717/2105Allocating cells: 718/2105Allocating cells: 719/2105Allocating cells: 720/2105Allocating cells: 721/2105Allocating cells: 722/2105Allocating cells: 723/2105Allocating cells: 724/2105Allocating cells: 725/2105Allocating cells: 726/2105Allocating cells: 727/2105Allocating cells: 728/2105Allocating cells: 729/2105Allocating cells: 730/2105Allocating cells: 731/2105Allocating cells: 732/2105Allocating cells: 733/2105Allocating cells: 734/2105Allocating cells: 735/2105Allocating cells: 736/2105Allocating cells: 737/2105Allocating cells: 738/2105Allocating cells: 739/2105Allocating cells: 740/2105Allocating cells: 741/2105Allocating cells: 742/2105Allocating cells: 743/2105Allocating cells: 744/2105Allocating cells: 745/2105Allocating cells: 746/2105Allocating cells: 747/2105Allocating cells: 748/2105Allocating cells: 749/2105Allocating cells: 750/2105Allocating cells: 751/2105Allocating cells: 752/2105Allocating cells: 753/2105Allocating cells: 754/2105Allocating cells: 755/2105Allocating cells: 756/2105Allocating cells: 757/2105Allocating cells: 758/2105Allocating cells: 759/2105Allocating cells: 760/2105Allocating cells: 761/2105Allocating cells: 762/2105Allocating cells: 763/2105Allocating cells: 764/2105Allocating cells: 765/2105Allocating cells: 766/2105Allocating cells: 767/2105Allocating cells: 768/2105Allocating cells: 769/2105Allocating cells: 770/2105Allocating cells: 771/2105Allocating cells: 772/2105Allocating cells: 773/2105Allocating cells: 774/2105Allocating cells: 775/2105Allocating cells: 776/2105Allocating cells: 777/2105Allocating cells: 778/2105Allocating cells: 779/2105Allocating cells: 780/2105Allocating cells: 781/2105Allocating cells: 782/2105Allocating cells: 783/2105Allocating cells: 784/2105Allocating cells: 785/2105Allocating cells: 786/2105Allocating cells: 787/2105Allocating cells: 788/2105Allocating cells: 789/2105Allocating cells: 790/2105Allocating cells: 791/2105Allocating cells: 792/2105Allocating cells: 793/2105Allocating cells: 794/2105Allocating cells: 795/2105Allocating cells: 796/2105Allocating cells: 797/2105Allocating cells: 798/2105Allocating cells: 799/2105Allocating cells: 800/2105Allocating cells: 801/2105Allocating cells: 802/2105Allocating cells: 803/2105Allocating cells: 804/2105Allocating cells: 805/2105Allocating cells: 806/2105Allocating cells: 807/2105Allocating cells: 808/2105Allocating cells: 809/2105Allocating cells: 810/2105Allocating cells: 811/2105Allocating cells: 812/2105Allocating cells: 813/2105Allocating cells: 814/2105Allocating cells: 815/2105Allocating cells: 816/2105Allocating cells: 817/2105Allocating cells: 818/2105Allocating cells: 819/2105Allocating cells: 820/2105Allocating cells: 821/2105Allocating cells: 822/2105Allocating cells: 823/2105Allocating cells: 824/2105Allocating cells: 825/2105Allocating cells: 826/2105Allocating cells: 827/2105Allocating cells: 828/2105Allocating cells: 829/2105Allocating cells: 830/2105Allocating cells: 831/2105Allocating cells: 832/2105Allocating cells: 833/2105Allocating cells: 834/2105Allocating cells: 835/2105Allocating cells: 836/2105Allocating cells: 837/2105Allocating cells: 838/2105Allocating cells: 839/2105Allocating cells: 840/2105Allocating cells: 841/2105Allocating cells: 842/2105Allocating cells: 843/2105Allocating cells: 844/2105Allocating cells: 845/2105Allocating cells: 846/2105Allocating cells: 847/2105Allocating cells: 848/2105Allocating cells: 849/2105Allocating cells: 850/2105Allocating cells: 851/2105Allocating cells: 852/2105Allocating cells: 853/2105Allocating cells: 854/2105Allocating cells: 855/2105Allocating cells: 856/2105Allocating cells: 857/2105Allocating cells: 858/2105Allocating cells: 859/2105Allocating cells: 860/2105Allocating cells: 861/2105Allocating cells: 862/2105Allocating cells: 863/2105Allocating cells: 864/2105Allocating cells: 865/2105Allocating cells: 866/2105Allocating cells: 867/2105Allocating cells: 868/2105Allocating cells: 869/2105Allocating cells: 870/2105Allocating cells: 871/2105Allocating cells: 872/2105Allocating cells: 873/2105Allocating cells: 874/2105Allocating cells: 875/2105Allocating cells: 876/2105Allocating cells: 877/2105Allocating cells: 878/2105Allocating cells: 879/2105Allocating cells: 880/2105Allocating cells: 881/2105Allocating cells: 882/2105Allocating cells: 883/2105Allocating cells: 884/2105Allocating cells: 885/2105Allocating cells: 886/2105Allocating cells: 887/2105Allocating cells: 888/2105Allocating cells: 889/2105Allocating cells: 890/2105Allocating cells: 891/2105Allocating cells: 892/2105Allocating cells: 893/2105Allocating cells: 894/2105Allocating cells: 895/2105Allocating cells: 896/2105Allocating cells: 897/2105Allocating cells: 898/2105Allocating cells: 899/2105Allocating cells: 900/2105Allocating cells: 901/2105Allocating cells: 902/2105Allocating cells: 903/2105Allocating cells: 904/2105Allocating cells: 905/2105Allocating cells: 906/2105Allocating cells: 907/2105Allocating cells: 908/2105Allocating cells: 909/2105Allocating cells: 910/2105Allocating cells: 911/2105Allocating cells: 912/2105Allocating cells: 913/2105Allocating cells: 914/2105Allocating cells: 915/2105Allocating cells: 916/2105Allocating cells: 917/2105Allocating cells: 918/2105Allocating cells: 919/2105Allocating cells: 920/2105Allocating cells: 921/2105Allocating cells: 922/2105Allocating cells: 923/2105Allocating cells: 924/2105Allocating cells: 925/2105Allocating cells: 926/2105Allocating cells: 927/2105Allocating cells: 928/2105Allocating cells: 929/2105Allocating cells: 930/2105Allocating cells: 931/2105Allocating cells: 932/2105Allocating cells: 933/2105Allocating cells: 934/2105Allocating cells: 935/2105Allocating cells: 936/2105Allocating cells: 937/2105Allocating cells: 938/2105Allocating cells: 939/2105Allocating cells: 940/2105Allocating cells: 941/2105Allocating cells: 942/2105Allocating cells: 943/2105Allocating cells: 944/2105Allocating cells: 945/2105Allocating cells: 946/2105Allocating cells: 947/2105Allocating cells: 948/2105Allocating cells: 949/2105Allocating cells: 950/2105Allocating cells: 951/2105Allocating cells: 952/2105Allocating cells: 953/2105Allocating cells: 954/2105Allocating cells: 955/2105Allocating cells: 956/2105Allocating cells: 957/2105Allocating cells: 958/2105Allocating cells: 959/2105Allocating cells: 960/2105Allocating cells: 961/2105Allocating cells: 962/2105Allocating cells: 963/2105Allocating cells: 964/2105Allocating cells: 965/2105Allocating cells: 966/2105Allocating cells: 967/2105Allocating cells: 968/2105Allocating cells: 969/2105Allocating cells: 970/2105Allocating cells: 971/2105Allocating cells: 972/2105Allocating cells: 973/2105Allocating cells: 974/2105Allocating cells: 975/2105Allocating cells: 976/2105Allocating cells: 977/2105Allocating cells: 978/2105Allocating cells: 979/2105Allocating cells: 980/2105Allocating cells: 981/2105Allocating cells: 982/2105Allocating cells: 983/2105Allocating cells: 984/2105Allocating cells: 985/2105Allocating cells: 986/2105Allocating cells: 987/2105Allocating cells: 988/2105Allocating cells: 989/2105Allocating cells: 990/2105Allocating cells: 991/2105Allocating cells: 992/2105Allocating cells: 993/2105Allocating cells: 994/2105Allocating cells: 995/2105Allocating cells: 996/2105Allocating cells: 997/2105Allocating cells: 998/2105Allocating cells: 999/2105Allocating cells: 1000/2105Allocating cells: 1001/2105Allocating cells: 1002/2105Allocating cells: 1003/2105Allocating cells: 1004/2105Allocating cells: 1005/2105Allocating cells: 1006/2105Allocating cells: 1007/2105Allocating cells: 1008/2105Allocating cells: 1009/2105Allocating cells: 1010/2105Allocating cells: 1011/2105Allocating cells: 1012/2105Allocating cells: 1013/2105Allocating cells: 1014/2105Allocating cells: 1015/2105Allocating cells: 1016/2105Allocating cells: 1017/2105Allocating cells: 1018/2105Allocating cells: 1019/2105Allocating cells: 1020/2105Allocating cells: 1021/2105Allocating cells: 1022/2105Allocating cells: 1023/2105Allocating cells: 1024/2105Allocating cells: 1025/2105Allocating cells: 1026/2105Allocating cells: 1027/2105Allocating cells: 1028/2105Allocating cells: 1029/2105Allocating cells: 1030/2105Allocating cells: 1031/2105Allocating cells: 1032/2105Allocating cells: 1033/2105Allocating cells: 1034/2105Allocating cells: 1035/2105Allocating cells: 1036/2105Allocating cells: 1037/2105Allocating cells: 1038/2105Allocating cells: 1039/2105Allocating cells: 1040/2105Allocating cells: 1041/2105Allocating cells: 1042/2105Allocating cells: 1043/2105Allocating cells: 1044/2105Allocating cells: 1045/2105Allocating cells: 1046/2105Allocating cells: 1047/2105Allocating cells: 1048/2105Allocating cells: 1049/2105Allocating cells: 1050/2105Allocating cells: 1051/2105Allocating cells: 1052/2105Allocating cells: 1053/2105Allocating cells: 1054/2105Allocating cells: 1055/2105Allocating cells: 1056/2105Allocating cells: 1057/2105Allocating cells: 1058/2105Allocating cells: 1059/2105Allocating cells: 1060/2105Allocating cells: 1061/2105Allocating cells: 1062/2105Allocating cells: 1063/2105Allocating cells: 1064/2105Allocating cells: 1065/2105Allocating cells: 1066/2105Allocating cells: 1067/2105Allocating cells: 1068/2105Allocating cells: 1069/2105Allocating cells: 1070/2105Allocating cells: 1071/2105Allocating cells: 1072/2105Allocating cells: 1073/2105Allocating cells: 1074/2105Allocating cells: 1075/2105Allocating cells: 1076/2105Allocating cells: 1077/2105Allocating cells: 1078/2105Allocating cells: 1079/2105Allocating cells: 1080/2105Allocating cells: 1081/2105Allocating cells: 1082/2105Allocating cells: 1083/2105Allocating cells: 1084/2105Allocating cells: 1085/2105Allocating cells: 1086/2105Allocating cells: 1087/2105Allocating cells: 1088/2105Allocating cells: 1089/2105Allocating cells: 1090/2105Allocating cells: 1091/2105Allocating cells: 1092/2105Allocating cells: 1093/2105Allocating cells: 1094/2105Allocating cells: 1095/2105Allocating cells: 1096/2105Allocating cells: 1097/2105Allocating cells: 1098/2105Allocating cells: 1099/2105Allocating cells: 1100/2105Allocating cells: 1101/2105Allocating cells: 1102/2105Allocating cells: 1103/2105Allocating cells: 1104/2105Allocating cells: 1105/2105Allocating cells: 1106/2105Allocating cells: 1107/2105Allocating cells: 1108/2105Allocating cells: 1109/2105Allocating cells: 1110/2105Allocating cells: 1111/2105Allocating cells: 1112/2105Allocating cells: 1113/2105Allocating cells: 1114/2105Allocating cells: 1115/2105Allocating cells: 1116/2105Allocating cells: 1117/2105Allocating cells: 1118/2105Allocating cells: 1119/2105Allocating cells: 1120/2105Allocating cells: 1121/2105Allocating cells: 1122/2105Allocating cells: 1123/2105Allocating cells: 1124/2105Allocating cells: 1125/2105Allocating cells: 1126/2105Allocating cells: 1127/2105Allocating cells: 1128/2105Allocating cells: 1129/2105Allocating cells: 1130/2105Allocating cells: 1131/2105Allocating cells: 1132/2105Allocating cells: 1133/2105Allocating cells: 1134/2105Allocating cells: 1135/2105Allocating cells: 1136/2105Allocating cells: 1137/2105Allocating cells: 1138/2105Allocating cells: 1139/2105Allocating cells: 1140/2105Allocating cells: 1141/2105Allocating cells: 1142/2105Allocating cells: 1143/2105Allocating cells: 1144/2105Allocating cells: 1145/2105Allocating cells: 1146/2105Allocating cells: 1147/2105Allocating cells: 1148/2105Allocating cells: 1149/2105Allocating cells: 1150/2105Allocating cells: 1151/2105Allocating cells: 1152/2105Allocating cells: 1153/2105Allocating cells: 1154/2105Allocating cells: 1155/2105Allocating cells: 1156/2105Allocating cells: 1157/2105Allocating cells: 1158/2105Allocating cells: 1159/2105Allocating cells: 1160/2105Allocating cells: 1161/2105Allocating cells: 1162/2105Allocating cells: 1163/2105Allocating cells: 1164/2105Allocating cells: 1165/2105Allocating cells: 1166/2105Allocating cells: 1167/2105Allocating cells: 1168/2105Allocating cells: 1169/2105Allocating cells: 1170/2105Allocating cells: 1171/2105Allocating cells: 1172/2105Allocating cells: 1173/2105Allocating cells: 1174/2105Allocating cells: 1175/2105Allocating cells: 1176/2105Allocating cells: 1177/2105Allocating cells: 1178/2105Allocating cells: 1179/2105Allocating cells: 1180/2105Allocating cells: 1181/2105Allocating cells: 1182/2105Allocating cells: 1183/2105Allocating cells: 1184/2105Allocating cells: 1185/2105Allocating cells: 1186/2105Allocating cells: 1187/2105Allocating cells: 1188/2105Allocating cells: 1189/2105Allocating cells: 1190/2105Allocating cells: 1191/2105Allocating cells: 1192/2105Allocating cells: 1193/2105Allocating cells: 1194/2105Allocating cells: 1195/2105Allocating cells: 1196/2105Allocating cells: 1197/2105Allocating cells: 1198/2105Allocating cells: 1199/2105Allocating cells: 1200/2105Allocating cells: 1201/2105Allocating cells: 1202/2105Allocating cells: 1203/2105Allocating cells: 1204/2105Allocating cells: 1205/2105Allocating cells: 1206/2105Allocating cells: 1207/2105Allocating cells: 1208/2105Allocating cells: 1209/2105Allocating cells: 1210/2105Allocating cells: 1211/2105Allocating cells: 1212/2105Allocating cells: 1213/2105Allocating cells: 1214/2105Allocating cells: 1215/2105Allocating cells: 1216/2105Allocating cells: 1217/2105Allocating cells: 1218/2105Allocating cells: 1219/2105Allocating cells: 1220/2105Allocating cells: 1221/2105Allocating cells: 1222/2105Allocating cells: 1223/2105Allocating cells: 1224/2105Allocating cells: 1225/2105Allocating cells: 1226/2105Allocating cells: 1227/2105Allocating cells: 1228/2105Allocating cells: 1229/2105Allocating cells: 1230/2105Allocating cells: 1231/2105Allocating cells: 1232/2105Allocating cells: 1233/2105Allocating cells: 1234/2105Allocating cells: 1235/2105Allocating cells: 1236/2105Allocating cells: 1237/2105Allocating cells: 1238/2105Allocating cells: 1239/2105Allocating cells: 1240/2105Allocating cells: 1241/2105Allocating cells: 1242/2105Allocating cells: 1243/2105Allocating cells: 1244/2105Allocating cells: 1245/2105Allocating cells: 1246/2105Allocating cells: 1247/2105Allocating cells: 1248/2105Allocating cells: 1249/2105Allocating cells: 1250/2105Allocating cells: 1251/2105Allocating cells: 1252/2105Allocating cells: 1253/2105Allocating cells: 1254/2105Allocating cells: 1255/2105Allocating cells: 1256/2105Allocating cells: 1257/2105Allocating cells: 1258/2105Allocating cells: 1259/2105Allocating cells: 1260/2105Allocating cells: 1261/2105Allocating cells: 1262/2105Allocating cells: 1263/2105Allocating cells: 1264/2105Allocating cells: 1265/2105Allocating cells: 1266/2105Allocating cells: 1267/2105Allocating cells: 1268/2105Allocating cells: 1269/2105Allocating cells: 1270/2105Allocating cells: 1271/2105Allocating cells: 1272/2105Allocating cells: 1273/2105Allocating cells: 1274/2105Allocating cells: 1275/2105Allocating cells: 1276/2105Allocating cells: 1277/2105Allocating cells: 1278/2105Allocating cells: 1279/2105Allocating cells: 1280/2105Allocating cells: 1281/2105Allocating cells: 1282/2105Allocating cells: 1283/2105Allocating cells: 1284/2105Allocating cells: 1285/2105Allocating cells: 1286/2105Allocating cells: 1287/2105Allocating cells: 1288/2105Allocating cells: 1289/2105Allocating cells: 1290/2105Allocating cells: 1291/2105Allocating cells: 1292/2105Allocating cells: 1293/2105Allocating cells: 1294/2105Allocating cells: 1295/2105Allocating cells: 1296/2105Allocating cells: 1297/2105Allocating cells: 1298/2105Allocating cells: 1299/2105Allocating cells: 1300/2105Allocating cells: 1301/2105Allocating cells: 1302/2105Allocating cells: 1303/2105Allocating cells: 1304/2105Allocating cells: 1305/2105Allocating cells: 1306/2105Allocating cells: 1307/2105Allocating cells: 1308/2105Allocating cells: 1309/2105Allocating cells: 1310/2105Allocating cells: 1311/2105Allocating cells: 1312/2105Allocating cells: 1313/2105Allocating cells: 1314/2105Allocating cells: 1315/2105Allocating cells: 1316/2105Allocating cells: 1317/2105Allocating cells: 1318/2105Allocating cells: 1319/2105Allocating cells: 1320/2105Allocating cells: 1321/2105Allocating cells: 1322/2105Allocating cells: 1323/2105Allocating cells: 1324/2105Allocating cells: 1325/2105Allocating cells: 1326/2105Allocating cells: 1327/2105Allocating cells: 1328/2105Allocating cells: 1329/2105Allocating cells: 1330/2105Allocating cells: 1331/2105Allocating cells: 1332/2105Allocating cells: 1333/2105Allocating cells: 1334/2105Allocating cells: 1335/2105Allocating cells: 1336/2105Allocating cells: 1337/2105Allocating cells: 1338/2105Allocating cells: 1339/2105Allocating cells: 1340/2105Allocating cells: 1341/2105Allocating cells: 1342/2105Allocating cells: 1343/2105Allocating cells: 1344/2105Allocating cells: 1345/2105Allocating cells: 1346/2105Allocating cells: 1347/2105Allocating cells: 1348/2105Allocating cells: 1349/2105Allocating cells: 1350/2105Allocating cells: 1351/2105Allocating cells: 1352/2105Allocating cells: 1353/2105Allocating cells: 1354/2105Allocating cells: 1355/2105Allocating cells: 1356/2105Allocating cells: 1357/2105Allocating cells: 1358/2105Allocating cells: 1359/2105Allocating cells: 1360/2105Allocating cells: 1361/2105Allocating cells: 1362/2105Allocating cells: 1363/2105Allocating cells: 1364/2105Allocating cells: 1365/2105Allocating cells: 1366/2105Allocating cells: 1367/2105Allocating cells: 1368/2105Allocating cells: 1369/2105Allocating cells: 1370/2105Allocating cells: 1371/2105Allocating cells: 1372/2105Allocating cells: 1373/2105Allocating cells: 1374/2105Allocating cells: 1375/2105Allocating cells: 1376/2105Allocating cells: 1377/2105Allocating cells: 1378/2105Allocating cells: 1379/2105Allocating cells: 1380/2105Allocating cells: 1381/2105Allocating cells: 1382/2105Allocating cells: 1383/2105Allocating cells: 1384/2105Allocating cells: 1385/2105Allocating cells: 1386/2105Allocating cells: 1387/2105Allocating cells: 1388/2105Allocating cells: 1389/2105Allocating cells: 1390/2105Allocating cells: 1391/2105Allocating cells: 1392/2105Allocating cells: 1393/2105Allocating cells: 1394/2105Allocating cells: 1395/2105Allocating cells: 1396/2105Allocating cells: 1397/2105Allocating cells: 1398/2105Allocating cells: 1399/2105Allocating cells: 1400/2105Allocating cells: 1401/2105Allocating cells: 1402/2105Allocating cells: 1403/2105Allocating cells: 1404/2105Allocating cells: 1405/2105Allocating cells: 1406/2105Allocating cells: 1407/2105Allocating cells: 1408/2105Allocating cells: 1409/2105Allocating cells: 1410/2105Allocating cells: 1411/2105Allocating cells: 1412/2105Allocating cells: 1413/2105Allocating cells: 1414/2105Allocating cells: 1415/2105Allocating cells: 1416/2105Allocating cells: 1417/2105Allocating cells: 1418/2105Allocating cells: 1419/2105Allocating cells: 1420/2105Allocating cells: 1421/2105Allocating cells: 1422/2105Allocating cells: 1423/2105Allocating cells: 1424/2105Allocating cells: 1425/2105Allocating cells: 1426/2105Allocating cells: 1427/2105Allocating cells: 1428/2105Allocating cells: 1429/2105Allocating cells: 1430/2105Allocating cells: 1431/2105Allocating cells: 1432/2105Allocating cells: 1433/2105Allocating cells: 1434/2105Allocating cells: 1435/2105Allocating cells: 1436/2105Allocating cells: 1437/2105Allocating cells: 1438/2105Allocating cells: 1439/2105Allocating cells: 1440/2105Allocating cells: 1441/2105Allocating cells: 1442/2105Allocating cells: 1443/2105Allocating cells: 1444/2105Allocating cells: 1445/2105Allocating cells: 1446/2105Allocating cells: 1447/2105Allocating cells: 1448/2105Allocating cells: 1449/2105Allocating cells: 1450/2105Allocating cells: 1451/2105Allocating cells: 1452/2105Allocating cells: 1453/2105Allocating cells: 1454/2105Allocating cells: 1455/2105Allocating cells: 1456/2105Allocating cells: 1457/2105Allocating cells: 1458/2105Allocating cells: 1459/2105Allocating cells: 1460/2105Allocating cells: 1461/2105Allocating cells: 1462/2105Allocating cells: 1463/2105Allocating cells: 1464/2105Allocating cells: 1465/2105Allocating cells: 1466/2105Allocating cells: 1467/2105Allocating cells: 1468/2105Allocating cells: 1469/2105Allocating cells: 1470/2105Allocating cells: 1471/2105Allocating cells: 1472/2105Allocating cells: 1473/2105Allocating cells: 1474/2105Allocating cells: 1475/2105Allocating cells: 1476/2105Allocating cells: 1477/2105Allocating cells: 1478/2105Allocating cells: 1479/2105Allocating cells: 1480/2105Allocating cells: 1481/2105Allocating cells: 1482/2105Allocating cells: 1483/2105Allocating cells: 1484/2105Allocating cells: 1485/2105Allocating cells: 1486/2105Allocating cells: 1487/2105Allocating cells: 1488/2105Allocating cells: 1489/2105Allocating cells: 1490/2105Allocating cells: 1491/2105Allocating cells: 1492/2105Allocating cells: 1493/2105Allocating cells: 1494/2105Allocating cells: 1495/2105Allocating cells: 1496/2105Allocating cells: 1497/2105Allocating cells: 1498/2105Allocating cells: 1499/2105Allocating cells: 1500/2105Allocating cells: 1501/2105Allocating cells: 1502/2105Allocating cells: 1503/2105Allocating cells: 1504/2105Allocating cells: 1505/2105Allocating cells: 1506/2105Allocating cells: 1507/2105Allocating cells: 1508/2105Allocating cells: 1509/2105Allocating cells: 1510/2105Allocating cells: 1511/2105Allocating cells: 1512/2105Allocating cells: 1513/2105Allocating cells: 1514/2105Allocating cells: 1515/2105Allocating cells: 1516/2105Allocating cells: 1517/2105Allocating cells: 1518/2105Allocating cells: 1519/2105Allocating cells: 1520/2105Allocating cells: 1521/2105Allocating cells: 1522/2105Allocating cells: 1523/2105Allocating cells: 1524/2105Allocating cells: 1525/2105Allocating cells: 1526/2105Allocating cells: 1527/2105Allocating cells: 1528/2105Allocating cells: 1529/2105Allocating cells: 1530/2105Allocating cells: 1531/2105Allocating cells: 1532/2105Allocating cells: 1533/2105Allocating cells: 1534/2105Allocating cells: 1535/2105Allocating cells: 1536/2105Allocating cells: 1537/2105Allocating cells: 1538/2105Allocating cells: 1539/2105Allocating cells: 1540/2105Allocating cells: 1541/2105Allocating cells: 1542/2105Allocating cells: 1543/2105Allocating cells: 1544/2105Allocating cells: 1545/2105Allocating cells: 1546/2105Allocating cells: 1547/2105Allocating cells: 1548/2105Allocating cells: 1549/2105Allocating cells: 1550/2105Allocating cells: 1551/2105Allocating cells: 1552/2105Allocating cells: 1553/2105Allocating cells: 1554/2105Allocating cells: 1555/2105Allocating cells: 1556/2105Allocating cells: 1557/2105Allocating cells: 1558/2105Allocating cells: 1559/2105Allocating cells: 1560/2105Allocating cells: 1561/2105Allocating cells: 1562/2105Allocating cells: 1563/2105Allocating cells: 1564/2105Allocating cells: 1565/2105Allocating cells: 1566/2105Allocating cells: 1567/2105Allocating cells: 1568/2105Allocating cells: 1569/2105Allocating cells: 1570/2105Allocating cells: 1571/2105Allocating cells: 1572/2105Allocating cells: 1573/2105Allocating cells: 1574/2105Allocating cells: 1575/2105Allocating cells: 1576/2105Allocating cells: 1577/2105Allocating cells: 1578/2105Allocating cells: 1579/2105Allocating cells: 1580/2105Allocating cells: 1581/2105Allocating cells: 1582/2105Allocating cells: 1583/2105Allocating cells: 1584/2105Allocating cells: 1585/2105Allocating cells: 1586/2105Allocating cells: 1587/2105Allocating cells: 1588/2105Allocating cells: 1589/2105Allocating cells: 1590/2105Allocating cells: 1591/2105Allocating cells: 1592/2105Allocating cells: 1593/2105Allocating cells: 1594/2105Allocating cells: 1595/2105Allocating cells: 1596/2105Allocating cells: 1597/2105Allocating cells: 1598/2105Allocating cells: 1599/2105Allocating cells: 1600/2105Allocating cells: 1601/2105Allocating cells: 1602/2105Allocating cells: 1603/2105Allocating cells: 1604/2105Allocating cells: 1605/2105Allocating cells: 1606/2105Allocating cells: 1607/2105Allocating cells: 1608/2105Allocating cells: 1609/2105Allocating cells: 1610/2105Allocating cells: 1611/2105Allocating cells: 1612/2105Allocating cells: 1613/2105Allocating cells: 1614/2105Allocating cells: 1615/2105Allocating cells: 1616/2105Allocating cells: 1617/2105Allocating cells: 1618/2105Allocating cells: 1619/2105Allocating cells: 1620/2105Allocating cells: 1621/2105Allocating cells: 1622/2105Allocating cells: 1623/2105Allocating cells: 1624/2105Allocating cells: 1625/2105Allocating cells: 1626/2105Allocating cells: 1627/2105Allocating cells: 1628/2105Allocating cells: 1629/2105Allocating cells: 1630/2105Allocating cells: 1631/2105Allocating cells: 1632/2105Allocating cells: 1633/2105Allocating cells: 1634/2105Allocating cells: 1635/2105Allocating cells: 1636/2105Allocating cells: 1637/2105Allocating cells: 1638/2105Allocating cells: 1639/2105Allocating cells: 1640/2105Allocating cells: 1641/2105Allocating cells: 1642/2105Allocating cells: 1643/2105Allocating cells: 1644/2105Allocating cells: 1645/2105Allocating cells: 1646/2105Allocating cells: 1647/2105Allocating cells: 1648/2105Allocating cells: 1649/2105Allocating cells: 1650/2105Allocating cells: 1651/2105Allocating cells: 1652/2105Allocating cells: 1653/2105Allocating cells: 1654/2105Allocating cells: 1655/2105Allocating cells: 1656/2105Allocating cells: 1657/2105Allocating cells: 1658/2105Allocating cells: 1659/2105Allocating cells: 1660/2105Allocating cells: 1661/2105Allocating cells: 1662/2105Allocating cells: 1663/2105Allocating cells: 1664/2105Allocating cells: 1665/2105Allocating cells: 1666/2105Allocating cells: 1667/2105Allocating cells: 1668/2105Allocating cells: 1669/2105Allocating cells: 1670/2105Allocating cells: 1671/2105Allocating cells: 1672/2105Allocating cells: 1673/2105Allocating cells: 1674/2105Allocating cells: 1675/2105Allocating cells: 1676/2105Allocating cells: 1677/2105Allocating cells: 1678/2105Allocating cells: 1679/2105Allocating cells: 1680/2105Allocating cells: 1681/2105Allocating cells: 1682/2105Allocating cells: 1683/2105Allocating cells: 1684/2105Allocating cells: 1685/2105Allocating cells: 1686/2105Allocating cells: 1687/2105Allocating cells: 1688/2105Allocating cells: 1689/2105Allocating cells: 1690/2105Allocating cells: 1691/2105Allocating cells: 1692/2105Allocating cells: 1693/2105Allocating cells: 1694/2105Allocating cells: 1695/2105Allocating cells: 1696/2105Allocating cells: 1697/2105Allocating cells: 1698/2105Allocating cells: 1699/2105Allocating cells: 1700/2105Allocating cells: 1701/2105Allocating cells: 1702/2105Allocating cells: 1703/2105Allocating cells: 1704/2105Allocating cells: 1705/2105Allocating cells: 1706/2105Allocating cells: 1707/2105Allocating cells: 1708/2105Allocating cells: 1709/2105Allocating cells: 1710/2105Allocating cells: 1711/2105Allocating cells: 1712/2105Allocating cells: 1713/2105Allocating cells: 1714/2105Allocating cells: 1715/2105Allocating cells: 1716/2105Allocating cells: 1717/2105Allocating cells: 1718/2105Allocating cells: 1719/2105Allocating cells: 1720/2105Allocating cells: 1721/2105Allocating cells: 1722/2105Allocating cells: 1723/2105Allocating cells: 1724/2105Allocating cells: 1725/2105Allocating cells: 1726/2105Allocating cells: 1727/2105Allocating cells: 1728/2105Allocating cells: 1729/2105Allocating cells: 1730/2105Allocating cells: 1731/2105Allocating cells: 1732/2105Allocating cells: 1733/2105Allocating cells: 1734/2105Allocating cells: 1735/2105Allocating cells: 1736/2105Allocating cells: 1737/2105Allocating cells: 1738/2105Allocating cells: 1739/2105Allocating cells: 1740/2105Allocating cells: 1741/2105Allocating cells: 1742/2105Allocating cells: 1743/2105Allocating cells: 1744/2105Allocating cells: 1745/2105Allocating cells: 1746/2105Allocating cells: 1747/2105Allocating cells: 1748/2105Allocating cells: 1749/2105Allocating cells: 1750/2105Allocating cells: 1751/2105Allocating cells: 1752/2105Allocating cells: 1753/2105Allocating cells: 1754/2105Allocating cells: 1755/2105Allocating cells: 1756/2105Allocating cells: 1757/2105Allocating cells: 1758/2105Allocating cells: 1759/2105Allocating cells: 1760/2105Allocating cells: 1761/2105Allocating cells: 1762/2105Allocating cells: 1763/2105Allocating cells: 1764/2105Allocating cells: 1765/2105Allocating cells: 1766/2105Allocating cells: 1767/2105Allocating cells: 1768/2105Allocating cells: 1769/2105Allocating cells: 1770/2105Allocating cells: 1771/2105Allocating cells: 1772/2105Allocating cells: 1773/2105Allocating cells: 1774/2105Allocating cells: 1775/2105Allocating cells: 1776/2105Allocating cells: 1777/2105Allocating cells: 1778/2105Allocating cells: 1779/2105Allocating cells: 1780/2105Allocating cells: 1781/2105Allocating cells: 1782/2105Allocating cells: 1783/2105Allocating cells: 1784/2105Allocating cells: 1785/2105Allocating cells: 1786/2105Allocating cells: 1787/2105Allocating cells: 1788/2105Allocating cells: 1789/2105Allocating cells: 1790/2105Allocating cells: 1791/2105Allocating cells: 1792/2105Allocating cells: 1793/2105Allocating cells: 1794/2105Allocating cells: 1795/2105Allocating cells: 1796/2105Allocating cells: 1797/2105Allocating cells: 1798/2105Allocating cells: 1799/2105Allocating cells: 1800/2105Allocating cells: 1801/2105Allocating cells: 1802/2105Allocating cells: 1803/2105Allocating cells: 1804/2105Allocating cells: 1805/2105Allocating cells: 1806/2105Allocating cells: 1807/2105Allocating cells: 1808/2105Allocating cells: 1809/2105Allocating cells: 1810/2105Allocating cells: 1811/2105Allocating cells: 1812/2105Allocating cells: 1813/2105Allocating cells: 1814/2105Allocating cells: 1815/2105Allocating cells: 1816/2105Allocating cells: 1817/2105Allocating cells: 1818/2105Allocating cells: 1819/2105Allocating cells: 1820/2105Allocating cells: 1821/2105Allocating cells: 1822/2105Allocating cells: 1823/2105Allocating cells: 1824/2105Allocating cells: 1825/2105Allocating cells: 1826/2105Allocating cells: 1827/2105Allocating cells: 1828/2105Allocating cells: 1829/2105Allocating cells: 1830/2105Allocating cells: 1831/2105Allocating cells: 1832/2105Allocating cells: 1833/2105Allocating cells: 1834/2105Allocating cells: 1835/2105Allocating cells: 1836/2105Allocating cells: 1837/2105Allocating cells: 1838/2105Allocating cells: 1839/2105Allocating cells: 1840/2105Allocating cells: 1841/2105Allocating cells: 1842/2105Allocating cells: 1843/2105Allocating cells: 1844/2105Allocating cells: 1845/2105Allocating cells: 1846/2105Allocating cells: 1847/2105Allocating cells: 1848/2105Allocating cells: 1849/2105Allocating cells: 1850/2105Allocating cells: 1851/2105Allocating cells: 1852/2105Allocating cells: 1853/2105Allocating cells: 1854/2105Allocating cells: 1855/2105Allocating cells: 1856/2105Allocating cells: 1857/2105Allocating cells: 1858/2105Allocating cells: 1859/2105Allocating cells: 1860/2105Allocating cells: 1861/2105Allocating cells: 1862/2105Allocating cells: 1863/2105Allocating cells: 1864/2105Allocating cells: 1865/2105Allocating cells: 1866/2105Allocating cells: 1867/2105Allocating cells: 1868/2105Allocating cells: 1869/2105Allocating cells: 1870/2105Allocating cells: 1871/2105Allocating cells: 1872/2105Allocating cells: 1873/2105Allocating cells: 1874/2105Allocating cells: 1875/2105Allocating cells: 1876/2105Allocating cells: 1877/2105Allocating cells: 1878/2105Allocating cells: 1879/2105Allocating cells: 1880/2105Allocating cells: 1881/2105Allocating cells: 1882/2105Allocating cells: 1883/2105Allocating cells: 1884/2105Allocating cells: 1885/2105Allocating cells: 1886/2105Allocating cells: 1887/2105Allocating cells: 1888/2105Allocating cells: 1889/2105Allocating cells: 1890/2105Allocating cells: 1891/2105Allocating cells: 1892/2105Allocating cells: 1893/2105Allocating cells: 1894/2105Allocating cells: 1895/2105Allocating cells: 1896/2105Allocating cells: 1897/2105Allocating cells: 1898/2105Allocating cells: 1899/2105Allocating cells: 1900/2105Allocating cells: 1901/2105Allocating cells: 1902/2105Allocating cells: 1903/2105Allocating cells: 1904/2105Allocating cells: 1905/2105Allocating cells: 1906/2105Allocating cells: 1907/2105Allocating cells: 1908/2105Allocating cells: 1909/2105Allocating cells: 1910/2105Allocating cells: 1911/2105Allocating cells: 1912/2105Allocating cells: 1913/2105Allocating cells: 1914/2105Allocating cells: 1915/2105Allocating cells: 1916/2105Allocating cells: 1917/2105Allocating cells: 1918/2105Allocating cells: 1919/2105Allocating cells: 1920/2105Allocating cells: 1921/2105Allocating cells: 1922/2105Allocating cells: 1923/2105Allocating cells: 1924/2105Allocating cells: 1925/2105Allocating cells: 1926/2105Allocating cells: 1927/2105Allocating cells: 1928/2105Allocating cells: 1929/2105Allocating cells: 1930/2105Allocating cells: 1931/2105Allocating cells: 1932/2105Allocating cells: 1933/2105Allocating cells: 1934/2105Allocating cells: 1935/2105Allocating cells: 1936/2105Allocating cells: 1937/2105Allocating cells: 1938/2105Allocating cells: 1939/2105Allocating cells: 1940/2105Allocating cells: 1941/2105Allocating cells: 1942/2105Allocating cells: 1943/2105Allocating cells: 1944/2105Allocating cells: 1945/2105Allocating cells: 1946/2105Allocating cells: 1947/2105Allocating cells: 1948/2105Allocating cells: 1949/2105Allocating cells: 1950/2105Allocating cells: 1951/2105Allocating cells: 1952/2105Allocating cells: 1953/2105Allocating cells: 1954/2105Allocating cells: 1955/2105Allocating cells: 1956/2105Allocating cells: 1957/2105Allocating cells: 1958/2105Allocating cells: 1959/2105Allocating cells: 1960/2105Allocating cells: 1961/2105Allocating cells: 1962/2105Allocating cells: 1963/2105Allocating cells: 1964/2105Allocating cells: 1965/2105Allocating cells: 1966/2105Allocating cells: 1967/2105Allocating cells: 1968/2105Allocating cells: 1969/2105Allocating cells: 1970/2105Allocating cells: 1971/2105Allocating cells: 1972/2105Allocating cells: 1973/2105Allocating cells: 1974/2105Allocating cells: 1975/2105Allocating cells: 1976/2105Allocating cells: 1977/2105Allocating cells: 1978/2105Allocating cells: 1979/2105Allocating cells: 1980/2105Allocating cells: 1981/2105Allocating cells: 1982/2105Allocating cells: 1983/2105Allocating cells: 1984/2105Allocating cells: 1985/2105Allocating cells: 1986/2105Allocating cells: 1987/2105Allocating cells: 1988/2105Allocating cells: 1989/2105Allocating cells: 1990/2105Allocating cells: 1991/2105Allocating cells: 1992/2105Allocating cells: 1993/2105Allocating cells: 1994/2105Allocating cells: 1995/2105Allocating cells: 1996/2105Allocating cells: 1997/2105Allocating cells: 1998/2105Allocating cells: 1999/2105Allocating cells: 2000/2105Allocating cells: 2001/2105Allocating cells: 2002/2105Allocating cells: 2003/2105Allocating cells: 2004/2105Allocating cells: 2005/2105Allocating cells: 2006/2105Allocating cells: 2007/2105Allocating cells: 2008/2105Allocating cells: 2009/2105Allocating cells: 2010/2105Allocating cells: 2011/2105Allocating cells: 2012/2105Allocating cells: 2013/2105Allocating cells: 2014/2105Allocating cells: 2015/2105Allocating cells: 2016/2105Allocating cells: 2017/2105Allocating cells: 2018/2105Allocating cells: 2019/2105Allocating cells: 2020/2105Allocating cells: 2021/2105Allocating cells: 2022/2105Allocating cells: 2023/2105Allocating cells: 2024/2105Allocating cells: 2025/2105Allocating cells: 2026/2105Allocating cells: 2027/2105Allocating cells: 2028/2105Allocating cells: 2029/2105Allocating cells: 2030/2105Allocating cells: 2031/2105Allocating cells: 2032/2105Allocating cells: 2033/2105Allocating cells: 2034/2105Allocating cells: 2035/2105Allocating cells: 2036/2105Allocating cells: 2037/2105Allocating cells: 2038/2105Allocating cells: 2039/2105Allocating cells: 2040/2105Allocating cells: 2041/2105Allocating cells: 2042/2105Allocating cells: 2043/2105Allocating cells: 2044/2105Allocating cells: 2045/2105Allocating cells: 2046/2105Allocating cells: 2047/2105Allocating cells: 2048/2105Allocating cells: 2049/2105Allocating cells: 2050/2105Allocating cells: 2051/2105Allocating cells: 2052/2105Allocating cells: 2053/2105Allocating cells: 2054/2105Allocating cells: 2055/2105Allocating cells: 2056/2105Allocating cells: 2057/2105Allocating cells: 2058/2105Allocating cells: 2059/2105Allocating cells: 2060/2105Allocating cells: 2061/2105Allocating cells: 2062/2105Allocating cells: 2063/2105Allocating cells: 2064/2105Allocating cells: 2065/2105Allocating cells: 2066/2105Allocating cells: 2067/2105Allocating cells: 2068/2105Allocating cells: 2069/2105Allocating cells: 2070/2105Allocating cells: 2071/2105Allocating cells: 2072/2105Allocating cells: 2073/2105Allocating cells: 2074/2105Allocating cells: 2075/2105Allocating cells: 2076/2105Allocating cells: 2077/2105Allocating cells: 2078/2105Allocating cells: 2079/2105Allocating cells: 2080/2105Allocating cells: 2081/2105Allocating cells: 2082/2105Allocating cells: 2083/2105Allocating cells: 2084/2105Allocating cells: 2085/2105Allocating cells: 2086/2105Allocating cells: 2087/2105Allocating cells: 2088/2105Allocating cells: 2089/2105Allocating cells: 2090/2105Allocating cells: 2091/2105Allocating cells: 2092/2105Allocating cells: 2093/2105Allocating cells: 2094/2105Allocating cells: 2095/2105Allocating cells: 2096/2105Allocating cells: 2097/2105Allocating cells: 2098/2105Allocating cells: 2099/2105Allocating cells: 2100/2105Allocating cells: 2101/2105Allocating cells: 2102/2105Allocating cells: 2103/2105Allocating cells: 2104/2105  
+Monolayer information:
+The rows number is: 96
+The columns number is: 83
+2105 cells have been created.
+  
+Checking overlaps for volume Cells:0 (G4Box) ... OK! 
+
+Checking for Unused Components.
+These are Components that were never built even though they were at least
+partially defined in some parameters. This is not necessarily an error.
+It may be an intentional choice to have these Component definitions handy for later use.
+To turn off this check, set Ge/CheckForUnusedComponents to False
+  No unused components were found.
+
+Visualization verbosity changed to quiet (0)
+=======================================================================
+======                 Electromagnetic Physics Parameters      ========
+=======================================================================
+LPM effect enabled                                 1
+Enable creation and use of sampling tables         0
+Apply cuts on all EM processes                     0
+Use combined TransportationWithMsc                 Disabled
+Use general process                                0
+Enable linear polarisation for gamma               0
+Enable photoeffect sampling below K-shell          1
+Enable sampling of quantum entanglement            0
+X-section factor for integral approach             0.8
+Min kinetic energy for tables                      100 eV 
+Max kinetic energy for tables                      500 MeV
+Number of bins per decade of a table               20
+Verbose level                                      1
+Verbose level for worker thread                    0
+Bremsstrahlung energy threshold above which 
+  primary e+- is added to the list of secondary    100 TeV
+Bremsstrahlung energy threshold above which primary
+  muon/hadron is added to the list of secondary    100 TeV
+Lowest triplet kinetic energy                      1 MeV
+Enable sampling of gamma linear polarisation       0
+5D gamma conversion model type                     0
+5D gamma conversion model on isolated ion          0
+Livermore data directory                           epics_2017
+=======================================================================
+======                 Ionisation Parameters                   ========
+=======================================================================
+Step function for e+-                              (0.2, 0.01 mm)
+Step function for muons/hadrons                    (0.1, 0.05 mm)
+Step function for light ions                       (0.1, 0.02 mm)
+Step function for general ions                     (0.1, 0.001 mm)
+Lowest e+e- kinetic energy                         100 eV 
+Lowest muon/hadron kinetic energy                  1 keV
+Use ICRU90 data                                    1
+Fluctuations of dE/dx are enabled                  1
+Type of fluctuation model for leptons and hadrons  Urban
+Use built-in Birks satuaration                     0
+Build CSDA range enabled                           0
+Use cut as a final range enabled                   0
+Enable angular generator interface                 1
+Max kinetic energy for CSDA tables                 1 GeV
+Max kinetic energy for NIEL computation            1 MeV
+Linear loss limit                                  0.01
+Read data from file for e+e- pair production by mu 0
+=======================================================================
+======                 Multiple Scattering Parameters          ========
+=======================================================================
+Type of msc step limit algorithm for e+-           2
+Type of msc step limit algorithm for muons/hadrons 0
+Msc lateral displacement for e+- enabled           1
+Msc lateral displacement for muons and hadrons     1
+Urban msc model lateral displacement alg96         1
+Range factor for msc step limit for e+-            0.08
+Range factor for msc step limit for muons/hadrons  0.2
+Geometry factor for msc step limitation of e+-     2.5
+Safety factor for msc step limit for e+-           0.6
+Skin parameter for msc step limitation of e+-      3
+Lambda limit for msc step limit for e+-            1 mm
+Use Mott correction for e- scattering              1
+Factor used for dynamic computation of angular 
+  limit between single and multiple scattering     1
+Fixed angular limit between single 
+  and multiple scattering                          3.1416 rad
+Upper energy limit for e+- multiple scattering     100 MeV
+Type of electron single scattering model           0
+Type of nuclear form-factor                        1
+Screening factor                                   1
+=======================================================================
+======                 Atomic Deexcitation Parameters          ========
+=======================================================================
+Fluorescence enabled                               1
+Directory in G4LEDATA for fluorescence data files  fluor
+Auger electron cascade enabled                     0
+PIXE atomic de-excitation enabled                  0
+De-excitation module ignores cuts                  0
+Type of PIXE cross section for hadrons             Empirical
+Type of PIXE cross section for e+-                 Livermore
+=======================================================================
+
+### ===  Deexcitation model UAtomDeexcitation is activated for 1 region:
+          DefaultRegionForTheWorld  1  0  0
+### ===  Ignore cuts flag:   0
+
+phot:  for gamma SubType=12 BuildTable=0
+      LambdaPrime table from 200 keV to 500 MeV in 71 bins 
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+ LivermorePhElectric : Emin=    0 eV  Emax=  500 MeV  SauterGavrila Fluo
+
+compt:  for gamma SubType=13 BuildTable=1
+      Lambda table from 100 eV  to 1 MeV, 21 bins/decade, spline: 1
+      LambdaPrime table from 1 MeV to 500 MeV in 56 bins 
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+    LivermoreCompton : Emin=    0 eV  Emax=  500 MeV Fluo
+
+conv:  for gamma SubType=14 BuildTable=1
+      Lambda table from 1.022 MeV to 500 MeV, 33 bins/decade, spline: 1
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+Livermore5DConversion : Emin=    0 eV  Emax=  500 MeV  ModifiedTsai
+
+Rayl:  for gamma SubType=11 BuildTable=1
+      Lambda table from 100 eV  to 150 keV, 21 bins/decade, spline: 0
+      LambdaPrime table from 150 keV to 500 MeV in 74 bins 
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+   LivermoreRayleigh : Emin=    0 eV  Emax=  500 MeV  CullenGenerator
+
+msc:  for e-  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  GoudsmitSaunderson : Emin=    0 eV  Emax=  100 MeV Nbins=120 100 eV  - 100 MeV
+          StepLim=SafetyPlus Rfact=0.08 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+        WentzelVIUni : Emin=  100 MeV Emax=  500 MeV Nbins=20 100 MeV - 500 MeV
+          StepLim=SafetyPlus Rfact=0.08 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+eIoni:  for e-  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.2, 0.01 mm), integ: 3, fluct: 1, linLossLim= 0.01
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+       LowEnergyIoni : Emin=    0 eV  Emax=  100 keV  deltaVI
+        MollerBhabha : Emin=  100 keV Emax=  500 MeV  deltaVI
+
+eBrem:  for e-  XStype:4  SubType=3
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      LPM flag: 1 for E > 0.5 GeV,  VertexHighEnergyTh(GeV)= 100000
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+             eBremSB : Emin=    0 eV  Emax=  500 MeV  AngularGen2BS
+
+ePairProd:  for e-  XStype:1  SubType=4
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 0
+      Sampling table 4x1001; from 0.1 GeV to 0.0005 TeV 
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+           ePairProd : Emin=    0 eV  Emax=  500 MeV  ModifiedMephi
+
+CoulombScat:  for e- XStype:1 SubType=1 BuildTable=1
+      Lambda table from 100 MeV to 500 MeV, 21 bins/decade, spline: 0
+      ThetaMin(p) < Theta(degree) < 180; pLimit(GeV^1)= 0.139531
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  eCoulombScattering : Emin=  100 MeV Emax=  500 MeV
+
+msc:  for e+  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  GoudsmitSaunderson : Emin=    0 eV  Emax=  100 MeV Nbins=120 100 eV  - 100 MeV
+          StepLim=SafetyPlus Rfact=0.08 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+        WentzelVIUni : Emin=  100 MeV Emax=  500 MeV Nbins=20 100 MeV - 500 MeV
+          StepLim=SafetyPlus Rfact=0.08 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+eIoni:  for e+  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.2, 0.01 mm), integ: 3, fluct: 1, linLossLim= 0.01
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+        MollerBhabha : Emin=    0 eV  Emax=  500 MeV  deltaVI
+
+eBrem:  for e+  XStype:4  SubType=3
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      LPM flag: 1 for E > 0.5 GeV,  VertexHighEnergyTh(GeV)= 100000
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+             eBremSB : Emin=    0 eV  Emax=  500 MeV  AngularGen2BS
+
+ePairProd:  for e+  XStype:1  SubType=4
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 0
+      Sampling table 4x1001; from 0.1 GeV to 0.0005 TeV 
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+           ePairProd : Emin=    0 eV  Emax=  500 MeV  ModifiedMephi
+
+annihil:  for e+ XStype:2 SubType=5 BuildTable=0
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+            eplus2gg : Emin=    0 eV  Emax=  500 MeV
+
+CoulombScat:  for e+ XStype:1 SubType=1 BuildTable=1
+      Lambda table from 100 MeV to 500 MeV, 21 bins/decade, spline: 0
+      ThetaMin(p) < Theta(degree) < 180; pLimit(GeV^1)= 0.139531
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  eCoulombScattering : Emin=  100 MeV Emax=  500 MeV
+
+msc:  for proton  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+        WentzelVIUni : Emin=    0 eV  Emax=  500 MeV Nbins=140 100 eV  - 500 MeV
+          StepLim=Minimal Rfact=0.2 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+hIoni:  for proton  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.1, 0.05 mm), integ: 3, fluct: 1, linLossLim= 0.01
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+               Bragg : Emin=    0 eV  Emax=    2 MeV  deltaVI
+          BetheBloch : Emin=    2 MeV Emax=  500 MeV  deltaVI
+
+CoulombScat:  for proton XStype:1 SubType=1 BuildTable=1
+      Lambda table from threshold  to 500 MeV, 21 bins/decade, spline: 0
+      ThetaMin(p) < Theta(degree) < 180; pLimit(GeV^1)= 0.139531
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  eCoulombScattering : Emin=    0 eV  Emax=  500 MeV
+
+nuclearStopping:  for proton SubType=8 BuildTable=0
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+   ICRU49NucStopping : Emin=    0 eV  Emax=    1 MeV
+
+msc:  for GenericIon  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+            UrbanMsc : Emin=    0 eV  Emax=  500 MeV
+          StepLim=Minimal Rfact=0.2 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+ionIoni:  for GenericIon  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.1, 0.001 mm), integ: 3, fluct: 1, linLossLim= 0.02
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+    LindhardSorensen : Emin=    0 eV  Emax=  500 MeV  deltaVI
+
+nuclearStopping:  for GenericIon SubType=8 BuildTable=0
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+   ICRU49NucStopping : Emin=    0 eV  Emax=    1 MeV
+
+msc:  for alpha  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+            UrbanMsc : Emin=    0 eV  Emax=  500 MeV
+          StepLim=Minimal Rfact=0.2 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+ionIoni:  for alpha  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.1, 0.02 mm), integ: 3, fluct: 1, linLossLim= 0.02
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+            BraggIon : Emin=    0 eV  Emax=7.9452 MeV  deltaVI
+          BetheBloch : Emin=7.9452 MeV Emax=  500 MeV  deltaVI
+
+nuclearStopping:  for alpha SubType=8 BuildTable=0
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+   ICRU49NucStopping : Emin=    0 eV  Emax=    1 MeV
+
+msc:  for anti_proton  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+        WentzelVIUni : Emin=    0 eV  Emax=  500 MeV Nbins=140 100 eV  - 500 MeV
+          StepLim=Minimal Rfact=0.2 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+hIoni:  for anti_proton  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.1, 0.05 mm), integ: 3, fluct: 1, linLossLim= 0.01
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+            ICRU73QO : Emin=    0 eV  Emax=    2 MeV  deltaVI
+          BetheBloch : Emin=    2 MeV Emax=  500 MeV  deltaVI
+
+CoulombScat:  for anti_proton XStype:1 SubType=1 BuildTable=1
+      Lambda table from threshold  to 500 MeV, 21 bins/decade, spline: 0
+      ThetaMin(p) < Theta(degree) < 180; pLimit(GeV^1)= 0.139531
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  eCoulombScattering : Emin=    0 eV  Emax=  500 MeV
+
+msc:  for kaon+  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+        WentzelVIUni : Emin=    0 eV  Emax=  500 MeV Nbins=140 100 eV  - 500 MeV
+          StepLim=Minimal Rfact=0.2 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+hIoni:  for kaon+  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.1, 0.05 mm), integ: 3, fluct: 1, linLossLim= 0.01
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+               Bragg : Emin=    0 eV  Emax=1.05231 MeV  deltaVI
+          BetheBloch : Emin=1.05231 MeV Emax=  500 MeV  deltaVI
+
+CoulombScat:  for kaon+ XStype:1 SubType=1 BuildTable=1
+      Lambda table from threshold  to 500 MeV, 21 bins/decade, spline: 0
+      ThetaMin(p) < Theta(degree) < 180; pLimit(GeV^1)= 0.139531
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  eCoulombScattering : Emin=    0 eV  Emax=  500 MeV
+
+msc:  for kaon-  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+        WentzelVIUni : Emin=    0 eV  Emax=  500 MeV Nbins=140 100 eV  - 500 MeV
+          StepLim=Minimal Rfact=0.2 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+hIoni:  for kaon-  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.1, 0.05 mm), integ: 3, fluct: 1, linLossLim= 0.01
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+            ICRU73QO : Emin=    0 eV  Emax=1.05231 MeV  deltaVI
+          BetheBloch : Emin=1.05231 MeV Emax=  500 MeV  deltaVI
+
+CoulombScat:  for kaon- XStype:1 SubType=1 BuildTable=1
+      Used Lambda table of kaon+
+      ThetaMin(p) < Theta(degree) < 180; pLimit(GeV^1)= 0.139531
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  eCoulombScattering : Emin=    0 eV  Emax=  500 MeV
+
+msc:  for mu+  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+        WentzelVIUni : Emin=    0 eV  Emax=  500 MeV Nbins=140 100 eV  - 500 MeV
+          StepLim=Minimal Rfact=0.2 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+muIoni:  for mu+  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.1, 0.05 mm), integ: 3, fluct: 1, linLossLim= 0.01
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+               Bragg : Emin=    0 eV  Emax=  200 keV  deltaVI
+        MuBetheBloch : Emin=  200 keV Emax=  500 MeV  deltaVI
+
+CoulombScat:  for mu+ XStype:1 SubType=1 BuildTable=1
+      Lambda table from threshold  to 500 MeV, 21 bins/decade, spline: 0
+      ThetaMin(p) < Theta(degree) < 180; pLimit(GeV^1)= 0.139531
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  eCoulombScattering : Emin=    0 eV  Emax=  500 MeV
+
+msc:  for mu-  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+        WentzelVIUni : Emin=    0 eV  Emax=  500 MeV Nbins=140 100 eV  - 500 MeV
+          StepLim=Minimal Rfact=0.2 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+muIoni:  for mu-  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.1, 0.05 mm), integ: 3, fluct: 1, linLossLim= 0.01
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+            ICRU73QO : Emin=    0 eV  Emax=  200 keV  deltaVI
+        MuBetheBloch : Emin=  200 keV Emax=  500 MeV  deltaVI
+
+CoulombScat:  for mu- XStype:1 SubType=1 BuildTable=1
+      Used Lambda table of mu+
+      ThetaMin(p) < Theta(degree) < 180; pLimit(GeV^1)= 0.139531
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  eCoulombScattering : Emin=    0 eV  Emax=  500 MeV
+
+msc:  for pi+  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+        WentzelVIUni : Emin=    0 eV  Emax=  500 MeV Nbins=140 100 eV  - 500 MeV
+          StepLim=Minimal Rfact=0.2 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+hIoni:  for pi+  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.1, 0.05 mm), integ: 3, fluct: 1, linLossLim= 0.01
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+               Bragg : Emin=    0 eV  Emax=297.505 keV  deltaVI
+          BetheBloch : Emin=297.505 keV Emax=  500 MeV  deltaVI
+
+CoulombScat:  for pi+ XStype:1 SubType=1 BuildTable=1
+      Lambda table from threshold  to 500 MeV, 21 bins/decade, spline: 0
+      ThetaMin(p) < Theta(degree) < 180; pLimit(GeV^1)= 0.139531
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  eCoulombScattering : Emin=    0 eV  Emax=  500 MeV
+
+msc:  for pi-  SubType= 10
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+        WentzelVIUni : Emin=    0 eV  Emax=  500 MeV Nbins=140 100 eV  - 500 MeV
+          StepLim=Minimal Rfact=0.2 Gfact=2.5 Sfact=0.6 DispFlag:1 Skin=3 Llim=1 mm
+
+hIoni:  for pi-  XStype:3  SubType=2
+      dE/dx and range tables from 100 eV  to 500 MeV in 140 bins
+      Lambda tables from threshold to 500 MeV, 20 bins/decade, spline: 1
+      StepFunction=(0.1, 0.05 mm), integ: 3, fluct: 1, linLossLim= 0.01
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+            ICRU73QO : Emin=    0 eV  Emax=297.505 keV  deltaVI
+          BetheBloch : Emin=297.505 keV Emax=  500 MeV  deltaVI
+
+CoulombScat:  for pi- XStype:1 SubType=1 BuildTable=1
+      Used Lambda table of pi+
+      ThetaMin(p) < Theta(degree) < 180; pLimit(GeV^1)= 0.139531
+      ===== EM models for the G4Region  DefaultRegionForTheWorld ======
+  eCoulombScattering : Emin=    0 eV  Emax=  500 MeV
+G4WT0 > Histories per step: 200
+G4WT0 > Number of independent decays during first step: 69704.9
+G4WT0 > Initial number of atoms: 1.10522e+06 lambda: 1.80959e-05
+G4WT0 > 
+G4WT0 > ==================================
+G4WT0 > ========== BINDING MODEL =========
+G4WT0 > ==================================
+G4WT0 > 
+G4WT0 > Binding model selected: 4compartments
+G4WT0 > fActivity: 50 kBq/mL
+G4WT0 > fSpecificActivity: 0.025 GBq/nmol
+G4WT0 > Concentration: 2 nmol/L
+G4WT0 > Receptors per cell: 50000
+G4WT0 > Concentration of receptors: 0.43694 nmol/L
+G4WT0 > Kd: 5 nM
+G4WT0 > koff: 0.005 s^-1
+G4WT0 > kon: 0.001 nM^-1 s^-1
+G4WT0 > kint: 0.005 s^-1
+G4WT0 > krec: 0.005 s^-1
+G4WT0 > kefflux: 0 s^-1
+G4WT0 > ==================================
+G4WT0 > 
+G4WT0 > Uptake vector size: 2105
+G4WT0 > Begin processing for Run: 0, History: 0
+---------------------------
+New step time (new run) 
+Timeinit: 1 h
+TimeEnd: 2 h
+Number of atoms 1.10522e+06
+  
+Medium probability: 0.908073
+Membrane probability: 0.0459637
+Cytoplasm probability: 0.0459634
+Nucleus probability: 0
+Degraded probability: 0
+---------------------------
+G4WT0 > Begin processing for Run: 1, History: 0
+
+TOPAS run sequence complete.
+Particle source 212PbSource: Total number of histories: 638
+Particle source Demo: Total number of histories: 0
+
+Scorer: DoseInVitroRPT
+Header   has been written to file: OutputFileName.header
+Contents has been written to file: OutputFileName.phsp
+Scored in component: Cells

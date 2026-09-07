@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+title: topas-rpt
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - given-names: Alejandro
+    family-names: Bertolet
+    affiliation: "Massachusetts General Hospital and Harvard Medical School"
+    orcid: "https://orcid.org/0000-0002-9890-693X"
+  - given-names: "Victor V."
+    family-names: Onecha
+    affiliation: "Massachusetts General Hospital and Harvard Medical School"
+    orcid: "https://orcid.org/0000-0002-3531-2851"
+repository-code: "https://github.com/bertoletlab/topas-rpt"
+abstract: >-
+  An OpenTOPAS extension for time-resolved Monte Carlo simulation of
+  radioactive decay chains and radioligand binding kinetics, for
+  radiopharmaceutical therapy dosimetry. Explicit decay-chain time structure
+  and voxelized DICOM activity maps, alongside a compartmental in-vitro
+  binding kinetics model validated against cell viability data.
+keywords:
+  - radiopharmaceutical therapy
+  - Monte Carlo
+  - OpenTOPAS
+  - Geant4
+  - dosimetry
+  - radioactive decay chains
+license: MIT
+version: 1.0.0
+date-released: "2026-09-07"

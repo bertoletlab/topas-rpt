@@ -1,0 +1,28 @@
+{
+  "title": "topas-rpt",
+  "description": "An OpenTOPAS extension for time-resolved Monte Carlo simulation of radioactive decay chains and radioligand binding kinetics, for radiopharmaceutical therapy dosimetry. Explicit decay-chain time structure and voxelized DICOM activity maps, alongside a compartmental in-vitro binding kinetics model validated against cell viability data.",
+  "upload_type": "software",
+  "license": "MIT",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Bertolet, Alejandro",
+      "orcid": "0000-0002-9890-693X",
+      "affiliation": "Massachusetts General Hospital and Harvard Medical School"
+    },
+    {
+      "name": "Onecha, Victor V.",
+      "orcid": "0000-0002-3531-2851",
+      "affiliation": "Massachusetts General Hospital and Harvard Medical School"
+    }
+  ],
+  "keywords": [
+    "radiopharmaceutical therapy",
+    "Monte Carlo",
+    "OpenTOPAS",
+    "Geant4",
+    "dosimetry",
+    "radioactive decay chains",
+    "binding kinetics"
+  ]
+}

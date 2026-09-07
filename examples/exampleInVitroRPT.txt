@@ -1,0 +1,122 @@
+#########
+# World #
+#########
+
+s:Ge/World/Type 			= "TsBox"
+d:Ge/World/HLX				= 1.1 mm   # 421 um
+d:Ge/World/HLY				= 1.1 mm   # 421 um
+d:Ge/World/HLZ				= 60 um   # 421 um
+s:Ge/World/Material			= "Vacuum"
+
+############
+# Geometry #
+############
+
+s:Ge/Cells/Type 					= "TsCellMonolayer"
+s:Ge/Cells/Parent 					= "World"
+s:Ge/Cells/CellGeometry 			= "Cylinder" # or "Sphere"
+i:Ge/Cells/NumOfCells 				= 2105
+d:Ge/Cells/RCell 					= 12 um
+d:Ge/Cells/HCell 					= 16 um
+d:Ge/Cells/RNucleus 				= 9 um
+d:Ge/Cells/HNucleus 				= 12 um
+d:Ge/Cells/MediumHLX 				= 1 mm
+d:Ge/Cells/MediumHLY 				= 1 mm
+d:Ge/Cells/MediumHLZ 				= 50 um
+s:Ge/Cells/Material 				= "G4_WATER"
+s:Ge/Cells/Cell/Material     		= "G4_WATER"
+s:Ge/Cells/Nucleus/Material  		= "G4_WATER"
+# s:Ge/Cells/PositionsFile 			= "positions.txt"
+
+###########
+# Sources #
+###########
+
+s:So/212PbSource/Type          							 = "RadioactiveTimeSourceBind"
+s:So/212PbSource/Component      						 = "Cells"
+b:So/212PbSource/CorrectByNumberOfHistories 		 	 = "True"
+b:So/212PbSource/RecursivelyIncludeChildren 		 	 = "True"
+b:So/212PbSource/TreatAdditionalDecaysAsNewHistories 	 = "True"
+b:So/212PbSource/WriteIsotopicAbundance 			 	 = "True"
+s:So/212PbSource/WriteIsotopicAbundanceFileName     	 = "targeted_PDAC_isotopic_abundance.csv"
+b:So/212PbSource/ReadIsotopicAbundanceFromFile 	    	 = "False"
+
+s:So/212PbSource/BeamParticle 							 = "GenericIon(82, 212)" # Lead-212
+u:So/212PbSource/Activity_permL 						 = 50 * kBq  # per mL
+u:So/212PbSource/SpecificActivity_pernmol 		 		 = 25 * MBq # per nmol
+u:So/212PbSource/InitialActivity  				    	 = 20
+i:So/212PbSource/NumberOfHistoriesInRun 		 		 = 2397 # Nuber of decays during the first time step
+d:So/212PbSource/WashoutTime 							 = 2 * hour s
+u:So/212PbSource/ReceptorsPerCell  						 = 50000
+s:So/212PbSource/BindingModel 							 = "4compartments" # "Manual", "2compartmentsCell", "2compartmentsNucleus", "3compartments", "4compartments"
+u:So/212PbSource/Kd             	     				 = 5 # nM
+u:So/212PbSource/koff 									 = 0.005 # 1/s
+u:So/212PbSource/kon 									 = 0.001 # 1/s
+u:So/212PbSource/kint 									 = 0.005 # 1/s
+u:So/212PbSource/krec 									 = 0.005 # 1/s
+u:So/212PbSource/kefflux 								 = 0 # 1/s
+# uv:So/212PbSource/ManualBindingProbabilities  		 = 5 1 0 0 0 0
+#b:So/212PbSource/SaveProbabilityDistribution            = "False"
+
+########
+# Time #
+########
+
+d:hour                          = 3600.0 s
+d:day                           = 24.0 * hour s
+d:Tf/TimelineStart              = 0 * hour s
+d:Tf/TimelineEnd                = 288 * hour s
+i:Tf/NumberOfSequentialTimes    = 8640
+
+###########
+# Scorers #
+###########
+
+s:Sc/DoseInVitroRPT/Quantity            	     		= "DoseInVitroRPT"
+s:Sc/DoseInVitroRPT/Component             	   			= "Cells"
+s:Sc/DoseInVitroRPT/OutputFile 							= "OutputFileName"
+b:Sc/DoseInVitroRPT/DosePerParticle						= "False" 
+b:Sc/DoseInVitroRPT/DosePerInteraction 					= "False"
+s:Sc/DoseInVitroRPT/OutputType							= "ASCII"
+s:Sc/DoseInVitroRPT/IfOutputFileAlreadyExists 			= "Overwrite"
+b:Sc/DoseInVitroRPT/OutputAfterRun 						= "False"
+
+###########
+# Physics #
+###########
+
+Ph/Default/Modules 	 			= 1 "g4em-livermore"
+
+#################
+# Visualization #
+#################
+
+# s:Gr/ViewA/Type 				= "OpenGL"
+# s:Gr/ViewA/ColorBy 			    = "ParticleType"
+# sv:Gr/ViewA/ColorByParticleTypeNames = 3 "e-" "gamma" "alpha"
+# sv:Gr/ViewA/ColorByParticleTypeColors = 3 "yellow" "green" "blue"
+# b:Ts/UseQt 					    = "True"
+
+
+# iv:Gr/Color/ColorCells 			= 4 224 187 228 90
+# iv:Gr/Color/ColorNucleus 		= 4 10 150 200 120
+# s:Ge/Cells/Cell/Color 			= "ColorCells"
+# s:Ge/Cells/Nucleus/Color 		= "ColorNucleus"
+# s:Ge/Cells/Cell/DrawingStyle 	= "Solid"
+# s:Ge/Cells/Nucleus/DrawingStyle = "Solid"
+
+#########
+# TOPAS #
+#########
+
+i:Ts/ParameterizationErrorMaxReports   = 1
+i:Ts/ShowHistoryCountAtInterval = 1000
+i:Ts/Seed = 1
+
+#########
+# Units #
+#########
+
+u:kBq = 1000
+u:MBq = 1000000
+u:GBq = 1000000000

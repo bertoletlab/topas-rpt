@@ -1,0 +1,71 @@
+#########
+# World #
+#########
+s:Ge/World/Type            = "TsBox"
+d:Ge/World/HLX             = 0.5 mm
+d:Ge/World/HLY             = 0.5 mm
+d:Ge/World/HLZ             = 0.2 mm
+s:Ge/World/Material        = "G4_Galactic"
+
+############
+# Geometry #
+############
+s:Ge/Cells/Type            = "TsCellMonolayer"
+s:Ge/Cells/Parent          = "World"
+s:Ge/Cells/CellGeometry    = "Cylinder"
+i:Ge/Cells/NumOfCells      = 100
+d:Ge/Cells/RCell           = 10 um
+d:Ge/Cells/HCell           = 12 um
+d:Ge/Cells/RNucleus        = 7 um
+d:Ge/Cells/HNucleus        = 9 um
+d:Ge/Cells/MediumHLX       = 0.4 mm
+d:Ge/Cells/MediumHLY       = 0.4 mm
+d:Ge/Cells/MediumHLZ       = 0.15 mm
+s:Ge/Cells/Material        = "G4_WATER"
+s:Ge/Cells/Cell/Material   = "G4_WATER"
+s:Ge/Cells/Nucleus/Material= "G4_WATER"
+
+###########
+# Source  #
+###########
+s:So/Bind/Type                       = "RadioactiveTimeSourceBind"
+s:So/Bind/Component                  = "Cells"
+b:So/Bind/CorrectByNumberOfHistories = "True"
+b:So/Bind/RecursivelyIncludeChildren = "True"
+b:So/Bind/TreatAdditionalDecaysAsNewHistories = "True"
+b:So/Bind/WriteIsotopicAbundance     = "True"
+s:So/Bind/WriteIsotopicAbundanceFileName = "iso_2comp_cell.csv"
+
+s:So/Bind/BeamParticle               = "GenericIon(82, 212)"
+u:So/Bind/Activity_permL             = 20 * kBq
+u:So/Bind/SpecificActivity_pernmol   = 25 * MBq
+u:So/Bind/InitialActivity            = 1 * MBq
+i:So/Bind/NumberOfHistoriesInRun     = 200
+
+s:So/Bind/BindingModel               = "2compartmentsCell"
+u:So/Bind/Kd                         = 5
+u:So/Bind/koff                       = 0.005
+u:So/Bind/kon                        = 0.001
+u:So/Bind/ReceptorsPerCell           = 50000
+
+b:So/Bind/SaveProbabilityDistribution = "True"
+s:So/Bind/ProbabilityDistributionFilename = "prob_2comp_cell.txt"
+
+########
+# Time #
+########
+d:hour                               = 3600.0 s
+d:Tf/TimelineStart                   = 0 * hour s
+d:Tf/TimelineEnd                     = 2 * hour s
+i:Tf/NumberOfSequentialTimes         = 2
+
+#########
+# TOPAS #
+#########
+i:Ts/Seed = 1
+
+#########
+# Units #
+#########
+u:kBq = 1000
+u:MBq = 1000000

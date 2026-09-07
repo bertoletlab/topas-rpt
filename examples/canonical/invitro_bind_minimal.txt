@@ -1,0 +1,54 @@
+s:Ge/World/Type                 = "TsBox"
+d:Ge/World/HLX                  = 1.2 mm
+d:Ge/World/HLY                  = 1.2 mm
+d:Ge/World/HLZ                  = 80 um
+s:Ge/World/Material             = "Vacuum"
+
+s:Ge/Cells/Type                 = "TsCellMonolayer"
+s:Ge/Cells/Parent               = "World"
+s:Ge/Cells/CellGeometry         = "Cylinder"
+i:Ge/Cells/NumOfCells           = 100
+d:Ge/Cells/RCell                = 12 um
+d:Ge/Cells/HCell                = 16 um
+d:Ge/Cells/RNucleus             = 9 um
+d:Ge/Cells/HNucleus             = 12 um
+d:Ge/Cells/MediumHLX            = 0.5 mm
+d:Ge/Cells/MediumHLY            = 0.5 mm
+d:Ge/Cells/MediumHLZ            = 40 um
+s:Ge/Cells/Material             = "G4_WATER"
+s:Ge/Cells/Cell/Material        = "G4_WATER"
+s:Ge/Cells/Nucleus/Material     = "G4_WATER"
+
+sv:Ph/Default/Modules           = 1 "g4em-livermore"
+
+s:So/BindSource/Type                                 = "RadioactiveTimeSourceBind"
+s:So/BindSource/Mode                                 = "invitro_bind"
+s:So/BindSource/Component                            = "Cells"
+s:So/BindSource/BeamParticle                         = "GenericIon(82, 212)"
+b:So/BindSource/CorrectByNumberOfHistories          = "True"
+b:So/BindSource/RecursivelyIncludeChildren           = "True"
+b:So/BindSource/TreatAdditionalDecaysAsNewHistories = "True"
+b:So/BindSource/IncludeWholeDecayChain              = "True"
+b:So/BindSource/WriteRunMetadata                     = "True"
+s:So/BindSource/RunMetadataFileName                  = "run_metadata_invitro.json"
+u:So/BindSource/InitialActivity                      = 5
+
+i:So/BindSource/NumberOfHistoriesInRun               = 200
+
+u:So/BindSource/ModeParams/Activity_permL            = 20 * kBq
+u:So/BindSource/ModeParams/SpecificActivity_pernmol  = 25 * MBq
+u:So/BindSource/ModeParams/ReceptorsPerCell          = 50000
+s:So/BindSource/ModeParams/BindingModel              = "2compartmentsCell"
+u:So/BindSource/ModeParams/Kd                        = 5
+u:So/BindSource/ModeParams/koff                      = 0.005
+
+d:hour                       = 3600.0 s
+d:Tf/TimelineStart           = 0.0 s
+d:Tf/TimelineEnd             = 2.0 * hour s
+i:Tf/NumberOfSequentialTimes = 2
+
+i:Ts/NumberOfThreads = 1
+i:Ts/Seed            = 21
+
+u:kBq = 1000
+u:MBq = 1000000

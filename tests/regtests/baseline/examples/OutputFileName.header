@@ -1,0 +1,14 @@
+Number of Original Histories: 438
+Number of Scored Entries: 149
+
+Columns of data are as follows:
+1: Sequential time
+2: Nucleus number
+3: Dose [Gy]
+4: Dose alpha [Gy]
+5: Dose electron [Gy]
+6: Dose gamma [Gy]
+7: Dose isotope [Gy]
+8: Alpha number
+9: Dose at culture [Gy]
+

@@ -1,0 +1,122 @@
+From 21c8e7bef3d7e52570e19ef3ebe97b52603a04c7 Mon Sep 17 00:00:00 2001
+From: Alejandro Bertolet <abertoletreina@mgh.harvard.edu>
+Date: Wed, 11 Feb 2026 12:05:15 -0500
+Subject: [PATCH] Harden TsDicomActivityMap NM parsing and parent-frame
+ fallback
+
+---
+ geometry/TsDicomActivityMap.cc | 76 +++++++++++++++++++++++++---------
+ 1 file changed, 56 insertions(+), 20 deletions(-)
+
+diff --git a/geometry/TsDicomActivityMap.cc b/geometry/TsDicomActivityMap.cc
+index 5d631df..37c5db6 100644
+--- a/geometry/TsDicomActivityMap.cc
++++ b/geometry/TsDicomActivityMap.cc
+@@ -166,11 +166,18 @@ void TsDicomActivityMap::ReadImage()
+ 		sortedImageFilenames = sorter.GetFilenames();
+ 	}
+ 	else sortedImageFilenames = imageFilenames;
+-	// Get DICOM positions from parent (TsDicomPatient)
+-	TsDicomPatient* dicomCT = (TsDicomPatient*)fParentComponent;
+-	G4Point3D originCTRelToDicom = dicomCT->GetTransFirstVoxelCenterRelToDicom();
+-	G4Point3D originCTRelToComponent = dicomCT->GetTransFirstVoxelCenterRelToComponentCenter();
+-	G4Point3D translation = originCTRelToComponent - originCTRelToDicom;
++	// Get DICOM frame translation from parent when available.
++	// Fallback to zero translation if the parent is not TsDicomPatient.
++	G4Point3D translation(0., 0., 0.);
++	TsDicomPatient* dicomCT = dynamic_cast<TsDicomPatient*>(fParentComponent);
++	if (dicomCT) {
++		G4Point3D originCTRelToDicom = dicomCT->GetTransFirstVoxelCenterRelToDicom();
++		G4Point3D originCTRelToComponent = dicomCT->GetTransFirstVoxelCenterRelToComponentCenter();
++		translation = originCTRelToComponent - originCTRelToDicom;
++	} else {
++		G4cout << "Warning: " << fName << " parent is not TsDicomPatient. "
++		       << "Assuming DICOM frame translation is zero." << G4endl;
++	}
+ 
+ 	for (G4int iSlice = 0; iSlice < nSlices; iSlice++)
+ 	{
+@@ -191,27 +198,50 @@ void TsDicomActivityMap::ReadImage()
+ 		dataSet = &reader->GetFile().GetDataSet();
+ 
+ 		// If modality is NM, read image position from detector information sequence
++		// and fall back to standard ImagePositionPatient if sequence is absent.
+ 		if (modalityTags[0] == "NM")
+ 		{
++			G4bool foundPosition = false;
+ 			gdcm::Tag const detInfoSeqTag = gdcm::Tag(0x0054, 0x0022);
+-			gdcm::SequenceOfItems* detInfoSeq = dataSet->GetDataElement(detInfoSeqTag).GetValueAsSQ();
+-			G4int itemN = 1;
+-			gdcm::Attribute<0x0020, 0x0032> atPos;
+-			G4int numItems = detInfoSeq->GetNumberOfItems();
+-			while (itemN <= numItems)
+-			{
+-				gdcm::Item item = detInfoSeq->GetItem(itemN);
+-				if (item.FindDataElement(atPos.GetTag()))
+-				{
+-					atPos.SetFromDataElement(item.GetDataElement(atPos.GetTag()));
++			if (dataSet->FindDataElement(detInfoSeqTag)) {
++				gdcm::SequenceOfItems* detInfoSeq = dataSet->GetDataElement(detInfoSeqTag).GetValueAsSQ();
++				if (detInfoSeq) {
++					gdcm::Attribute<0x0020, 0x0032> atPos;
++					G4int itemN = 1;
++					G4int numItems = detInfoSeq->GetNumberOfItems();
++					while (itemN <= numItems) {
++						gdcm::Item item = detInfoSeq->GetItem(itemN);
++						if (item.FindDataElement(atPos.GetTag())) {
++							atPos.SetFromDataElement(item.GetDataElement(atPos.GetTag()));
++							fTransFirstVoxelCenterRelToDicom = G4Point3D(atPos.GetValues()[0], atPos.GetValues()[1], atPos.GetValues()[2]);
++							foundPosition = true;
++						}
++						itemN++;
++					}
++				}
++			}
++
++			if (!foundPosition) {
++				gdcm::Attribute<0x0020, 0x0032> atPos;
++				if (dataSet->FindDataElement(atPos.GetTag())) {
++					atPos.SetFromDataElement(dataSet->GetDataElement(atPos.GetTag()));
+ 					fTransFirstVoxelCenterRelToDicom = G4Point3D(atPos.GetValues()[0], atPos.GetValues()[1], atPos.GetValues()[2]);
++					foundPosition = true;
+ 				}
+-				itemN++;
++			}
++
++			if (!foundPosition) {
++				G4cout << "Unable to determine NM image position from DICOM tags (0054,0022) or (0020,0032)." << G4endl;
++				fPm->AbortSession(1);
+ 			}
+ 
+ 			gdcm::Attribute<0x54, 0x81> atNSlices;
+-			atNSlices.SetFromDataElement(dataSet->GetDataElement(atNSlices.GetTag()));
+-			fNumberOfSlices = atNSlices.GetValue();
++			if (dataSet->FindDataElement(atNSlices.GetTag())) {
++				atNSlices.SetFromDataElement(dataSet->GetDataElement(atNSlices.GetTag()));
++				fNumberOfSlices = atNSlices.GetValue();
++			} else {
++				fNumberOfSlices = nSlices;
++			}
+ 		}
+ 		else if (modalityTags[0] == "PT")
+ 		{
+@@ -228,8 +258,14 @@ void TsDicomActivityMap::ReadImage()
+ 		}
+ 		// Read slice thickness and number of slices
+ 		gdcm::Attribute<0x18, 0x50> atThickness;
+-		atThickness.SetFromDataElement(dataSet->GetDataElement(atThickness.GetTag()));
+-		fVoxelSizeZ = atThickness.GetValue();
++		if (dataSet->FindDataElement(atThickness.GetTag())) {
++			atThickness.SetFromDataElement(dataSet->GetDataElement(atThickness.GetTag()));
++			fVoxelSizeZ = atThickness.GetValue();
++		} else if (reader->GetImage().GetDimensions()[2] > 1) {
++			fVoxelSizeZ = reader->GetImage().GetSpacing()[2];
++		} else {
++			fVoxelSizeZ = 1.;
++		}
+ 
+ 		fFullWidths[2] = fNumberOfSlices * fVoxelSizeZ;
+ 
+-- 
+2.50.1 (Apple Git-155)
+

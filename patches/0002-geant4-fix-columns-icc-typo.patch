@@ -1,0 +1,32 @@
+From 3c7358af903c219e4cf7a98bf07d0c695ec249be Mon Sep 17 00:00:00 2001
+From: Alejandro Bertolet <abertoletreina@mgh.harvard.edu>
+Date: Fri, 13 Feb 2026 13:19:21 -0500
+Subject: [PATCH] Fix typo in g4tools wroot columns.icc copy constructor
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+m_barnch → m_branch in std_vector_column_ref copy constructor.
+Prevents potential compile/link error if copy constructor is instantiated.
+
+Applied to canonical Geant4 11.2.2 for bertoletlab RPT builds.
+---
+ source/externals/g4tools/include/tools/wroot/columns.icc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/source/externals/g4tools/include/tools/wroot/columns.icc b/source/externals/g4tools/include/tools/wroot/columns.icc
+index 0df2c1662..af9b15e0a 100644
+--- a/source/externals/g4tools/include/tools/wroot/columns.icc
++++ b/source/externals/g4tools/include/tools/wroot/columns.icc
+@@ -399,7 +399,7 @@
+   protected:
+     std_vector_column_ref(const std_vector_column_ref& a_from)
+     :icol(a_from)
+-    ,m_branch(a_from.m_barnch)
++    ,m_branch(a_from.m_branch)
+     ,m_ref(a_from.m_ref)
+     ,m_leaf(0)
+     ,m_leaf_count(0)
+-- 
+2.50.1 (Apple Git-155)
+

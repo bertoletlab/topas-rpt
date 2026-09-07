@@ -1,0 +1,62 @@
+includeFile = {{HU_TO_MATERIAL_INCLUDE}}
+
+s:Ge/World/Type                 = "TsBox"
+s:Ge/World/Material             = "Vacuum"
+d:Ge/World/HLX                  = 2.0 m
+d:Ge/World/HLY                  = 2.0 m
+d:Ge/World/HLZ                  = 2.0 m
+b:Ge/World/Invisible            = "True"
+
+s:Ge/Patient/Parent             = "World"
+s:Ge/Patient/Type               = "TsDicomPatient"
+s:Ge/Patient/Material           = "G4_WATER"
+s:Ge/Patient/DicomDirectory     = "{{CT_DICOM_DIR}}"
+i:Ge/Patient/RestrictVoxelsXMin = 1
+i:Ge/Patient/RestrictVoxelsXMax = 1
+i:Ge/Patient/RestrictVoxelsYMin = 1
+i:Ge/Patient/RestrictVoxelsYMax = 1
+i:Ge/Patient/RestrictVoxelsZMin = 1
+i:Ge/Patient/RestrictVoxelsZMax = 1
+
+s:Ge/ActivityMap/Parent         = "Patient"
+s:Ge/ActivityMap/Type           = "TsDicomActivityMap"
+s:Ge/ActivityMap/Material       = "G4_WATER"
+s:Ge/ActivityMap/ParallelWorldName = "ActivityMapWorld"
+b:Ge/ActivityMap/IsParallel        = "True"
+s:Ge/ActivityMap/DicomDirectory = "{{ACTIVITYMAP_DICOM_DIR}}"
+i:Ge/ActivityMap/LowerCountThreshold = 0
+
+s:So/MapSource/Type                     = "RadioactiveTimeSource"
+s:So/MapSource/Mode                     = "activity_map"
+s:So/MapSource/Component                = "ActivityMap"
+s:So/MapSource/BeamParticle             = "GenericIon(39,90)"
+u:So/MapSource/InitialActivity          = 1000000
+b:So/MapSource/ModeParams/UseCalibratedCounts = "False"
+# Calibration contract (used only when UseCalibratedCounts=True):
+#   CalibratedCountUnits = "BqPerMl" (map values already in activity concentration)
+#   CalibratedCountUnits = "Counts" + CalibrationScaleBqPerCount
+s:So/MapSource/ModeParams/CalibratedCountUnits = "BqPerMl"
+u:So/MapSource/ModeParams/CalibrationScaleBqPerCount = 1.0
+b:So/MapSource/ModeParams/RequireParentGridMatch = "True"
+u:So/MapSource/ModeParams/GridMatchToleranceFraction = 0.15
+b:So/MapSource/ModeParams/WriteActivityMapSummary = "True"
+s:So/MapSource/ModeParams/ActivityMapSummaryFileName = "activity_map_summary.json"
+b:So/MapSource/CorrectByNumberOfHistories = "True"
+i:So/MapSource/NumberOfHistoriesInRun   = 40
+b:So/MapSource/WriteIsotopicAbundance   = "False"
+b:So/MapSource/WriteRunMetadata         = "True"
+s:So/MapSource/RunMetadataFileName      = "run_metadata.json"
+
+d:Tf/TimelineStart              = 0.0 s
+d:Tf/TimelineEnd                = 10.0 s
+i:Tf/NumberOfSequentialTimes    = 1
+
+s:Sc/DosePatient/Quantity                  = "DoseToMedium"
+s:Sc/DosePatient/Component                 = "Patient"
+s:Sc/DosePatient/OutputType                = "csv"
+s:Sc/DosePatient/OutputFile                = "activity_map_dose"
+s:Sc/DosePatient/IfOutputFileAlreadyExists = "Overwrite"
+
+i:Ts/NumberOfThreads = 1
+i:Ts/Seed = 23
+sv:Ph/Default/LayeredMassGeometryWorlds = 1 "ActivityMapWorld"

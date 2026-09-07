@@ -1,0 +1,31 @@
+{
+  "mode": "invitro_bind",
+  "entries": [
+    {
+      "run_id": 0,
+      "time_start_s": 0,
+      "time_end_s": 3600,
+      "step_duration_s": 3600,
+      "n_decays_step": 69704.87351379296,
+      "n_decays_first": 69704.87351379296,
+      "n_histories_step": 200,
+      "correct_by_number_of_histories": true,
+      "initial_activity_bq": 20,
+      "effective_activity_bq": 19.36246486494249,
+      "primary_weight": 348.5243675689648
+    },
+    {
+      "run_id": 1,
+      "time_start_s": 3600,
+      "time_end_s": 7200,
+      "step_duration_s": 3600,
+      "n_decays_step": 83144.31087549884,
+      "n_decays_first": 69704.87351379296,
+      "n_histories_step": 238,
+      "correct_by_number_of_histories": true,
+      "initial_activity_bq": 20,
+      "effective_activity_bq": 23.09564190986079,
+      "primary_weight": 349.345844014701
+    }
+  ]
+}

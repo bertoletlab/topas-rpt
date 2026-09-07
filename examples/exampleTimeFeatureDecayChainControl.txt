@@ -1,0 +1,60 @@
+#########
+# World #
+#########
+s:Ge/World/Type      = "TsBox"
+d:Ge/World/HLX       = 20 mm
+d:Ge/World/HLY       = 20 mm
+d:Ge/World/HLZ       = 20 mm
+s:Ge/World/Material  = "G4_WATER"
+
+###########
+# Geometry #
+###########
+s:Ge/Seed/Type       = "TsSphere"
+s:Ge/Seed/Parent     = "World"
+s:Ge/Seed/Material   = "G4_WATER"
+d:Ge/Seed/RMax       = 1 mm
+
+###########
+# Physics #
+###########
+sv:Ph/Default/Modules = 1 "g4em-standard_opt4"
+
+###########
+# Sources #
+###########
+s:So/ChainSource/Mode                                 = "uniform"
+s:So/ChainSource/Type                                 = "RadioactiveTimeSource"
+s:So/ChainSource/Component                            = "Seed"
+s:So/ChainSource/BeamParticle                         = "GenericIon(82, 212)"
+b:So/ChainSource/CorrectByNumberOfHistories          = "True"
+b:So/ChainSource/RecursivelyIncludeChildren           = "True"
+b:So/ChainSource/TreatAdditionalDecaysAsNewHistories = "True"
+b:So/ChainSource/IncludeWholeDecayChain              = "True"
+b:So/ChainSource/WriteIsotopicAbundance              = "True"
+s:So/ChainSource/WriteIsotopicAbundanceFileName      = "iso_chain.csv"
+b:So/ChainSource/WriteRunMetadata                     = "True"
+s:So/ChainSource/RunMetadataFileName                  = "run_metadata_chain.json"
+u:So/ChainSource/InitialActivity                      = 1 * MBq
+i:So/ChainSource/NumberOfHistoriesInRun               = 200
+i:So/ChainSource/Verbosity                            = 0
+
+########
+# Time #
+########
+d:hour                       = 3600.0 s
+d:Tf/TimelineStart           = 0 * hour s
+d:Tf/TimelineEnd             = 8 * hour s
+i:Tf/NumberOfSequentialTimes = 4
+
+#########
+# TOPAS #
+#########
+i:Ts/NumberOfThreads = 1
+i:Ts/Seed            = 11
+
+#########
+# Units #
+#########
+u:kBq = 1000
+u:MBq = 1000000

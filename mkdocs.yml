@@ -1,0 +1,62 @@
+site_name: topas-rpt
+site_description: Time-resolved radioactive decay chains and compartmental binding kinetics for OpenTOPAS, for radiopharmaceutical therapy dosimetry
+site_author: Bertolet Lab
+repo_url: https://github.com/bertoletlab/topas-rpt
+repo_name: bertoletlab/topas-rpt
+edit_uri: edit/main/docs/
+docs_dir: docs
+site_url: https://topas-rpt.readthedocs.io/
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - content.code.copy
+    - content.code.annotate
+    - search.suggest
+    - search.highlight
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: installation.md
+    - Quickstart: quickstart.md
+    - Building GDCM: building_gdcm.md
+  - User Guide: user_guide.md
+  - Validation: validation.md
+  - Known Limitations: known_limitations.md
