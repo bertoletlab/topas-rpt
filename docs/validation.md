@@ -5,8 +5,8 @@ tests/regtests/validate_all_features_vs_legacy.sh /path/to/topas
 ```
 
 Requires `ripgrep` on `PATH` - without it, some steps that grep run output
-fail closed with a misleading `FAIL` rather than a clear error, so install it
-first if a step fails unexpectedly.
+fail closed with a misleading `FAIL` message that obscures the real cause, so
+install it first if a step fails unexpectedly.
 
 ## What each step checks
 

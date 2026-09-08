@@ -11,9 +11,10 @@ Policy CMP0022 may not be set to OLD behavior because this version of CMake
 no longer supports it.
 ```
 
-The straightforward fix is to configure GDCM with an older CMake, then use
-whatever CMake you already have for everything else. A pinned CMake in a
-throwaway Python virtual environment is the least fuss:
+Configure GDCM with an older CMake to avoid the error; everything else in the
+build (Geant4, OpenTOPAS, this extension) can still use whatever CMake you
+already have. A pinned CMake in a throwaway Python virtual environment is the
+least fuss:
 
 ```bash
 python3 -m venv /tmp/oldcmake
@@ -28,5 +29,4 @@ git clone --branch v2.6.8 https://github.com/malaterre/GDCM
 ```
 
 Once installed, point `GDCM_DIR` at
-`/path/to/gdcm-install/lib/gdcm-2.6` as usual - the rest of the build (Geant4,
-OpenTOPAS, this extension) can use whatever CMake you normally have.
+`/path/to/gdcm-install/lib/gdcm-2.6` as usual.

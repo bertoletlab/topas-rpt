@@ -13,7 +13,7 @@ on top.
 **`invitro_bind`** - compartmental in-vitro kinetics: medium, membrane,
 cytoplasm, nucleus, and degraded compartments, each with its own occupancy
 over time, driving where decays occur. This is the mode behind the published
-[211At]PTT validation.
+Astatine 211-ParaThanatrace validation (Onecha et al., IJROBP 2025).
 
 **`activity_map`** - decay positions sampled from a voxelized DICOM activity
 map. Supports calibrated units (`ModeParams/CalibratedCountUnits =
@@ -33,11 +33,10 @@ primary_weight = n_decays_step / n_histories_step
 ```
 
 Each simulated history stands in for many physical decays in that time step,
-so the energy-deposition scoring is weighted accordingly - reported dose
-already reflects the activity and timeline you configured, not a raw,
-unweighted history count. When comparing two runs, compare all four numbers
-together (dose, `n_decays_step`, `n_histories_step`, `primary_weight`), not
-dose alone.
+so the energy-deposition scoring is weighted accordingly, and reported dose
+already reflects the activity and timeline you configured. When comparing two
+runs, compare all four numbers together: dose, `n_decays_step`,
+`n_histories_step`, and `primary_weight`.
 
 ## What to check after a run
 
@@ -72,10 +71,10 @@ scripts/run_activity_map_scientific_showcase.sh /path/to/topas
 
 1. Run the regression suite and confirm every step passes
    (see [Validation](validation.md)).
-2. Confirm the run's `run_metadata.json` matches the protocol you intended -
-   time bins, activity, mode.
+2. Confirm the run's `run_metadata.json` matches the intended protocol - time
+   bins, activity, mode.
 3. For anything using the full decay chain, look at the isotopic abundance
-   CSV and confirm the parent-daughter timing is what you expect.
+   CSV and confirm the parent-daughter timing matches what you expect.
 
 See [`examples/canonical/README.md`](https://github.com/bertoletlab/topas-rpt/tree/main/examples/canonical)
 for a minimal parameter file per mode to start a new study from.
