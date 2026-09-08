@@ -4,24 +4,44 @@
 
 Set the mode with `s:So/<Source>/Mode = "uniform" | "invitro_bind" | "activity_map"`.
 
-**`uniform`** - the baseline. Decays sampled uniformly within a geometry
-component, with time-binned normalization and optional decay-chain controls
+**`uniform`** - the baseline mode. `topas-rpt` samples how many decays occur
+in each timeline step from the radioactive exponential decay law, governed
+by each isotope's half-life. With `IncludeWholeDecayChain = "True"`, it walks
+each daughter's own decay recursively
+(`AddRecursivelyToIsotopeListIfRadioactive`,
+`TsRadioactiveTimeGenerator.cc:1056`), so a daughter produced mid-timeline
+gets its own correctly-timed emission instead of the parent's instantaneous
+one. Decays are sampled uniformly within a geometry component, with
+time-binned normalization and the chain controls above
 (`IncludeWholeDecayChain`, `TreatAdditionalDecaysAsNewHistories`). Use this
-when you need controlled time bins without a biological binding model layered
-on top.
+mode when you need controlled time bins without a biological binding model
+layered on top.
 
-**`invitro_bind`** - compartmental in-vitro kinetics: medium, membrane,
-cytoplasm, nucleus, and degraded compartments, each with its own occupancy
-over time, driving where decays occur. This is the mode behind the published
-Astatine 211-ParaThanatrace validation (Onecha et al., IJROBP 2025).
+**`invitro_bind`** - compartmental in-vitro kinetics. A dose of radioligand
+starts in the surrounding medium and, over time, binds cell-surface
+receptors, gets internalized into the cytoplasm, and either reaches the
+nucleus or gets degraded and cleared, each transfer governed by its own
+binding and release rate. `TsDynamicBindModel` numerically integrates this
+compartment by compartment (`TsDynamicBindModel.cc`) and feeds the resulting
+occupancy fractions back into the decay-position sampler, so where a decay
+occurs on the simulated timeline tracks the radioligand's real position as it
+moves through the cell over time. This is the mode behind the published
+Astatine 211-ParaThanatrace validation (Onecha et al., IJROBP 2025), which
+matched simulated dose-response curves to real ovarian cancer cell viability
+data.
 
 **`activity_map`** - decay positions sampled from a voxelized DICOM activity
-map. Supports calibrated units (`ModeParams/CalibratedCountUnits =
-"BqPerMl"`, when map values are activity concentration) or raw counts
-(`"Counts"`, with `ModeParams/CalibrationScaleBqPerCount` to convert). Writes
-an `activity_map_summary.json` QA report alongside the usual outputs -
-voxel statistics, calibration settings, and a sanity check that the map and
-its parent patient geometry actually agree on extent.
+map. Each voxel's activity value becomes a sampling weight:
+`topas-rpt` builds a cumulative probability distribution over all non-zero
+voxels (`TsActivityMapPositionSampler`) and draws each decay's position from
+it, so denser voxels produce proportionally more decays, matching how a real
+radiotracer distributes non-uniformly through a patient. Supports calibrated
+units (`ModeParams/CalibratedCountUnits = "BqPerMl"`, when map values are
+activity concentration) or raw counts (`"Counts"`, with
+`ModeParams/CalibrationScaleBqPerCount` to convert). Writes an
+`activity_map_summary.json` QA report alongside the usual outputs - voxel
+statistics, calibration settings, and a sanity check that the map and its
+parent patient geometry actually agree on extent.
 
 ## How the output weighting works
 
