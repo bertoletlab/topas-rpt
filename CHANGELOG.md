@@ -6,6 +6,26 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-09-09
+
+### Fixed
+- Recursive daughter-chain sampling (`So/<Source>/IncludeWholeDecayChain =
+  "True"`) now works on Geant4 11.3 and later. A guard added out of caution
+  about excited-state ions crashing decay-channel selection had disabled the
+  recursive path there entirely, silently truncating chains to their first
+  generation; the ground-state normalization the guard's own comment called
+  for was already present lower in that routine, so removing the guard was
+  sufficient. Geant4 11.2.2 stays the version this build and its CI are
+  pinned to (see [Known Limitations](docs/known_limitations.md)).
+- Fixed spurious immediate decay of isotopes Geant4's data marks stable but
+  whose decay-table still lists leftover channel entries (found via Bi-209
+  under the RadioactiveDecay5.6 data set bundled with Geant4 11.2.2 - the
+  version this fix targets, unrelated to the Geant4 11.3 fix above). The
+  chain sampler now checks Geant4's stability flag directly instead of
+  inferring stability from lifetime sign alone. See
+  [Known Limitations](docs/known_limitations.md) for detail and who should
+  check their results against it.
+
 ## [1.0.0] - 2026-09-07
 
 First public release, the reference version behind the targeted
