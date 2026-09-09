@@ -13,8 +13,8 @@ in the chain-sampling routine, so the guard was removed once verified against
 the full regression suite plus a targeted excited-state stress test.
 
 Geant4 11.2.2 remains the version this build and its CI are pinned to and
-tested against (see [Requirements](../README.md#requirements)). Promoting a
-newer Geant4 line to canonical is a separate decision from this fix and has
+tested against (see [Requirements](installation.md#requirements)). Promoting
+a newer Geant4 line to canonical is a separate decision from this fix and has
 not been made.
 
 ## Resolved: spurious immediate decay of isotopes Geant4 marks stable
