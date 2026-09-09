@@ -1113,6 +1113,21 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
         return;
     }
 
+    // Geant4 marks a particle's own PDGStable flag independently of whatever
+    // decay-channel entries a data file happens to still list for it (e.g.
+    // Bi209's near-infinite alpha half-life is recorded as a "-1" sentinel in
+    // older RadioactiveDecay data, which GetPDGLifeTime() reports the same way
+    // it reports a genuinely stable particle). Trust that flag over leftover
+    // decay-table entries, so a particle Geant4 itself considers stable is
+    // never mistaken for one needing an "immediate" decay below.
+    if (particle->GetPDGStable())
+    {
+        if (fVerbosity > 1)
+            G4cout << particle->GetParticleName() << " is marked stable by Geant4; not decaying further "
+                   << "in recursive chain despite leftover decay-table entries." << G4endl;
+        return;
+    }
+
     if (fMode == "diffusion") {
         G4String emitterBaseName = GetBaseEmitterName(particle->GetParticleName());
         G4double clearanceProbability = GetBiologicalClearanceProbabilityForEmitter(emitterBaseName);
