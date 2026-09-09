@@ -27,9 +27,9 @@ Cell Viability in Targeted &alpha;-Particle Therapy With Astatine
 ## Requirements
 
 - OpenTOPAS 4.2.3
-- Geant4 11.2.2, with a one-line patch (see `patches/`) - not fixed until
-  Geant4 11.3, not yet supported by this extension for full decay-chain
-  behavior (see [Known Limitations](docs/known_limitations.md))
+- Geant4 11.2.2, with a one-line patch (see `patches/`) - the version this
+  build and its CI are pinned to and tested against (see
+  [Known Limitations](docs/known_limitations.md))
 - GDCM 2.6.8, for DICOM-driven activity maps
 - CMake (Ninja recommended)
 

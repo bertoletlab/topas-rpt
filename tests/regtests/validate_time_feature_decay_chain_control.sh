@@ -71,24 +71,12 @@ if [[ "$(wc -l < "${RUN_OFF_DIR}/iso_chain_off.csv")" -lt 5 ]]; then
   exit 1
 fi
 
-# Geant4 >= 11.3 compatibility behavior should be explicit only on those versions.
-if command -v /Applications/GEANT4/geant4-install/bin/geant4-config >/dev/null 2>&1; then
-  G4_VERSION="$(/Applications/GEANT4/geant4-install/bin/geant4-config --version)"
-else
-  G4_VERSION="unknown"
-fi
-
-if [[ "${G4_VERSION}" == 11.3* || "${G4_VERSION}" == 11.4* || "${G4_VERSION}" == 12* ]]; then
-  rg -q 'Recursive daughter-chain sampling is disabled for Geant4 >= 11.3' "${RUN_ON_DIR}/run.log"
-  if rg -q 'Recursive daughter-chain sampling is disabled for Geant4 >= 11.3' "${RUN_OFF_DIR}/run.log"; then
-    echo "ERROR: chain-off run unexpectedly emitted recursive-chain warning."
-    exit 1
-  fi
-else
-  if rg -q 'Recursive daughter-chain sampling is disabled for Geant4 >= 11.3' "${RUN_ON_DIR}/run.log"; then
-    echo "ERROR: Geant4 ${G4_VERSION} run emitted unexpected 11.3 compatibility warning."
-    exit 1
-  fi
+# Recursive daughter-chain sampling is no longer version-gated (the Geant4 >= 11.3
+# early-return guard was removed, see docs/known_limitations.md), so neither run
+# should ever emit the old compatibility warning, on any Geant4 version.
+if rg -q 'Recursive daughter-chain sampling is disabled for Geant4 >= 11.3' "${RUN_ON_DIR}/run.log" "${RUN_OFF_DIR}/run.log"; then
+  echo "ERROR: run emitted the retired 11.3 compatibility warning; the guard should be gone."
+  exit 1
 fi
 
 echo "PASS: time-feature decay-chain control contract (${RUN_DIR})"

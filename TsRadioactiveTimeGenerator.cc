@@ -1055,17 +1055,6 @@ void TsRadioactiveTimeGenerator::AddThisParticle(G4Event* anEvent, G4String name
 
 void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Event* anEvent, G4ParticleDefinition* particle)
 {
-#if G4VERSION_NUMBER >= 1130
-    static G4bool warnedRecursiveChainDisabled = false;
-    if (!warnedRecursiveChainDisabled) {
-        G4cout << "WARNING: Recursive daughter-chain sampling is disabled for Geant4 >= 11.3 "
-               << "in this extension compatibility mode. "
-               << "Set So/<Source>/IncludeWholeDecayChain=False to silence this warning." << G4endl;
-        warnedRecursiveChainDisabled = true;
-    }
-    return;
-#endif
-
     static thread_local G4int recursionDepth = 0;
     struct RecursionGuard {
         G4int& depth;
