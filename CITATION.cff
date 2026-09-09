@@ -26,6 +26,6 @@ keywords:
   - dosimetry
   - radioactive decay chains
 license: MIT
-version: 1.0.0
-date-released: "2026-09-07"
+version: 1.0.1
+date-released: "2026-09-09"
 doi: 10.5281/zenodo.22651400
