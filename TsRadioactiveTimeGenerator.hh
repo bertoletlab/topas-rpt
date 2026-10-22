@@ -75,6 +75,8 @@ public:
     void ReadIsotopicAbundanceFile();
 
     G4VDecayChannel* GetDecayChannelManually(G4DecayTable* decayTable);
+    // DeexciteDaughters: cascade excited daughter ions to the ground state (or an isomer).
+    G4DecayProducts* DeexciteDaughterIons(G4DecayProducts* products);
 
     void GetNumberOfIndependentDecaysDuringThisStep();
     void EvolveAbundancesAnalytically(G4double stepDuration);
@@ -151,6 +153,8 @@ protected:
     // decay chain each step instead of the decays sampled by the histories.
     G4bool fAnalyticAbundanceUpdate = false;
     G4bool fIncludeWholeDecayChain;
+    G4bool fDeexciteDaughters;
+    G4double fIsomerLifetimeThreshold;
 
     G4bool fReadIsotopicAbundanceFromFile;
     G4String fReadIsotopicAbundanceFileName;

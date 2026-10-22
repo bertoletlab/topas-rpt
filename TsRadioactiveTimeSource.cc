@@ -5,6 +5,9 @@
 
 #include "TsRadioactiveTimeSource.hh"
 #include "TsParameterManager.hh"
+#include "G4DeexPrecoParameters.hh"
+#include "G4NuclearLevelData.hh"
+#include "G4Exception.hh"
 #include <fstream>
 
 TsRadioactiveTimeSource::TsRadioactiveTimeSource(TsParameterManager* pM, TsSourceManager* psM, G4String sourceName)
@@ -20,6 +23,18 @@ TsRadioactiveTimeSource::~TsRadioactiveTimeSource()
 
 void TsRadioactiveTimeSource::ResolveParameters() {
     TsSource::ResolveParameters();
+    // DeexciteDaughters needs the internal-conversion shell data that only a physics
+    // constructor can switch on (before initialization): the tsrts_deexcitation module.
+    if (fPm->ParameterExists(GetFullParmName("DeexciteDaughters")) &&
+        fPm->GetBooleanParameter(GetFullParmName("DeexciteDaughters")) &&
+        !G4NuclearLevelData::GetInstance()->GetParameters()->StoreICLevelData()) {
+        G4ExceptionDescription msg;
+        msg << GetFullParmName("DeexciteDaughters") << " is True, but internal-conversion data "
+            << "are off, so no conversion electrons or x-rays would be emitted. Add the "
+            << "\"tsrts_deexcitation\" physics module after the EM module.";
+        G4Exception("TsRadioactiveTimeSource::ResolveParameters()", "TsRADIOACTIVE020",
+                    FatalException, msg);
+    }
     // Same defaults as the generator, which writes the rows this source completes at the end.
     fWriteIsotopicAbundance = true;
     if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundance")))

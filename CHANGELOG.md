@@ -7,6 +7,16 @@ All notable changes to `topas-rpt` are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- `So/<Source>/DeexciteDaughters` (default False) and `So/<Source>/IsomerLifetimeThreshold`
+  (default 1 min, mean life): the excited daughter nucleus of every sampled decay is
+  cascaded through `G4ITDecay` (photon evaporation, internal conversion, atomic
+  relaxation) to its ground state or to a longer-lived isomer, and every gamma,
+  conversion electron, x-ray and Auger electron is emitted as a primary. Applied to the
+  first decay and to every recursive chain decay.
+- `tsrts_deexcitation` physics module (`TsDeexcitationPhysics`): the nuclear
+  de-excitation settings of `G4RadioactiveDecayPhysics` (internal-conversion shell data,
+  isomer production, Auger, de-excitation below cuts) without `G4Radioactivation`.
+- `tests/regtests/validate_deexcite_daughters.sh`.
 - `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
   steps with 200 histories; every step with decays runs a history and Pb-212
   keeps decaying.
@@ -79,6 +89,16 @@ All notable changes to `topas-rpt` are documented here. The format follows
   `invitro_bind` mode.
 
 ### Fixed
+- Without `g4radioactivedecay`, sources emitted the daughter ion still excited and nothing
+  de-excited it, so gammas, conversion electrons and x-rays were missing (177Lu: beta
+  energy alone, 0.91 of the ICRP 107 non-penetrating energy, no photons). Adding
+  `g4radioactivedecay` instead also decays radioactive ground-state daughters during
+  tracking, which turns first-decay sources into chain sources (211At 1.85, 213Bi 9.2,
+  212Pb 23 times the first-decay energy). `DeexciteDaughters` gives the first decay
+  alone: within 3% of ICRP 107 for 23 of 25 nuclides checked (161Tb and 169Er sit
+  6-7% low in both variants, from the Geant4 beta spectra), and within 1% of
+  `g4radioactivedecay` where the daughter is stable. Opt-in, so existing decks are
+  unchanged.
 - `CorrectByNumberOfHistories = "True"`: once a step's scaled history count
   (the first step's count times its share of decays, truncated) reached 0, no
   history updated the isotopic abundances, so the decay chain froze and every
