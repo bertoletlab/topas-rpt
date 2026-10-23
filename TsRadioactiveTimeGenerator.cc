@@ -32,6 +32,9 @@
 #include "G4PhotonEvaporation.hh"
 #include "G4ITDecay.hh"
 #include "G4NuclearDecay.hh"
+#include <cstdlib>
+#include "G4BetaPlusDecay.hh"
+#include "G4BetaMinusDecay.hh"
 
 #include <cmath>
 #include <cstring>
@@ -430,6 +433,25 @@ void TsRadioactiveTimeGenerator::ResolveParameters()
     fIsomerLifetimeThreshold = 1. * minute;
     if (fPm->ParameterExists(GetFullParmName("IsomerLifetimeThreshold")))
         fIsomerLifetimeThreshold = fPm->GetDoubleParameter(GetFullParmName("IsomerLifetimeThreshold"), "Time");
+    // Geant4 (11.2 G4BetaDecayCorrections::ShapeFactor) gives every beta branch its data
+    // tag "firstForbidden" a shape factor fitted to Bi-210, which its own comment says is
+    // not valid for other nuclides; it softens e.g. Tb-161 (mean beta 0.91 of ICRP 107)
+    // and Er-169 (0.94). "allowed" rebuilds those branches with the allowed shape, the
+    // ICRP 107 treatment of non-unique first-forbidden transitions.
+    fAllowedShapeForFirstForbidden = false;
+    if (fPm->ParameterExists(GetFullParmName("FirstForbiddenBetaShape"))) {
+        G4String shape = fPm->GetStringParameter(GetFullParmName("FirstForbiddenBetaShape"));
+        G4StrUtil::to_lower(shape);
+        if (shape == "allowed")
+            fAllowedShapeForFirstForbidden = true;
+        else if (shape != "geant4") {
+            G4ExceptionDescription msg;
+            msg << GetFullParmName("FirstForbiddenBetaShape") << " = \"" << shape
+                << "\": expected \"geant4\" (default) or \"allowed\".";
+            G4Exception("TsRadioactiveTimeGenerator::ResolveParameters()", "TsRADIOACTIVE021",
+                        FatalException, msg);
+        }
+    }
     if (fDeexciteDaughters) {
         // Initialise() reads the internal-conversion flag from G4DeexPrecoParameters; the
         // flags G4RadioactiveDecay sets afterwards are set afterwards here too.
@@ -1147,8 +1169,8 @@ void TsRadioactiveTimeGenerator::GeneratePrimaries(G4Event* anEvent)
     if (fVerbosity > 1) G4cout << "The intra-step time for this decay is " << fIntraStepTime << " s" << G4endl;
 
     // Load decay table
-    G4DecayTable* decayTable = fDecay->LoadDecayTable(AsIonOrThrow(
-            fParticleDefinition, "TsRadioactiveTimeGenerator::GeneratePrimaries"));
+    G4DecayTable* decayTable = GetDecayTable(fParticleDefinition,
+            "TsRadioactiveTimeGenerator::GeneratePrimaries");
     G4DecayProducts* decayProducts = nullptr;
 #if G4VERSION_NUMBER >= 1130
     decayProducts =
@@ -1307,8 +1329,8 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
         }
     }
 
-    G4DecayTable* decayTable = fDecay->LoadDecayTable(AsIonOrThrow(
-            particle, "TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive"));
+    G4DecayTable* decayTable = GetDecayTable(particle,
+            "TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive");
     if (!decayTable) {
         if (fVerbosity > 1)
             G4cout << "No decay table available for " << particle->GetParticleName()
@@ -1762,6 +1784,82 @@ void TsRadioactiveTimeGenerator::ReadIsotopicAbundanceFile() {
     if (fUseFractionOfActivityFromFile)
         fFractionsOfActivityAtTime0.push_back(itFractionOfActivityAtTime0Prev->second + ratio * (itFractionOfActivityAtTime0->second - itFractionOfActivityAtTime0Prev->second));
 }
+
+G4DecayTable* TsRadioactiveTimeGenerator::GetDecayTable(const G4ParticleDefinition* particle, const char* where)
+{
+    const G4Ions* ion = AsIonOrThrow(particle, where);
+    G4DecayTable* table = fDecay->LoadDecayTable(ion);
+    if (!fAllowedShapeForFirstForbidden || !table)
+        return table;
+    auto cached = fPatchedDecayTables.find(particle);
+    if (cached != fPatchedDecayTables.end())
+        return cached->second;
+
+    // Endpoint (keV) of each first-forbidden branch, by decay mode and daughter level (keV),
+    // from the data file G4RadioactiveDecay read: "<mode> <daughterEx> <flag> <BR> <Q> firstForbidden"
+    std::map<std::pair<G4String, long>, G4double> endpointKeV;
+    const char* dir = std::getenv("G4RADIOACTIVEDATA");
+    if (!dir) {
+        G4ExceptionDescription msg;
+        msg << "FirstForbiddenBetaShape = \"allowed\" reads the decay data file, but "
+            << "G4RADIOACTIVEDATA is not set.";
+        G4Exception("TsRadioactiveTimeGenerator::GetDecayTable()", "TsRADIOACTIVE022",
+                    FatalException, msg);
+    } else {
+        std::ostringstream path;
+        path << dir << "/z" << ion->GetAtomicNumber() << ".a" << ion->GetAtomicMass();
+        std::ifstream in(path.str());
+        G4String line;
+        G4bool inParent = false;
+        while (std::getline(in, line)) {
+            if (line.empty() || line[0] == '#')
+                continue;
+            std::istringstream ls(line);
+            if (line[0] == 'P') {
+                G4String rec;
+                G4double ex;
+                ls >> rec >> ex;
+                if (inParent)
+                    break;
+                inParent = std::abs(ex * keV - ion->GetExcitationEnergy()) < 1. * keV;
+                continue;
+            }
+            G4String mode, flag, type;
+            G4double dEx, br, q;
+            if (inParent && (ls >> mode >> dEx >> flag >> br >> q >> type) && type == "firstForbidden")
+                endpointKeV[{mode, std::lround(dEx * 1000.)}] = q;
+        }
+    }
+
+    G4DecayTable* patched = table;
+    if (!endpointKeV.empty()) {
+        // Channels the original table owns are shared, so neither table is ever deleted.
+        patched = new G4DecayTable();
+        for (G4int i = 0; i < table->entries(); i++) {
+            G4VDecayChannel* ch = table->GetDecayChannel(i);
+            auto* nd = dynamic_cast<G4NuclearDecay*>(ch);
+            G4String mode = nd ? (nd->GetDecayMode() == BetaMinus ? "BetaMinus"
+                                  : nd->GetDecayMode() == BetaPlus ? "BetaPlus" : "") : "";
+            auto hit = mode.empty() ? endpointKeV.end()
+                     : endpointKeV.find({mode, std::lround(nd->GetDaughterExcitation() / keV * 1000.)});
+            if (hit == endpointKeV.end()) {
+                patched->Insert(ch);
+                continue;
+            }
+            G4double q = hit->second * keV, ex = nd->GetDaughterExcitation();
+            if (mode == "BetaMinus")
+                patched->Insert(new G4BetaMinusDecay(ion, ch->GetBR(), q, ex, nd->GetFloatingLevel(), allowed));
+            else
+                patched->Insert(new G4BetaPlusDecay(ion, ch->GetBR(), q, ex, nd->GetFloatingLevel(), allowed));
+            if (fVerbosity > 0)
+                G4cout << particle->GetParticleName() << ": " << mode << " branch to " << ex / keV
+                       << " keV (BR " << ch->GetBR() << ") given the allowed beta shape" << G4endl;
+        }
+    }
+    fPatchedDecayTables[particle] = patched;
+    return patched;
+}
+
 
 G4DecayProducts* TsRadioactiveTimeGenerator::DeexciteDaughterIons(G4DecayProducts* products)
 {

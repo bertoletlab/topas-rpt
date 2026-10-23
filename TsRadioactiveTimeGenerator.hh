@@ -77,6 +77,8 @@ public:
     G4VDecayChannel* GetDecayChannelManually(G4DecayTable* decayTable);
     // DeexciteDaughters: cascade excited daughter ions to the ground state (or an isomer).
     G4DecayProducts* DeexciteDaughterIons(G4DecayProducts* products);
+    // FirstForbiddenBetaShape: decay table with first-forbidden beta branches made allowed.
+    G4DecayTable* GetDecayTable(const G4ParticleDefinition* particle, const char* where);
 
     void GetNumberOfIndependentDecaysDuringThisStep();
     void EvolveAbundancesAnalytically(G4double stepDuration);
@@ -155,6 +157,8 @@ protected:
     G4bool fIncludeWholeDecayChain;
     G4bool fDeexciteDaughters;
     G4double fIsomerLifetimeThreshold;
+    G4bool fAllowedShapeForFirstForbidden;
+    std::map<const G4ParticleDefinition*, G4DecayTable*> fPatchedDecayTables;
 
     G4bool fReadIsotopicAbundanceFromFile;
     G4String fReadIsotopicAbundanceFileName;

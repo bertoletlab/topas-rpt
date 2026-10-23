@@ -16,7 +16,15 @@ All notable changes to `topas-rpt` are documented here. The format follows
 - `tsrts_deexcitation` physics module (`TsDeexcitationPhysics`): the nuclear
   de-excitation settings of `G4RadioactiveDecayPhysics` (internal-conversion shell data,
   isomer production, Auger, de-excitation below cuts) without `G4Radioactivation`.
-- `tests/regtests/validate_deexcite_daughters.sh`.
+- `So/<Source>/FirstForbiddenBetaShape` (`"geant4"`, default, or `"allowed"`): with
+  `"allowed"`, every beta branch the decay data tag `firstForbidden` is rebuilt as an
+  allowed transition with its branching ratio, endpoint and daughter level. Geant4 11.2
+  (`G4BetaDecayCorrections::ShapeFactor`) shapes those branches with a fit to 210Bi data
+  that its own comment marks as not valid for other nuclides; it puts the mean beta energy
+  of 161Tb at 0.91 and of 169Er at 0.94 of ICRP 107, which treats non-unique
+  first-forbidden transitions as allowed. With `"allowed"` they come to 1.010 and 1.018.
+  Nuclides without such a branch are unchanged.
+- `tests/regtests/validate_deexcite_daughters.sh`, `tests/regtests/validate_first_forbidden_shape.sh`.
 - `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
   steps with 200 histories; every step with decays runs a history and Pb-212
   keeps decaying.
@@ -95,8 +103,8 @@ All notable changes to `topas-rpt` are documented here. The format follows
   `g4radioactivedecay` instead also decays radioactive ground-state daughters during
   tracking, which turns first-decay sources into chain sources (211At 1.85, 213Bi 9.2,
   212Pb 23 times the first-decay energy). `DeexciteDaughters` gives the first decay
-  alone: within 3% of ICRP 107 for 23 of 25 nuclides checked (161Tb and 169Er sit
-  6-7% low in both variants, from the Geant4 beta spectra), and within 1% of
+  alone: within 2% of ICRP 107 for all 25 nuclides checked (161Tb and 169Er with
+  `FirstForbiddenBetaShape = "allowed"`; 6-7% low without it), and within 1% of
   `g4radioactivedecay` where the daughter is stable. Opt-in, so existing decks are
   unchanged.
 - `CorrectByNumberOfHistories = "True"`: once a step's scaled history count
