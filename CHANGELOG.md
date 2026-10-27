@@ -24,7 +24,8 @@ All notable changes to `topas-rpt` are documented here. The format follows
   of 161Tb at 0.91 and of 169Er at 0.94 of ICRP 107, which treats non-unique
   first-forbidden transitions as allowed. With `"allowed"` they come to 1.010 and 1.018.
   Nuclides without such a branch are unchanged.
-- `tests/regtests/validate_deexcite_daughters.sh`, `tests/regtests/validate_first_forbidden_shape.sh`.
+- `tests/regtests/validate_deexcite_daughters.sh`, `tests/regtests/validate_first_forbidden_shape.sh`,
+  `tests/regtests/validate_no_stale_vacancy.sh`.
 - `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
   steps with 200 histories; every step with decays runs a history and Pb-212
   keeps decaying.
@@ -107,6 +108,18 @@ All notable changes to `topas-rpt` are documented here. The format follows
   `FirstForbiddenBetaShape = "allowed"`; 6-7% low without it), and within 1% of
   `g4radioactivedecay` where the daughter is stable. Opt-in, so existing decks are
   unchanged.
+- With `tsrts_deexcitation`, a source in a finite phantom containing hydrogen emitted spurious
+  daughter K x-rays and K Auger electrons. With the Auger cascade active,
+  `G4UAtomicDeexcitation::GenerateParticles` (Geant4 11.2.2 and 11.3.2) stores the vacancy before
+  it returns for Z < 6, and nothing clears it; with `DeexcitationIgnoreCut`, Livermore Compton
+  scattering on hydrogen makes that call. When the photon then escapes, the event ends and the
+  next decay's atomic relaxation (`G4ITDecay`, `G4ECDecay`) processes the stale vacancy as a
+  daughter K vacancy. 99mTc in a soft-tissue cube of 197.6 mm half-side emitted 0.117 Tc K x-rays per
+  decay against 0.062 in vacuum, and 3.4% more electron energy per decay than in a 2 m medium;
+  graphite, without hydrogen, showed nothing. The module now installs `TsAtomicDeexcitation`, a
+  `G4UAtomicDeexcitation` that returns before storing the vacancy, in place of the one the EM
+  module installed. The same stale vacancy also added a spurious K cascade of the next atom
+  relaxed within the same event; that goes too.
 - `CorrectByNumberOfHistories = "True"`: once a step's scaled history count
   (the first step's count times its share of decays, truncated) reached 0, no
   history updated the isotopic abundances, so the decay chain froze and every
