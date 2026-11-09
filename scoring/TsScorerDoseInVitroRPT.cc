@@ -28,7 +28,7 @@ TsScorerDoseInVitroRPT::TsScorerDoseInVitroRPT(TsParameterManager* pM, TsMateria
     fNtuple->RegisterColumnI(&fAlphaNumber, "Alpha number");
     fNtuple->RegisterColumnF(&fDoseAtCulture, "Dose at culture", "Gy");
     fAlphaNumber = 0;
-    fIsFirstAlpha = true;
+    fEventID = -1;
     fIsNewHist = true;
     fTrackID = -5;
     fDoseAtCulture = 0;
@@ -93,11 +93,13 @@ G4bool TsScorerDoseInVitroRPT::ProcessHits(G4Step* aStep, G4TouchableHistory*)
     }
 
     G4int trackID = aStep->GetTrack()->GetTrackID();
+    G4int eventID = GetEventID();
 
-    if (trackID != fTrackID) {
-        fIsFirstAlpha = true;
-
+    // Track IDs restart in every event, so a new track is a new (event, track) pair.
+    if (trackID != fTrackID || eventID != fEventID) {
         fTrackID = trackID;
+        fEventID = eventID;
+        fNucleiCountedForTrack.clear();
     }
 
     // ResolveSolid(aStep);
@@ -169,16 +171,6 @@ G4bool TsScorerDoseInVitroRPT::ProcessHits(G4Step* aStep, G4TouchableHistory*)
                 //G4cout << "Type: " << type << " dose: " << dose << G4endl;
             }
 
-            if (type == 1000020040) {
-                //Update alpha in function of the weight
-                G4double weight = aStep->GetPreStepPoint()->GetWeight();
-                G4int nAlphas = floor(weight);
-                //Random number
-                G4double r_alpha = G4UniformRand();
-                if(r_alpha < weight - nAlphas) nAlphas++; //If r_alpha < weight, add one alpha to the floor value
-                fAlphasMap[currentCopyNo] = nAlphas;
-            }
-
         } else {
             fDoseMap[currentCopyNo] += dose;
             //Accumulate to the corresponding map
@@ -189,15 +181,17 @@ G4bool TsScorerDoseInVitroRPT::ProcessHits(G4Step* aStep, G4TouchableHistory*)
             else {
                 //G4cout << "Type: " << type << " dose: " << dose << G4endl;
             }
-            if (type == 1000020040) {
-                //Update alpha in function of the weight
-                G4double weight = aStep->GetPreStepPoint()->GetWeight();
-                G4int nAlphas = floor(weight);
-                //Random number
-                G4double r_alpha = G4UniformRand();
-                if(r_alpha < weight - nAlphas) nAlphas++; //If r_alpha < weight, add one alpha to the floor value
-                fAlphasMap[currentCopyNo] += nAlphas;
-            }
+        }
+
+        // Count each alpha once per nucleus it enters, not once per step inside it.
+        if (type == 1000020040 && fNucleiCountedForTrack.insert(currentCopyNo).second) {
+            //Update alpha in function of the weight
+            G4double weight = aStep->GetPreStepPoint()->GetWeight();
+            G4int nAlphas = floor(weight);
+            //Random number
+            G4double r_alpha = G4UniformRand();
+            if(r_alpha < weight - nAlphas) nAlphas++; //If r_alpha < weight, add one alpha to the floor value
+            fAlphasMap[currentCopyNo] += nAlphas;
         }
     }
     
