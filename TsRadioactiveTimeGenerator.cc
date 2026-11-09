@@ -1004,14 +1004,16 @@ void TsRadioactiveTimeGenerator::GeneratePrimaries(G4Event* anEvent)
         if (fFilterParticlesToSimulateSet.empty() || fFilterParticlesToSimulateSet.find(particleNames[i]) == fFilterParticlesToSimulateSet.end())
         {
             AddThisParticle(anEvent, particleNames[i], particleEnergies[i], particleCharges[i], particleMomenta[i], newHistory);
-            if (fIncludeWholeDecayChain){
-                G4ParticleDefinition* particle = ResolveParticleDefinitionByName(particleNames[i]);
-                if (particle)
-                    AddRecursivelyToIsotopeListIfRadioactive(anEvent, particle);
-                newHistory = false;
-            }
+            // All the products of one decay start at the decay position, whether or not the chain is followed.
+            newHistory = false;
         }
-         
+        // The chain continues through a product even when that product is not transported, as in the
+        // recursive branches.
+        if (fIncludeWholeDecayChain) {
+            G4ParticleDefinition* particle = ResolveParticleDefinitionByName(particleNames[i]);
+            if (particle)
+                AddRecursivelyToIsotopeListIfRadioactive(anEvent, particle);
+        }
     }
     
     DecreaseAbundance(fParticleDefinition);
