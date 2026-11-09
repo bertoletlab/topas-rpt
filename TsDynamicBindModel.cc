@@ -208,8 +208,11 @@ void TsDynamicBindModel::UpdateModel4compartments(G4double timeInit, G4double ti
         const G4double dt = tNext - ttime;
 
         // Compute time differentials of E (medium), M (membrane), I (cytoplasm) and D (degraded), and update their values
-        G4double dE = dt * (-fkon * fEconcentration * (fRi - fMconcentration - fIconcentration - fDconcentration) + fkoff * fMconcentration);
-        G4double dM = dt * (fkon * fEconcentration * (fRi - fMconcentration - fIconcentration - fDconcentration) - fkoff * fMconcentration - fkint * fMconcentration + fkrec * fIconcentration);
+        // Receptors are occupied by membrane-bound and internalised ligand. Degraded ligand is outside the cell
+        // (sampled in the medium and removed at washout), so it does not occupy receptors.
+        G4double freeReceptors = fRi - fMconcentration - fIconcentration;
+        G4double dE = dt * (-fkon * fEconcentration * freeReceptors + fkoff * fMconcentration);
+        G4double dM = dt * (fkon * fEconcentration * freeReceptors - fkoff * fMconcentration - fkint * fMconcentration + fkrec * fIconcentration);
         G4double dI = dt * (fkint * fMconcentration - fkrec * fIconcentration - fkefflux * fIconcentration);
         G4double dD = dt * (fkefflux * fIconcentration);
         fEconcentration += dE;
