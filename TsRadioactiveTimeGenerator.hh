@@ -52,6 +52,7 @@ public:
     void IncreaseAbundance(G4ParticleDefinition* particle);
     void DecreaseAbundance(G4ParticleDefinition* particle);
     void ConsolidateAbundanceDifferences();
+    void MergeAbundanceDifferencesAcrossThreads();
 
     void ReadIsotopicAbundanceFile();
 
@@ -115,6 +116,10 @@ protected:
     TsRadioactiveTimeSource* fSource;
 
     G4int fRunID;
+
+    // True for the one generator of this source (one exists per worker thread) that writes
+    // the shared output files.
+    G4bool fIsOutputWriter;
 
     G4bool fCorrectByNumberOfHistories;
 

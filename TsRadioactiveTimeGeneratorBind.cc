@@ -141,7 +141,7 @@ void TsRadioactiveTimeGeneratorBind::ResolveParameters() {
     state.totalConcentration = fConcentration;
     fKineticsModelAdapter.reset(
             new TsInVitroBindKineticsModel(fModel, fModelName, fProbabilitiesFilename, state));
-    if (fSaveModelToFile) {
+    if (fSaveModelToFile && fIsOutputWriter) {
         fKineticsModelAdapter->WriteProbabilityTrace(fInitialTime, fFinalTime, fProbabilitiesFilename.c_str());
     }
 
