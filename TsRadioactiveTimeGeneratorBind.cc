@@ -392,6 +392,9 @@ void TsRadioactiveTimeGeneratorBind::SetNewPositionForHistory() {
             G4cout << "WARNING: SUM OF PROBABILITIES IS NOT 1" << G4endl;
             fSumProb = true;
         }
+        // Drop the history, as the base generator does. Returning without a position left the
+        // particles at the previous position, (0,0,0) at the start of every history.
+        setPositionForHistory(NO_POSITION);
         return;
     }
     setPositionForHistory(fCurrentPosition);
