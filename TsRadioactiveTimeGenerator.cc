@@ -1066,7 +1066,8 @@ void TsRadioactiveTimeGenerator::AddThisParticle(G4Event* anEvent, G4String name
     p.dCos2 = momentum.y();
     p.dCos3 = momentum.z();
     TransformPrimaryForComponent(&p);
-    if (fMode == "diffusion" && fIntraStepTime < fDiffusionGenerationStartTime)
+    // TimeGenerationStart is a timeline time; fIntraStepTime counts from the start of the step.
+    if (fMode == "diffusion" && fCurrentTime + fIntraStepTime < fDiffusionGenerationStartTime)
         return;
     GenerateOnePrimary(anEvent, p);
     UpdateCounts(p.particleDefinition->GetParticleName());
