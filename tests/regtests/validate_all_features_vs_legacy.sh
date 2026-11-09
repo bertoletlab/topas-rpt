@@ -11,6 +11,7 @@ set -euo pipefail
 # - Legacy-equivalent parity (invitro_bind regtests + smoke example) vs baseline artifacts.
 # - Parent/uniform mode time-feature + chain-control contract.
 # - Run metadata schema contract across generated outputs.
+# - Decay-chain bookkeeping independent of thread count and CorrectByNumberOfHistories.
 # - Activity-map smoke run (optional; SKIP without required DICOM env).
 
 if [[ $# -ne 1 ]]; then
@@ -96,6 +97,9 @@ run_step "run metadata schema" \
 
 run_step "time/decay kernel smoke contract" \
   "${ROOT}/tests/regtests/validate_time_decay_kernel_smoke.sh" "${TOPAS_BIN}"
+
+run_step "decay-chain bookkeeping: thread count and CorrectByNumberOfHistories" \
+  "${ROOT}/tests/regtests/validate_multithread_chain_bookkeeping.sh" "${TOPAS_BIN}"
 
 run_optional_step "activity_map mode contract (optional)" \
   "${ROOT}/tests/regtests/validate_activity_map_contract.sh" "${TOPAS_BIN}"
