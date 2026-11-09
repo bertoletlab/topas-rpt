@@ -1161,14 +1161,34 @@ G4WT0 > Begin processing for Run: 1, History: 237
 G4WT0 > Begin processing for Run: 1, History: 238
 G4WT0 > Begin processing for Run: 1, History: 239
 G4WT0 > Begin processing for Run: 1, History: 240
+G4WT0 > Begin processing for Run: 1, History: 241
+G4WT0 > Begin processing for Run: 1, History: 242
+G4WT0 > Begin processing for Run: 1, History: 243
+G4WT0 > Begin processing for Run: 1, History: 244
+G4WT0 > Begin processing for Run: 1, History: 245
+G4WT0 > Begin processing for Run: 1, History: 246
+G4WT0 > Begin processing for Run: 1, History: 247
+G4WT0 > Begin processing for Run: 1, History: 248
+G4WT0 > Begin processing for Run: 1, History: 249
+G4WT0 > Begin processing for Run: 1, History: 250
+G4WT0 > Begin processing for Run: 1, History: 251
+G4WT0 > Begin processing for Run: 1, History: 252
+G4WT0 > Begin processing for Run: 1, History: 253
+G4WT0 > Begin processing for Run: 1, History: 254
+G4WT0 > Begin processing for Run: 1, History: 255
+G4WT0 > Begin processing for Run: 1, History: 256
+G4WT0 > Begin processing for Run: 1, History: 257
+G4WT0 > Begin processing for Run: 1, History: 258
+G4WT0 > Begin processing for Run: 1, History: 259
+G4WT0 > Begin processing for Run: 1, History: 260
 
 TOPAS run sequence complete.
-Particle source Bind: Total number of histories: 641
+Particle source Bind: Total number of histories: 661
 Particle source Demo: Total number of histories: 0
 
 Elapsed times:
-Parameter Reading : User=0.000000s Real=0.000754s Sys=0.000000s [Cpu=0.0%]
-    Initialization: User=0.020000s Real=0.025732s Sys=0.000000s [Cpu=77.7%]
-         Execution: User=0.580000s Real=0.622379s Sys=0.050000s [Cpu=101.2%]
+Parameter Reading : User=0.000000s Real=0.000774s Sys=0.000000s [Cpu=0.0%]
+    Initialization: User=0.020000s Real=0.025810s Sys=0.010000s [Cpu=116.2%]
+         Execution: User=0.550000s Real=0.601068s Sys=0.050000s [Cpu=99.8%]
       Finalization: User=0.000000s Real=0.000005s Sys=0.000000s [Cpu=0.0%]
-             Total: User=0.6s Real=0.64887s Sys=0.05s
+             Total: User=0.57s Real=0.627657s Sys=0.06s

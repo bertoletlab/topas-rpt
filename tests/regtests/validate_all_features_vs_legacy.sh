@@ -13,6 +13,7 @@ set -euo pipefail
 # - Run metadata schema contract across generated outputs.
 # - invitro_bind washout contract (trace on/off parity, washout on a step boundary).
 # - invitro_bind Manual model contract (split kept every step, ModeParams keys, washout).
+# - Decay timing (Bi-212 against Bateman) and one position per decay with the chain off.
 # - Activity-map smoke run (optional; SKIP without required DICOM env).
 
 if [[ $# -ne 1 ]]; then
@@ -104,6 +105,9 @@ run_step "invitro_bind washout: trace on/off parity and step-boundary washout" \
 
 run_step "invitro_bind Manual model: split kept every step, ModeParams keys, washout" \
   "${ROOT}/tests/regtests/validate_manual_model.sh" "${TOPAS_BIN}"
+
+run_step "decay timing against Bateman; one position per decay" \
+  "${ROOT}/tests/regtests/validate_decay_chain_timing.sh" "${TOPAS_BIN}"
 
 run_optional_step "activity_map mode contract (optional)" \
   "${ROOT}/tests/regtests/validate_activity_map_contract.sh" "${TOPAS_BIN}"

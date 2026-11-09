@@ -2752,6 +2752,8 @@ G4WT0 > Begin processing for Run: 1, History: 18
 G4WT0 > Begin processing for Run: 1, History: 19
 G4WT0 > Begin processing for Run: 1, History: 20
 G4WT0 > Begin processing for Run: 1, History: 21
+G4WT0 > Begin processing for Run: 1, History: 22
+G4WT0 > Begin processing for Run: 1, History: 23
 ---------------------------
 New step time (new run) 
 Timeinit: 2 h
@@ -2787,14 +2789,20 @@ G4WT0 > Begin processing for Run: 2, History: 19
 G4WT0 > Begin processing for Run: 2, History: 20
 G4WT0 > Begin processing for Run: 2, History: 21
 G4WT0 > Begin processing for Run: 2, History: 22
+G4WT0 > Begin processing for Run: 2, History: 23
+G4WT0 > Begin processing for Run: 2, History: 24
+G4WT0 > Begin processing for Run: 2, History: 25
+G4WT0 > Begin processing for Run: 2, History: 26
+G4WT0 > Begin processing for Run: 2, History: 27
+G4WT0 > Begin processing for Run: 2, History: 28
 
 TOPAS run sequence complete.
-Particle source Bind: Total number of histories: 6067
+Particle source Bind: Total number of histories: 6077
 Particle source Demo: Total number of histories: 0
 
 Elapsed times:
-Parameter Reading : User=0.000000s Real=0.000727s Sys=0.000000s [Cpu=0.0%]
-    Initialization: User=0.030000s Real=0.025824s Sys=0.000000s [Cpu=116.2%]
-         Execution: User=0.900000s Real=1.033052s Sys=0.130000s [Cpu=99.7%]
-      Finalization: User=0.000000s Real=0.000005s Sys=0.000000s [Cpu=0.0%]
-             Total: User=0.93s Real=1.05961s Sys=0.13s
+Parameter Reading : User=0.000000s Real=0.000715s Sys=0.000000s [Cpu=0.0%]
+    Initialization: User=0.020000s Real=0.026003s Sys=0.000000s [Cpu=76.9%]
+         Execution: User=0.870000s Real=1.000234s Sys=0.140000s [Cpu=101.0%]
+      Finalization: User=0.000000s Real=0.000006s Sys=0.000000s [Cpu=0.0%]
+             Total: User=0.89s Real=1.02696s Sys=0.14s
