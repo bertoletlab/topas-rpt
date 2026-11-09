@@ -13,9 +13,9 @@ defaults:
 jobs:
   build-and-test:
     name: Build (Geant4 11.2.2 + OpenTOPAS 4.2.3, patched) + regression suite
-    # Pinned: ubuntu-latest moved to 26.04 (GCC 15) in late 2026 and the
-    # chain-control test fails there; 24.04 (GCC 13) is the image this suite
-    # was validated on. Move deliberately, together with the cache keys below.
+    # Pinned: 24.04 (GCC 13) is the image this suite was validated on;
+    # ubuntu-latest moved to 26.04 (GCC 15) in late 2026. Move deliberately,
+    # together with the cache keys below.
     runs-on: ubuntu-24.04
     env:
       G4_TAG: v11.2.2
@@ -89,6 +89,7 @@ jobs:
           set -euxo pipefail
           git clone --branch "$TOPAS_TAG" --depth 1 https://github.com/OpenTOPAS/OpenTOPAS ~/OpenTOPAS
           git -C ~/OpenTOPAS apply "$GITHUB_WORKSPACE/patches/0001-opentopas-harden-dicom-activity-map.patch"
+          git -C ~/OpenTOPAS apply "$GITHUB_WORKSPACE/patches/0003-opentopas-zero-ke-momentum.patch"
           cmake -S ~/OpenTOPAS -B ~/topas-build \
             -DCMAKE_INSTALL_PREFIX="$HOME/topas-install" \
             -DTOPAS_EXTENSIONS_DIR="$GITHUB_WORKSPACE" \
