@@ -921,22 +921,24 @@ G4WT0 > Begin processing for Run: 0, History: 199
 New step time (new run) 
 Timeinit: 1 h
 TimeEnd: 2 h
-Number of atoms 1.04429e+08
+Number of atoms 6.3185e+08
   
-Medium probability: 0.840436
-Membrane probability: 0.00361719
-Cytoplasm probability: 0.155947
+Medium probability: 0.138903
+Membrane probability: 0.00059783
+Cytoplasm probability: 0.0257741
 Nucleus probability: 0
-Degraded probability: 0
+Degraded probability: 0.834726
 ---------------------------
+G4WT0 > Begin processing for Run: 1, History: 0
+G4WT0 > Begin processing for Run: 1, History: 1
 
 TOPAS run sequence complete.
-Particle source Bind: Total number of histories: 400
+Particle source Bind: Total number of histories: 402
 Particle source Demo: Total number of histories: 0
 
 Elapsed times:
-Parameter Reading : User=0.000000s Real=0.000791s Sys=0.000000s [Cpu=0.0%]
-    Initialization: User=0.030000s Real=0.033068s Sys=0.000000s [Cpu=90.7%]
-         Execution: User=0.670000s Real=0.853203s Sys=0.120000s [Cpu=92.6%]
-      Finalization: User=0.000000s Real=0.000023s Sys=0.000000s [Cpu=0.0%]
-             Total: User=0.7s Real=0.887085s Sys=0.12s
+Parameter Reading : User=0.010000s Real=0.000693s Sys=0.000000s [Cpu=1443.7%]
+    Initialization: User=0.020000s Real=0.024814s Sys=0.000000s [Cpu=80.6%]
+         Execution: User=0.560000s Real=0.665661s Sys=0.100000s [Cpu=99.1%]
+      Finalization: User=0.000000s Real=0.000006s Sys=0.000000s [Cpu=0.0%]
+             Total: User=0.59s Real=0.691173s Sys=0.1s

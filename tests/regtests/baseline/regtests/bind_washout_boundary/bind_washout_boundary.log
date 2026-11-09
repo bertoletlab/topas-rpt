@@ -2722,11 +2722,11 @@ G4WT0 > Begin processing for Run: 0, History: 1999
 New step time (new run) 
 Timeinit: 1 h
 TimeEnd: 2 h
-Number of atoms 3.1563e+08
+Number of atoms 5.21941e+08
   
 Medium probability: 0
-Membrane probability: 0.538138
-Cytoplasm probability: 0.461862
+Membrane probability: 0.545152
+Cytoplasm probability: 0.454848
 Nucleus probability: 0
 Degraded probability: 0
 ---------------------------
@@ -2743,17 +2743,26 @@ G4WT0 > Begin processing for Run: 1, History: 9
 G4WT0 > Begin processing for Run: 1, History: 10
 G4WT0 > Begin processing for Run: 1, History: 11
 G4WT0 > Begin processing for Run: 1, History: 12
+G4WT0 > Begin processing for Run: 1, History: 13
+G4WT0 > Begin processing for Run: 1, History: 14
+G4WT0 > Begin processing for Run: 1, History: 15
+G4WT0 > Begin processing for Run: 1, History: 16
+G4WT0 > Begin processing for Run: 1, History: 17
+G4WT0 > Begin processing for Run: 1, History: 18
+G4WT0 > Begin processing for Run: 1, History: 19
+G4WT0 > Begin processing for Run: 1, History: 20
+G4WT0 > Begin processing for Run: 1, History: 21
 ---------------------------
 New step time (new run) 
 Timeinit: 2 h
 TimeEnd: 3 h
-Number of atoms 3.1563e+08
+Number of atoms 5.21941e+08
   
-Medium probability: 0.608908
-Membrane probability: 0.00380054
-Cytoplasm probability: 0.00317698
+Medium probability: 0.609679
+Membrane probability: 0.00396411
+Cytoplasm probability: 0.00331333
 Nucleus probability: 0
-Degraded probability: 0.384115
+Degraded probability: 0.383044
 ---------------------------
 G4WT0 > Begin processing for Run: 2, History: 0
 G4WT0 > Begin processing for Run: 2, History: 1
@@ -2769,14 +2778,23 @@ G4WT0 > Begin processing for Run: 2, History: 10
 G4WT0 > Begin processing for Run: 2, History: 11
 G4WT0 > Begin processing for Run: 2, History: 12
 G4WT0 > Begin processing for Run: 2, History: 13
+G4WT0 > Begin processing for Run: 2, History: 14
+G4WT0 > Begin processing for Run: 2, History: 15
+G4WT0 > Begin processing for Run: 2, History: 16
+G4WT0 > Begin processing for Run: 2, History: 17
+G4WT0 > Begin processing for Run: 2, History: 18
+G4WT0 > Begin processing for Run: 2, History: 19
+G4WT0 > Begin processing for Run: 2, History: 20
+G4WT0 > Begin processing for Run: 2, History: 21
+G4WT0 > Begin processing for Run: 2, History: 22
 
 TOPAS run sequence complete.
-Particle source Bind: Total number of histories: 6040
+Particle source Bind: Total number of histories: 6067
 Particle source Demo: Total number of histories: 0
 
 Elapsed times:
-Parameter Reading : User=0.000000s Real=0.000790s Sys=0.000000s [Cpu=0.0%]
-    Initialization: User=0.030000s Real=0.032535s Sys=0.000000s [Cpu=92.2%]
-         Execution: User=1.010000s Real=1.268640s Sys=0.140000s [Cpu=90.6%]
-      Finalization: User=0.000000s Real=0.000016s Sys=0.000000s [Cpu=0.0%]
-             Total: User=1.04s Real=1.30198s Sys=0.14s
+Parameter Reading : User=0.000000s Real=0.000727s Sys=0.000000s [Cpu=0.0%]
+    Initialization: User=0.030000s Real=0.025824s Sys=0.000000s [Cpu=116.2%]
+         Execution: User=0.900000s Real=1.033052s Sys=0.130000s [Cpu=99.7%]
+      Finalization: User=0.000000s Real=0.000005s Sys=0.000000s [Cpu=0.0%]
+             Total: User=0.93s Real=1.05961s Sys=0.13s

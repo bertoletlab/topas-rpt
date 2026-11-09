@@ -26,10 +26,17 @@ All notable changes to `topas-rpt` are documented here. The format follows
 - `3compartments`: free receptors used the cytoplasm amount (`Ri - I`),
   unbinding released `koff * I` instead of `koff * M`, recycling had the wrong
   sign and was missing from the membrane, and an unset `krec` entered the
-  equations as -1 1/s. The model now uses the 4-compartment terms without the
-  degraded compartment, and an unset `krec` means no recycling. Who should
-  check: every `3compartments` result (internalised fractions were about 200x
-  too low). Efflux still removes activity from the system, as before.
+  equations as -1 1/s. The model now uses the 4-compartment terms, and an
+  unset `krec` means no recycling. Effluxed activity, which used to leave the
+  simulation, now stays in the well as non-binding medium activity (the
+  degraded compartment) until a washout. Who should check: every
+  `3compartments` result (internalised fractions were about 200x too low).
+- `4compartments`: degraded ligand counted against the free receptors
+  (`Ri - M - I - D`), so catabolite accumulated until it filled the receptor
+  pool and binding stopped (cell-bound activity 3x too low after 2 h and
+  almost zero after 24 h on the regression deck). Degraded ligand is outside
+  the cell, so free receptors are now `Ri - M - I`. Who should check: every
+  `4compartments` result, including rate constants fitted with this model.
 
 ### Added
 - Regression deck `bind_washout_boundary` and

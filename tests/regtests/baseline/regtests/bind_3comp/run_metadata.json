@@ -23,13 +23,13 @@
       "time_start_s": 3600,
       "time_end_s": 7200,
       "step_duration_s": 3600,
-      "n_decays_step": 7934216.820847009,
+      "n_decays_step": 48006298.14515467,
       "n_decays_first": 3485053387.373676,
-      "n_histories_step": 0,
+      "n_histories_step": 2,
       "correct_by_number_of_histories": true,
       "initial_activity_bq": 1000000,
-      "effective_activity_bq": 2203.949116901947,
-      "primary_weight": 0
+      "effective_activity_bq": 13335.08281809852,
+      "primary_weight": 24003149.07257733
     }
   ]
 }
