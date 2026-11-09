@@ -13,7 +13,10 @@ defaults:
 jobs:
   build-and-test:
     name: Build (Geant4 11.2.2 + OpenTOPAS 4.2.3, patched) + regression suite
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04 (GCC 15) in late 2026 and the
+    # chain-control test fails there; 24.04 (GCC 13) is the image this suite
+    # was validated on. Move deliberately, together with the cache keys below.
+    runs-on: ubuntu-24.04
     env:
       G4_TAG: v11.2.2
       TOPAS_TAG: v4.2.3
@@ -40,7 +43,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/geant4-install
-          key: geant4-${{ env.G4_TAG }}-patched-install
+          key: geant4-${{ env.G4_TAG }}-patched-install-${{ runner.os }}-ubuntu-24.04
 
       - name: Build Geant4 (patched) from source
         if: steps.g4cache.outputs.cache-hit != 'true'
@@ -66,7 +69,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/gdcm-install
-          key: gdcm-${{ env.GDCM_TAG }}-install
+          key: gdcm-${{ env.GDCM_TAG }}-install-${{ runner.os }}-ubuntu-24.04
 
       - name: Build GDCM from source (if not cached)
         if: steps.gdcmcache.outputs.cache-hit != 'true'
@@ -115,3 +118,24 @@ jobs:
           export G4INCLDATA="$G4DATA/G4INCL1.2"
           export G4ENSDFSTATEDATA="$G4DATA/G4ENSDFSTATE2.3"
           bash tests/regtests/validate_all_features_vs_legacy.sh "$HOME/topas-install/bin/topas"
+
+      - name: Show TOPAS run logs (on failure)
+        if: failure()
+        run: |
+          for f in /tmp/validate_*.log $(find /tmp -name run.log -mmin -120 2>/dev/null); do
+            echo "::group::$f"
+            tail -n 60 "$f" || true
+            echo "::endgroup::"
+          done
+
+      - name: Upload test outputs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regtest-logs
+          path: |
+            /tmp/validate_*.log
+            /tmp/tsrts_*/**/run.log
+            /tmp/tsrts_*/**/*.json
+          if-no-files-found: ignore
+          retention-days: 14
