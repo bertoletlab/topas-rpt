@@ -1210,18 +1210,19 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
             G4ParticleDefinition* productParticle = ResolveParticleDefinitionByName(particleNames[i]);
             if (!productParticle)
                 continue;
-            if (productParticle->GetParticleType() != "nucleus" || particleCharges[i] != 2) {
-                if (fFilterParticlesToSimulateSet.empty() || fFilterParticlesToSimulateSet.find(particleNames[i]) == fFilterParticlesToSimulateSet.end())
-                {
-                    AddThisParticle(anEvent, particleNames[i], particleEnergies[i], particleCharges[i], particleMomenta[i], newHistory);
-                    // Checks recursively for more decays
-                    if (fVerbosity > 2) G4cout << "....... and checking recursively if this guy has more decays" << G4endl;
-                    if (productParticle != particle &&
-                        productParticle->GetParticleName() != particle->GetParticleName()) {
-                        AddRecursivelyToIsotopeListIfRadioactive(anEvent, productParticle);
-                    }
-                    newHistory = false;
-                }
+            // Every product is emitted, alphas included (products that were nuclei with charge 2,
+            // i.e. alphas, used to be dropped here), and the chain continues through a product that
+            // is not transported, as in the timed branch.
+            if (fFilterParticlesToSimulateSet.empty() || fFilterParticlesToSimulateSet.find(particleNames[i]) == fFilterParticlesToSimulateSet.end())
+            {
+                AddThisParticle(anEvent, particleNames[i], particleEnergies[i], particleCharges[i], particleMomenta[i], newHistory);
+                newHistory = false;
+            }
+            // Checks recursively for more decays
+            if (fVerbosity > 2) G4cout << "....... and checking recursively if this guy has more decays" << G4endl;
+            if (productParticle != particle &&
+                productParticle->GetParticleName() != particle->GetParticleName()) {
+                AddRecursivelyToIsotopeListIfRadioactive(anEvent, productParticle);
             }
         }
     }
