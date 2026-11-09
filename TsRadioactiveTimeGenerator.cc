@@ -1430,7 +1430,7 @@ G4ParticleDefinition* TsRadioactiveTimeGenerator::PickNextRadionuclide()
 }
 
 void TsRadioactiveTimeGenerator::IncreaseAbundance(G4ParticleDefinition* particle) {
-    G4double weightOfAHistory = ComputePrimaryWeight();
+    G4double weightOfAHistory = ComputeAbundanceWeight();
     G4String name = particle->GetParticleName();
     if (fIsotopicAbundanceDifferencePerStep.find(name) == fIsotopicAbundanceDifferencePerStep.end())
         fIsotopicAbundanceDifferencePerStep[name] = weightOfAHistory / fCurrentNAtoms;
@@ -1440,7 +1440,7 @@ void TsRadioactiveTimeGenerator::IncreaseAbundance(G4ParticleDefinition* particl
 
 void TsRadioactiveTimeGenerator::DecreaseAbundance(G4ParticleDefinition* particle)
 {
-    G4double weightOfAHistory = ComputePrimaryWeight();
+    G4double weightOfAHistory = ComputeAbundanceWeight();
     G4String name = particle->GetParticleName();
     if (fIsotopicAbundanceDifferencePerStep.find(name) == fIsotopicAbundanceDifferencePerStep.end())
         fIsotopicAbundanceDifferencePerStep[name] = -weightOfAHistory / fCurrentNAtoms;
@@ -1832,6 +1832,14 @@ G4double TsRadioactiveTimeGenerator::ComputePrimaryWeight() const
 {
     return fTimeDecayKernel ? fTimeDecayKernel->ComputePrimaryWeight(BuildTimeDecayState())
                             : BuildNormalizationContext().ComputePrimaryWeight();
+}
+
+G4double TsRadioactiveTimeGenerator::ComputeAbundanceWeight() const
+{
+    // Decays that one history stands for. The primary weight is rescaled when
+    // CorrectByNumberOfHistories is False (a normalisation of the scored quantities, undone with
+    // FractionOfDecaysAtTime0); the abundances must follow the physical number of decays.
+    return fHistoriesPerStep > 0. ? fNumberOfIndependentDecaysDuringThisStep / fHistoriesPerStep : 0.;
 }
 
 void TsRadioactiveTimeGenerator::AppendCurrentRunMetadata()

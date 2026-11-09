@@ -64,6 +64,7 @@ public:
     virtual void GetAdaptedSource();
     void SetUpIsotopicAbundanceFile();
     G4double ComputePrimaryWeight() const;
+    G4double ComputeAbundanceWeight() const;
     void AppendCurrentRunMetadata();
     void SaveIsotopicAbundanceSnapshot(G4bool initializeFile) const;
     TsTimeDecayState BuildTimeDecayState() const;
