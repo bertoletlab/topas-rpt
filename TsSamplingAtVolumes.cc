@@ -7,30 +7,34 @@
 
 // CYLINDER
 G4ThreeVector TsSamplingAtVolumes::SampleAtCylindersVolume(G4double rMaxCylinder, G4double hMaxCylinder, G4double rMinCylinder, G4double hMinCylinder){
+    // Uniform in the cylinder (rMax, hMax) minus the coaxial inner cylinder (rMin, hMin), split into
+    // the ring rMin < r <= rMax over the full height and the two caps r <= rMin above and below the
+    // inner cylinder. Radii are drawn uniformly in r^2, as the area grows with r.
     G4double volume_top = CLHEP::pi * rMinCylinder * rMinCylinder * (hMaxCylinder - hMinCylinder)/2; // Volume bottom is the same
     G4double volume_ring = CLHEP::pi * (rMaxCylinder * rMaxCylinder - rMinCylinder * rMinCylinder) * hMaxCylinder;
     G4double volume_total = 2 * volume_top + volume_ring;
     G4double selVolume = G4UniformRand();
     if (selVolume <= volume_ring / volume_total){
-        G4double r = rMinCylinder + sqrt(G4UniformRand()) * (rMaxCylinder - rMinCylinder);
+        G4double r = std::sqrt(rMinCylinder * rMinCylinder +
+                               G4UniformRand() * (rMaxCylinder * rMaxCylinder - rMinCylinder * rMinCylinder));
         G4double phi = 4 * CLHEP::pi * G4UniformRand() - 2 * CLHEP::pi;
         G4double xpos = r * std::sin(phi);
         G4double ypos = r * std::cos(phi);
         G4double zpos = -0.5 * hMaxCylinder + G4UniformRand() * hMaxCylinder;
         return G4ThreeVector(xpos, ypos, zpos);
     } else if (selVolume <= (volume_ring + volume_top) / volume_total){
-        G4double r = sqrt(G4UniformRand()) * rMaxCylinder;
+        G4double r = sqrt(G4UniformRand()) * rMinCylinder;
         G4double phi = 4 * CLHEP::pi * G4UniformRand() - 2 * CLHEP::pi;
         G4double xpos = r * std::sin(phi);
         G4double ypos = r * std::cos(phi);
-        G4double zpos = 0.5 * (hMinCylinder + G4UniformRand() * (hMaxCylinder - hMinCylinder)/2);
+        G4double zpos = 0.5 * (hMinCylinder + G4UniformRand() * (hMaxCylinder - hMinCylinder));
         return G4ThreeVector(xpos, ypos, zpos);
     } else {
-        G4double r = sqrt(G4UniformRand()) * rMaxCylinder;
+        G4double r = sqrt(G4UniformRand()) * rMinCylinder;
         G4double phi = 4 * CLHEP::pi * G4UniformRand() - 2 * CLHEP::pi;
         G4double xpos = r * std::sin(phi);
         G4double ypos = r * std::cos(phi);
-        G4double zpos = - 0.5 * (hMinCylinder + G4UniformRand() * (hMaxCylinder - hMinCylinder)/2);
+        G4double zpos = - 0.5 * (hMinCylinder + G4UniformRand() * (hMaxCylinder - hMinCylinder));
         return G4ThreeVector(xpos, ypos, zpos);
     }
 }
@@ -73,7 +77,9 @@ G4ThreeVector TsSamplingAtVolumes::SampleAtBoxVolume(G4double xBox, G4double yBo
 
 // SPHERE
 G4ThreeVector TsSamplingAtVolumes::SampleAtSphereVolume(G4double rSphere, G4double rSphereMin){
-    G4double r = rSphereMin + cbrt(G4UniformRand()) * (rSphere - rSphereMin);
+    // Uniform in the shell rSphereMin < r <= rSphere: r^3 is uniform between the two radii cubed.
+    G4double rMin3 = rSphereMin * rSphereMin * rSphereMin;
+    G4double r = std::cbrt(rMin3 + G4UniformRand() * (rSphere * rSphere * rSphere - rMin3));
     G4double phi = 4 * CLHEP::pi * G4UniformRand() - 2 * CLHEP::pi;
     G4double theta = std::acos(1 - 2 * G4UniformRand());
     G4double xpos = r * std::sin(theta) * std::cos(phi);
