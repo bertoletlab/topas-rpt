@@ -144,9 +144,13 @@ void TsDynamicBindModel::UpdateModel3compartments(G4double timeInit, G4double ti
         const G4double dt = tNext - ttime;
 
         // Compute time differentials of E (medium), M (membrane) and I (cytoplasm), and update their values
-        G4double dE = dt * (-fkon * fEconcentration * (fRi - fIconcentration) + fkoff * fIconcentration);
-        G4double dM = dt * (fkon * fEconcentration * (fRi - fIconcentration) - fkoff * fIconcentration - fkint * fMconcentration);
-        G4double dI = dt * (fkint * fMconcentration - fkefflux * fIconcentration + fkrec * fIconcentration);
+        // Receptors are occupied by membrane-bound and internalised ligand (as in the 4-compartment model);
+        // unbinding releases membrane-bound ligand; recycling moves ligand from cytoplasm back to the membrane.
+        // Efflux removes ligand from the system (this model has no degraded compartment).
+        G4double freeReceptors = fRi - fMconcentration - fIconcentration;
+        G4double dE = dt * (-fkon * fEconcentration * freeReceptors + fkoff * fMconcentration);
+        G4double dM = dt * (fkon * fEconcentration * freeReceptors - fkoff * fMconcentration - fkint * fMconcentration + fkrec * fIconcentration);
+        G4double dI = dt * (fkint * fMconcentration - fkrec * fIconcentration - fkefflux * fIconcentration);
         fEconcentration += dE;
         fMconcentration += dM;
         fIconcentration += dI;
