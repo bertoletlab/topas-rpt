@@ -6,6 +6,37 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- `invitro_bind`: the washout was never applied during the run when
+  `SaveProbabilityDistribution = "True"`. Writing the trace integrated the
+  whole timeline first and left a "washout done" flag set, so every step kept
+  the full medium activity, decay count and medium probability after
+  `WashoutTime`, while the trace file itself showed the wash. The washout is
+  now applied without stored state, at exactly `WashoutTime`, in both the
+  trace and the run. Who should check their results: any `invitro_bind` run
+  with a `WashoutTime` and `SaveProbabilityDistribution = "True"`; post-wash
+  doses from those runs are not valid.
+- `invitro_bind`: a washout that falls exactly on a time-step boundary now
+  applies to the step that starts there; it was deferred by one step. Who
+  should check: washout runs whose `WashoutTime` is a multiple of the step
+  length (common with hour-aligned washouts); the first post-wash step was
+  simulated with the pre-wash medium activity.
+- `invitro_bind`: a `WashoutTime` at or before `Tf/TimelineStart` is now
+  rejected with an error.
+- `3compartments`: free receptors used the cytoplasm amount (`Ri - I`),
+  unbinding released `koff * I` instead of `koff * M`, recycling had the wrong
+  sign and was missing from the membrane, and an unset `krec` entered the
+  equations as -1 1/s. The model now uses the 4-compartment terms without the
+  degraded compartment, and an unset `krec` means no recycling. Who should
+  check: every `3compartments` result (internalised fractions were about 200x
+  too low). Efflux still removes activity from the system, as before.
+
+### Added
+- Regression deck `bind_washout_boundary` and
+  `tests/regtests/validate_washout_trace_consistency.sh` (trace on/off parity,
+  washout on a step boundary, post-wash sampling).
+- `krec` is printed in the binding-model summary for `3compartments`.
+
 ## [1.0.1] - 2026-09-09
 
 ### Fixed
