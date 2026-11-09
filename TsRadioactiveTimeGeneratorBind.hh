@@ -56,6 +56,7 @@ private:
     G4double fConcentration; // Concentration (nM)
     G4double fNumberOfCells; // Number of cells
     G4double fWashOutTime; // Washout time (s)
+    std::vector<G4double> fWashoutTimes; // Washout times passed to the kinetic model (s)
 
     // Binding kinetic parameters
     TsDynamicBindModel* fModel; // Binding model

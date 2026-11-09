@@ -5,12 +5,16 @@
 
 #include "TsDynamicBindModel.hh"
 
-TsDynamicBindModel::TsDynamicBindModel(G4double koff, G4double kon, G4double kint, G4double krec, G4double kefflux,
-                        G4double Ri, G4double totalConcentrationInit, G4double washoutTime) :
-        fkoff(koff), fkon(kon), fkint(kint), fkrec(krec), fkefflux(kefflux), fRi(Ri), // Kinetic parameters
-        fTotalConcentrationInit(totalConcentrationInit), fWashoutTime(washoutTime), fIsWashoutDone(false)
+#include <algorithm>
 
-{}
+TsDynamicBindModel::TsDynamicBindModel(G4double koff, G4double kon, G4double kint, G4double krec, G4double kefflux,
+                        G4double Ri, G4double totalConcentrationInit, const std::vector<G4double>& washoutTimes) :
+        fkoff(koff), fkon(kon), fkint(kint), fkrec(krec), fkefflux(kefflux), fRi(Ri), // Kinetic parameters
+        fTotalConcentrationInit(totalConcentrationInit), fWashoutTimes(washoutTimes)
+{
+    std::sort(fWashoutTimes.begin(), fWashoutTimes.end());
+    fWashoutTimes.erase(std::unique(fWashoutTimes.begin(), fWashoutTimes.end()), fWashoutTimes.end());
+}
 
 //Destructor
 TsDynamicBindModel::~TsDynamicBindModel() {}
@@ -28,7 +32,7 @@ void TsDynamicBindModel::UpdateModel2compartmentsCell(G4double timeInit, G4doubl
     }
 
     //Setting parameter for iteration
-    G4double dt = 0.2; // parameters in seconds. Step _ 0.2 seconds
+    const G4double dtMax = 0.2; // Euler step in seconds; shortened to land exactly on washout times and on timeEnd
     G4double ttime = timeInit; // iterator for time
     fEconcentration = Ei; // Medium 
     fIconcentration = Ii; // Cytoplasm
@@ -36,20 +40,22 @@ void TsDynamicBindModel::UpdateModel2compartmentsCell(G4double timeInit, G4doubl
     // Loop for differential equations calculations
     while (ttime < timeEnd) {
 
-        // If washout has to be done (time > timeWashout and washout is not already done), concentration at medium is set to 0
-        if (!fIsWashoutDone && ttime > fWashoutTime) {
-            fEconcentration = 0;
-            fIsWashoutDone = true;
-        }
+        const G4double tNext = NextTime(ttime, timeEnd, dtMax);
+        const G4double dt = tNext - ttime;
 
         // Compute time differentials of E (medium) and I (cytoplasm), and update their values
         G4double dE = dt * (-fkon * fEconcentration * (fRi - fIconcentration) + fkoff * fIconcentration);
         G4double dI = dt * (fkon * fEconcentration * (fRi - fIconcentration) - fkoff * fIconcentration);  
         fEconcentration += dE;
         fIconcentration += dI;
+        ttime = tNext;
+        // A washout empties the medium at exactly its time (the step was cut to land on it). Applying it at
+        // the end of a step gives each integration the interval (timeInit, timeEnd], so a washout on a step
+        // boundary is already in the state returned for that boundary. No state is kept between calls.
+        ApplyWashoutIfDue(ttime);
+
         // In case of washout, computing the fraction of isotopes remaining
         fFractionOfIsotopesRemaining = (fEconcentration + fIconcentration) / fTotalConcentrationInit;
-        ttime += dt;
 
         // Options to write the RPT distirbution in an output file 
         if (IsWrite) {
@@ -75,7 +81,7 @@ void TsDynamicBindModel::UpdateModel2compartmentsNucleus(G4double timeInit, G4do
     }
 
     //Setting parameter for iteration
-    G4double dt = 0.2; // parameters in seconds. Step _ 0.2 seconds
+    const G4double dtMax = 0.2; // Euler step in seconds; shortened to land exactly on washout times and on timeEnd
     G4double ttime = timeInit; // iterator for time
     fEconcentration = Ei; // Medium 
     fNconcentration = Ni; // Cytoplasm
@@ -83,20 +89,22 @@ void TsDynamicBindModel::UpdateModel2compartmentsNucleus(G4double timeInit, G4do
     // Loop for differential equations calculations
     while (ttime < timeEnd) {
 
-        // If washout has to be done (time > timeWashout and washout is not already done), concentration at medium is set to 0
-        if (!fIsWashoutDone && ttime > fWashoutTime) {
-            fEconcentration = 0;
-            fIsWashoutDone = true;
-        }
+        const G4double tNext = NextTime(ttime, timeEnd, dtMax);
+        const G4double dt = tNext - ttime;
 
         // Compute time differentials of E (medium) and I (cytoplasm), and update their values
         G4double dE = dt * (-fkon * fEconcentration * (fRi - fNconcentration) + fkoff * fNconcentration);
         G4double dN = dt * (fkon * fEconcentration * (fRi - fNconcentration) - fkoff * fNconcentration);  
         fEconcentration += dE;
         fNconcentration += dN;
+        ttime = tNext;
+        // A washout empties the medium at exactly its time (the step was cut to land on it). Applying it at
+        // the end of a step gives each integration the interval (timeInit, timeEnd], so a washout on a step
+        // boundary is already in the state returned for that boundary. No state is kept between calls.
+        ApplyWashoutIfDue(ttime);
+
         // In case of washout, computing the fraction of isotopes remaining
         fFractionOfIsotopesRemaining = (fEconcentration + fNconcentration) / fTotalConcentrationInit;
-        ttime += dt;
 
         // Options to write the RPT distirbution in an output file 
         if (IsWrite) {
@@ -123,7 +131,7 @@ void TsDynamicBindModel::UpdateModel3compartments(G4double timeInit, G4double ti
     }
 
     //Setting parameter for iteration
-    G4double dt = 0.2; // parameters in seconds. Step = 0.2 seconds
+    const G4double dtMax = 0.2; // Euler step in seconds; shortened to land exactly on washout times and on timeEnd
     G4double ttime = timeInit; // iterator for time
     fEconcentration = Ei; // Medium
     fMconcentration = Mi; // Membrane
@@ -132,11 +140,8 @@ void TsDynamicBindModel::UpdateModel3compartments(G4double timeInit, G4double ti
     // Loop for differential equations calculations
     while (ttime < timeEnd) {
 
-        // If washout has to be done (time > timeWashout and washout is not already done), concentration at medium is set to 0
-        if (!fIsWashoutDone && ttime > fWashoutTime) {
-            fEconcentration = 0;
-            fIsWashoutDone = true;
-        }
+        const G4double tNext = NextTime(ttime, timeEnd, dtMax);
+        const G4double dt = tNext - ttime;
 
         // Compute time differentials of E (medium), M (membrane) and I (cytoplasm), and update their values
         G4double dE = dt * (-fkon * fEconcentration * (fRi - fIconcentration) + fkoff * fIconcentration);
@@ -146,9 +151,14 @@ void TsDynamicBindModel::UpdateModel3compartments(G4double timeInit, G4double ti
         fMconcentration += dM;
         fIconcentration += dI;
 
+        ttime = tNext;
+        // A washout empties the medium at exactly its time (the step was cut to land on it). Applying it at
+        // the end of a step gives each integration the interval (timeInit, timeEnd], so a washout on a step
+        // boundary is already in the state returned for that boundary. No state is kept between calls.
+        ApplyWashoutIfDue(ttime);
+
         // In case of washout, computing the fraction of isotopes remaining
         fFractionOfIsotopesRemaining = (fEconcentration + fMconcentration + fIconcentration) / fTotalConcentrationInit;
-        ttime += dt;
 
         // Options to write the RPT distirbution in an output file 
         if (IsWrite) {
@@ -175,7 +185,7 @@ void TsDynamicBindModel::UpdateModel4compartments(G4double timeInit, G4double ti
     }
 
     //Setting parameter for iteration
-    G4double dt = 0.2; // parameters in seconds. Step = 0.2 seconds
+    const G4double dtMax = 0.2; // Euler step in seconds; shortened to land exactly on washout times and on timeEnd
     G4double ttime = timeInit; // iterator for time
     fEconcentration = Ei; // Medium
     fMconcentration = Mi; // Membrane
@@ -185,12 +195,8 @@ void TsDynamicBindModel::UpdateModel4compartments(G4double timeInit, G4double ti
     // Loop for differential equations calculations
     while (ttime < timeEnd) {
 
-        // If washout has to be done (time > timeWashout and washout is not already done), concentration at medium is set to 0
-        if (!fIsWashoutDone && ttime > fWashoutTime) {
-            fEconcentration = 0;
-            fDconcentration = 0;
-            fIsWashoutDone = true;
-        }
+        const G4double tNext = NextTime(ttime, timeEnd, dtMax);
+        const G4double dt = tNext - ttime;
 
         // Compute time differentials of E (medium), M (membrane), I (cytoplasm) and D (degraded), and update their values
         G4double dE = dt * (-fkon * fEconcentration * (fRi - fMconcentration - fIconcentration - fDconcentration) + fkoff * fMconcentration);
@@ -202,9 +208,14 @@ void TsDynamicBindModel::UpdateModel4compartments(G4double timeInit, G4double ti
         fIconcentration += dI;
         fDconcentration += dD;
 
+        ttime = tNext;
+        // A washout empties the medium at exactly its time (the step was cut to land on it). Applying it at
+        // the end of a step gives each integration the interval (timeInit, timeEnd], so a washout on a step
+        // boundary is already in the state returned for that boundary. No state is kept between calls.
+        ApplyWashoutIfDue(ttime);
+
         // In case of washout, computing the fraction of isotopes remaining
         fFractionOfIsotopesRemaining = (fEconcentration + fMconcentration + fIconcentration + fDconcentration) / fTotalConcentrationInit;
-        ttime += dt;
 
         // Options to write the RPT distirbution in an output file 
         if (IsWrite) {
@@ -221,7 +232,7 @@ void TsDynamicBindModel::UpdateModel4compartments(G4double timeInit, G4double ti
 
 }
 
-void TsDynamicBindModel::UpdateModelManual([[maybe_unused]] G4double timeInit, G4double timeEnd, G4double Ei, G4double Mi, G4double Ii, G4double Ni, G4double Di) {
+void TsDynamicBindModel::UpdateModelManual(G4double timeInit, G4double timeEnd, G4double Ei, G4double Mi, G4double Ii, G4double Ni, G4double Di) {
 
 
     // Setting probabilities
@@ -231,11 +242,12 @@ void TsDynamicBindModel::UpdateModelManual([[maybe_unused]] G4double timeInit, G
     fNconcentration = Ni;
     fDconcentration = Di;
 
-    // Checking if the washout time is reached
-    if (!fIsWashoutDone && timeEnd > fWashoutTime) {
-        fEconcentration = 0;
-        fDconcentration = 0;
-        fIsWashoutDone = true;
+    // A washout inside (timeInit, timeEnd] empties the medium, as in the integrated models.
+    for (G4double tw : fWashoutTimes) {
+        if (tw > timeInit && tw <= timeEnd) {
+            fEconcentration = 0;
+            fDconcentration = 0;
+        }
     }
 
     fFractionOfIsotopesRemaining = (fEconcentration + fMconcentration + fIconcentration + fNconcentration + fDconcentration) / fTotalConcentrationInit;
@@ -243,4 +255,19 @@ void TsDynamicBindModel::UpdateModelManual([[maybe_unused]] G4double timeInit, G
 }
 
 
+G4double TsDynamicBindModel::NextTime(G4double ttime, G4double timeEnd, G4double dtMax) const {
+    G4double tNext = ttime + dtMax;
+    // First washout strictly after ttime (washout times are sorted).
+    auto it = std::upper_bound(fWashoutTimes.begin(), fWashoutTimes.end(), ttime);
+    if (it != fWashoutTimes.end() && *it < tNext) tNext = *it;
+    if (timeEnd < tNext) tNext = timeEnd;
+    return tNext;
+}
 
+
+void TsDynamicBindModel::ApplyWashoutIfDue(G4double ttime) {
+    if (std::binary_search(fWashoutTimes.begin(), fWashoutTimes.end(), ttime)) {
+        fEconcentration = 0;
+        fDconcentration = 0;
+    }
+}
