@@ -257,14 +257,14 @@ void TsRadioactiveTimeGenerator::ResolveParameters()
     fCorrectByNumberOfHistories = true;
     if (fPm->ParameterExists(GetFullParmName("CorrectByNumberOfHistories")))
         fCorrectByNumberOfHistories = fPm->GetBooleanParameter(GetFullParmName("CorrectByNumberOfHistories"));
+    // Written by default, so the file name needs its default too (it was set only when
+    // WriteIsotopicAbundance was given: by default no file was written and temp.csv was left).
     fWriteIsotopicAbundance = true;
-    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundance"))) {
+    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundance")))
         fWriteIsotopicAbundance = fPm->GetBooleanParameter(GetFullParmName("WriteIsotopicAbundance"));
-        fWriteIsotopicAbundanceFileName = "isotopic_abundance.csv";
-        if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundanceFileName"))) {
-            fWriteIsotopicAbundanceFileName = fPm->GetStringParameter(GetFullParmName("WriteIsotopicAbundanceFileName"));
-        }
-    }
+    fWriteIsotopicAbundanceFileName = "isotopic_abundance.csv";
+    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundanceFileName")))
+        fWriteIsotopicAbundanceFileName = fPm->GetStringParameter(GetFullParmName("WriteIsotopicAbundanceFileName"));
     fTreatAdditionalDecaysAsNewHistories = true;
     if (fPm->ParameterExists(GetFullParmName("TreatAdditionalDecaysAsNewHistories")))
         fTreatAdditionalDecaysAsNewHistories = fPm->GetBooleanParameter(GetFullParmName("TreatAdditionalDecaysAsNewHistories"));
@@ -276,6 +276,8 @@ void TsRadioactiveTimeGenerator::ResolveParameters()
         fRecursivelyIncludeChildren = fPm->GetBooleanParameter(GetFullParmName("RecursivelyIncludeChildren"));
     fVerbosity = 0;
     fReadIsotopicAbundanceFromFile = false;
+    fTimeToLoadIsotopicAbundance = -1;
+    fUseFractionOfActivityFromFile = false;
     if (fPm->ParameterExists(GetFullParmName("ReadIsotopicAbundanceFromFile"))) {
         fReadIsotopicAbundanceFromFile = fPm->GetBooleanParameter(GetFullParmName("ReadIsotopicAbundanceFromFile"));
         fReadIsotopicAbundanceFileName = "isotopic_abundance.csv";
