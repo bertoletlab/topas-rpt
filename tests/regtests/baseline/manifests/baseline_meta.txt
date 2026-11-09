@@ -1,1 +1,4 @@
 date_utc=2026-02-11T05:21:20Z
+# 2026-11-08: bind_3comp regenerated (corrected 3compartments equations, stateless washout) and
+# bind_washout_boundary added. Generated with OpenTOPAS 4.3.0 + patches/0001, Geant4 11.3.2, macOS arm64,
+# not with the CI toolchain (Geant4 11.2.2); regenerate in CI if decay-data differences exceed tolerance.
