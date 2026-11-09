@@ -18,6 +18,8 @@ All notable changes to `topas-rpt` are documented here. The format follows
   `tests/regtests/validate_washout_trace_consistency.sh` (trace on/off parity,
   washout on a step boundary, post-wash sampling).
 - `krec` is printed in the binding-model summary for `3compartments`.
+- `tests/regtests/validate_manual_model.sh`: the Manual model keeps its split
+  every step, reads `ModeParams/BindingModel`, and applies a washout.
 
 ### Fixed
 - `invitro_bind`: the washout was never applied during the run when
@@ -50,6 +52,15 @@ All notable changes to `topas-rpt` are documented here. The format follows
   almost zero after 24 h on the regression deck). Degraded ligand is outside
   the cell, so free receptors are now `Ri - M - I`. Who should check: every
   `4compartments` result, including rate constants fitted with this model.
+- `invitro_bind` Manual model: only the first time step used
+  `ManualBindingProbabilities`; every later step placed all decays in the
+  medium, and a washout removed the whole activity. The model now starts from
+  the manual split and keeps it, and a washout removes only the medium and
+  degraded shares. Who should check: every Manual run with more than one time
+  step.
+- `invitro_bind`: `ModeParams/BindingModel = "Manual"` exited with "The
+  following parameters are required" (koff, kon, ReceptorsPerCell); only the
+  legacy `BindingModel` key was accepted for Manual. Both keys now work.
 
 ## [1.0.1] - 2026-09-09
 
