@@ -1,0 +1,74 @@
+{
+  "schema_version": "tsrts.run_metadata.v1",
+  "normalization_spec": "tsrts.norm.v1",
+  "normalization_basis": "primary_weight := n_decays_step / n_histories_step",
+  "mode": "invitro_bind",
+  "mode_settings": {"binding_model":"4compartments","activity_per_ml":20000,"specific_activity_per_nmol":25000000,"concentration_nmol_per_l":0.8,"washout_time_s":3600,"washout_times_s":[3600,9000,10800],"receptors_per_cell":50000,"kd_nM":5,"koff_per_s":0.005,"kon_per_nM_s":0.001,"kint_per_s":0.005,"krec_per_s":0.004,"kefflux_per_s":0.002,"manual_probabilities":[],"param_sources":{"activity_per_ml":"legacy","binding_model":"legacy","kd_nM":"legacy","kefflux_per_s":"legacy","kint_per_s":"legacy","koff_per_s":"legacy","kon_per_nM_s":"legacy","krec_per_s":"legacy","probability_distribution_filename":"legacy","receptors_per_cell":"legacy","save_probability_distribution":"legacy","specific_activity_per_nmol":"legacy","washout_times_s":"legacy"}},
+  "entries": [
+    {
+      "run_id": 0,
+      "time_start_s": 0,
+      "time_end_s": 3600,
+      "step_duration_s": 3600,
+      "n_decays_step": 3485053387.373676,
+      "n_decays_first": 3485053387.373676,
+      "n_histories_step": 2000,
+      "correct_by_number_of_histories": true,
+      "initial_activity_bq": 1000000,
+      "effective_activity_bq": 968070.3853815767,
+      "primary_weight": 1742526.693686838
+    },
+    {
+      "run_id": 1,
+      "time_start_s": 3600,
+      "time_end_s": 7200,
+      "step_duration_s": 3600,
+      "n_decays_step": 39360091.05427566,
+      "n_decays_first": 3485053387.373676,
+      "n_histories_step": 22,
+      "correct_by_number_of_histories": true,
+      "initial_activity_bq": 1000000,
+      "effective_activity_bq": 10933.35862618768,
+      "primary_weight": 1789095.047921621
+    },
+    {
+      "run_id": 2,
+      "time_start_s": 7200,
+      "time_end_s": 10800,
+      "step_duration_s": 3600,
+      "n_decays_step": 40881301.47925679,
+      "n_decays_first": 3485053387.373676,
+      "n_histories_step": 23,
+      "correct_by_number_of_histories": true,
+      "initial_activity_bq": 1000000,
+      "effective_activity_bq": 11355.91707757133,
+      "primary_weight": 1777447.890402469
+    },
+    {
+      "run_id": 3,
+      "time_start_s": 10800,
+      "time_end_s": 14400,
+      "step_duration_s": 3600,
+      "n_decays_step": 3291.544264560553,
+      "n_decays_first": 3485053387.373676,
+      "n_histories_step": 0,
+      "correct_by_number_of_histories": true,
+      "initial_activity_bq": 1000000,
+      "effective_activity_bq": 0.9143178512668202,
+      "primary_weight": 0
+    },
+    {
+      "run_id": 4,
+      "time_start_s": 14400,
+      "time_end_s": 18000,
+      "step_duration_s": 3600,
+      "n_decays_step": 3291.54426456056,
+      "n_decays_first": 3485053387.373676,
+      "n_histories_step": 0,
+      "correct_by_number_of_histories": true,
+      "initial_activity_bq": 1000000,
+      "effective_activity_bq": 0.9143178512668222,
+      "primary_weight": 0
+    }
+  ]
+}

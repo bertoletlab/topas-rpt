@@ -2,6 +2,7 @@
 //
 // Created by Daniel Suarez and Victor Valladolid on 12/18/23.
 //
+#include <algorithm>
 #include <cmath>
 #include <iomanip>
 #include <sstream>
@@ -98,24 +99,43 @@ void TsRadioactiveTimeGeneratorBind::ResolveParameters() {
     fEconcentration = fConcentration; // Initially, all isotopes are in the medium
     fEProbability = 1; // Initially, all isotopes are in the medium
 
-    // Washout time. Large time is interpreted as no washout
+    // Washout times. Each washout empties the medium (and the degraded compartment).
+    // WashoutTime gives one washout; WashoutTimes (a time vector) gives any number of them.
+    // Without either, there is no washout (the 1e10 s placeholder is only reported in the metadata).
     fWashOutTime = 1e10;
     G4double washOutTimeRaw = 0.;
     if (TsInVitroBindModeAdapter::ResolveDouble(fPm, modeParam("WashoutTime"), legacyParam("WashoutTime"), "Time",
                                                 &washOutTimeRaw, &sourceTag)) {
-        fWashOutTime = washOutTimeRaw / second;
+        fWashoutTimes.push_back(washOutTimeRaw / second);
         fModeParamSources["washout_time_s"] = sourceTag;
+    }
+    for (const G4String& name : {modeParam("WashoutTimes"), legacyParam("WashoutTimes")}) {
+        if (!fPm->ParameterExists(name)) continue;
+        if (!fWashoutTimes.empty()) {
+            G4cerr << "Topas is exiting due to a serious error in source setup." << G4endl;
+            G4cerr << "Set either WashoutTime or WashoutTimes, not both." << G4endl;
+            exit(1);
+        }
+        G4double* values = fPm->GetDoubleVector(name, "Time");
+        G4int n = fPm->GetVectorLength(name);
+        for (G4int i = 0; i < n; i++) fWashoutTimes.push_back(values[i] / second);
+        delete[] values;
+        fModeParamSources["washout_times_s"] = (name == modeParam("WashoutTimes")) ? "mode_params" : "legacy";
+        break;
+    }
+    std::sort(fWashoutTimes.begin(), fWashoutTimes.end());
+    for (G4double tw : fWashoutTimes) {
         // The kinetics start at TimelineStart with all ligand in the medium, so a washout at or
         // before that time has nothing to act on (it was silently skipped, or emptied the medium
         // at once, depending on the step grid).
-        if (fWashOutTime <= fInitialTime) {
+        if (tw <= fInitialTime) {
             G4cerr << "Topas is exiting due to a serious error in source setup." << G4endl;
-            G4cerr << "WashoutTime (" << fWashOutTime << " s) must be later than Tf/TimelineStart ("
+            G4cerr << "Washout time " << tw << " s must be later than Tf/TimelineStart ("
                    << fInitialTime << " s)." << G4endl;
             exit(1);
         }
-        fWashoutTimes.push_back(fWashOutTime);
     }
+    if (!fWashoutTimes.empty()) fWashOutTime = fWashoutTimes.front();
 
 
     // Optional spherical medium override.
@@ -548,6 +568,12 @@ G4String TsRadioactiveTimeGeneratorBind::GetModeMetadataJson() const
     out << "\"specific_activity_per_nmol\":" << fSpecificActivity_pernmol << ",";
     out << "\"concentration_nmol_per_l\":" << fConcentration << ",";
     out << "\"washout_time_s\":" << fWashOutTime << ",";
+    out << "\"washout_times_s\":[";
+    for (size_t i = 0; i < fWashoutTimes.size(); i++) {
+        out << fWashoutTimes[i];
+        if (i + 1 < fWashoutTimes.size()) out << ",";
+    }
+    out << "],";
     out << "\"receptors_per_cell\":" << fBmax << ",";
     out << "\"kd_nM\":" << fKd << ",";
     out << "\"koff_per_s\":" << fkoff << ",";

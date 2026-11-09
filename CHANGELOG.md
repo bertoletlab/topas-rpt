@@ -6,6 +6,19 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `invitro_bind`: several washouts per run with
+  `ModeParams/WashoutTimes` (a time vector), for repeated medium changes.
+  Each one empties the medium and the degraded compartment at exactly its
+  time. `WashoutTime` still sets a single washout; setting both is an error.
+  The run metadata lists them as `washout_times_s`. Regression deck
+  `bind_washout_multiple` (three washouts, two on step boundaries) is covered
+  by `validate_washout_trace_consistency.sh`.
+- Regression deck `bind_washout_boundary` and
+  `tests/regtests/validate_washout_trace_consistency.sh` (trace on/off parity,
+  washout on a step boundary, post-wash sampling).
+- `krec` is printed in the binding-model summary for `3compartments`.
+
 ### Fixed
 - `invitro_bind`: the washout was never applied during the run when
   `SaveProbabilityDistribution = "True"`. Writing the trace integrated the
@@ -37,12 +50,6 @@ All notable changes to `topas-rpt` are documented here. The format follows
   almost zero after 24 h on the regression deck). Degraded ligand is outside
   the cell, so free receptors are now `Ri - M - I`. Who should check: every
   `4compartments` result, including rate constants fitted with this model.
-
-### Added
-- Regression deck `bind_washout_boundary` and
-  `tests/regtests/validate_washout_trace_consistency.sh` (trace on/off parity,
-  washout on a step boundary, post-wash sampling).
-- `krec` is printed in the binding-model summary for `3compartments`.
 
 ## [1.0.1] - 2026-09-09
 
