@@ -280,8 +280,22 @@ void TsRadioactiveTimeGeneratorBind::GettingBindingKineticParameters() {
         fDProbability = fManualBindingProbabilities[4];
     }
 
-    G4bool isManualBindingModel = fPm->ParameterExists(GetFullParmName("BindingModel")) &&
-                                  fPm->GetStringParameter(GetFullParmName("BindingModel")) == "Manual";
+    // Read the model name from ModeParams/BindingModel or the legacy key, as SettingBindingKineticModel does.
+    G4String bindingModelName;
+    G4bool isManualBindingModel =
+            TsInVitroBindModeAdapter::ResolveString(fPm, modeParam("BindingModel"), legacyParam("BindingModel"),
+                                                    &bindingModelName, nullptr) &&
+            bindingModelName == "Manual";
+
+    // The Manual model keeps the compartment amounts it is given and only applies the washouts,
+    // so it must start from the manual split, not from all the ligand in the medium.
+    if (isManualBindingModel && !fManualBindingProbabilities.empty()) {
+        fEconcentration = fManualBindingProbabilities[0] * fConcentration;
+        fMconcentration = fManualBindingProbabilities[1] * fConcentration;
+        fIconcentration = fManualBindingProbabilities[2] * fConcentration;
+        fNconcentration = fManualBindingProbabilities[3] * fConcentration;
+        fDconcentration = fManualBindingProbabilities[4] * fConcentration;
+    }
 
     // Checking if kon and koff are defined. These parameters are required for non-manual models.
     if (!isManualBindingModel && (fkoff==-1 || fkon==-1 || fRi==-1)) {
