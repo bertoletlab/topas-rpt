@@ -104,6 +104,15 @@ G4ParticleDefinition* ResolveParticleDefinitionByName(const G4String& particleNa
     return ionTable->GetIon(Z, A, excitationEnergy);
 }
 
+// Decay time of a nucleus known to decay within [0, stepDuration): the exponential decay law
+// truncated to the step (inverse CDF). Close to uniform when the step is short against the meanlife.
+G4double SampleDecayTimeWithinStep(G4double meanlife, G4double stepDuration)
+{
+    if (!(meanlife > 0.) || !(stepDuration > 0.))
+        return 0.;
+    return -meanlife * std::log1p(G4UniformRand() * std::expm1(-stepDuration / meanlife));
+}
+
 G4String GetBaseEmitterName(const G4String& emitterName)
 {
     size_t bracketPosition = emitterName.find("[");
@@ -939,6 +948,14 @@ void TsRadioactiveTimeGenerator::GeneratePrimaries(G4Event* anEvent)
     fParticleDefinition = PickNextRadionuclide();
     if (fVerbosity > 0) G4cout << "Decaying: " << fParticleDefinition->GetParticleName() << G4endl;
     fEmitterParticleName = fParticleDefinition->GetParticleName();
+
+    // The primary decays at a time within the step drawn from its own decay law, so its daughters
+    // get the rest of the step to decay in. With the primary at time 0, every daughter had the whole
+    // step, and daughters decayed in-step too often (Pb-212 -> Bi-212, 1 h steps: 50% of the Bi-212
+    // left at the end of the step instead of 73%).
+    fIntraStepTime = SampleDecayTimeWithinStep(fParticleDefinition->GetPDGLifeTime() / second,
+                                               fNextTime - fCurrentTime);
+    if (fVerbosity > 1) G4cout << "The intra-step time for this decay is " << fIntraStepTime << " s" << G4endl;
 
     // Load decay table
     G4DecayTable* decayTable = fDecay->LoadDecayTable(AsIonOrThrow(
