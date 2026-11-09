@@ -121,13 +121,13 @@ void TsDynamicBindModel::UpdateModel2compartmentsNucleus(G4double timeInit, G4do
 
 
 void TsDynamicBindModel::UpdateModel3compartments(G4double timeInit, G4double timeEnd, G4double Ei, G4double Mi, G4double Ii,
-                                                    G4bool IsWrite, G4String filename = " ") {
+                                                    G4double Di, G4bool IsWrite, G4String filename = " ") {
 
     //If is write, open file to write
     if (IsWrite) {
         fFile.open(filename, std::ofstream::out | std::ofstream::trunc);
         // Write headers once at the beginning (place this in your initialization if needed)
-        fFile << "Time\tE\tM\tI\tFracRemaining" << G4endl;
+        fFile << "Time\tE\tM\tI\tD\tFracRemaining" << G4endl;
     }
 
     //Setting parameter for iteration
@@ -136,6 +136,7 @@ void TsDynamicBindModel::UpdateModel3compartments(G4double timeInit, G4double ti
     fEconcentration = Ei; // Medium
     fMconcentration = Mi; // Membrane
     fIconcentration = Ii; // Cytoplasm
+    fDconcentration = Di; // Effluxed activity, in the medium but no longer bindable
 
     // Loop for differential equations calculations
     while (ttime < timeEnd) {
@@ -146,14 +147,17 @@ void TsDynamicBindModel::UpdateModel3compartments(G4double timeInit, G4double ti
         // Compute time differentials of E (medium), M (membrane) and I (cytoplasm), and update their values
         // Receptors are occupied by membrane-bound and internalised ligand (as in the 4-compartment model);
         // unbinding releases membrane-bound ligand; recycling moves ligand from cytoplasm back to the membrane.
-        // Efflux removes ligand from the system (this model has no degraded compartment).
+        // Effluxed activity stays in the well until a washout, as non-binding activity in the medium (D);
+        // it used to leave the simulation, so its decays were never simulated.
         G4double freeReceptors = fRi - fMconcentration - fIconcentration;
         G4double dE = dt * (-fkon * fEconcentration * freeReceptors + fkoff * fMconcentration);
         G4double dM = dt * (fkon * fEconcentration * freeReceptors - fkoff * fMconcentration - fkint * fMconcentration + fkrec * fIconcentration);
         G4double dI = dt * (fkint * fMconcentration - fkrec * fIconcentration - fkefflux * fIconcentration);
+        G4double dD = dt * (fkefflux * fIconcentration);
         fEconcentration += dE;
         fMconcentration += dM;
         fIconcentration += dI;
+        fDconcentration += dD;
 
         ttime = tNext;
         // A washout empties the medium at exactly its time (the step was cut to land on it). Applying it at
@@ -162,7 +166,7 @@ void TsDynamicBindModel::UpdateModel3compartments(G4double timeInit, G4double ti
         ApplyWashoutIfDue(ttime);
 
         // In case of washout, computing the fraction of isotopes remaining
-        fFractionOfIsotopesRemaining = (fEconcentration + fMconcentration + fIconcentration) / fTotalConcentrationInit;
+        fFractionOfIsotopesRemaining = (fEconcentration + fMconcentration + fIconcentration + fDconcentration) / fTotalConcentrationInit;
 
         // Options to write the RPT distirbution in an output file 
         if (IsWrite) {
@@ -172,6 +176,7 @@ void TsDynamicBindModel::UpdateModel3compartments(G4double timeInit, G4double ti
               << fEconcentration / fTotalConcentrationInit     << "\t"
               << fMconcentration / fTotalConcentrationInit     << "\t"
               << fIconcentration / fTotalConcentrationInit     << "\t"
+              << fDconcentration / fTotalConcentrationInit     << "\t"
               << fFractionOfIsotopesRemaining         << G4endl;
         }
     }

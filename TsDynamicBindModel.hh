@@ -23,7 +23,7 @@ public:
     // Methods to calculate the probabilties with each binding kinetic models
     void UpdateModel2compartmentsCell(G4double timeInit, G4double timeEnd, G4double Ei, G4double Ii, G4bool IsWrite, G4String filename);
     void UpdateModel2compartmentsNucleus(G4double timeInit, G4double timeEnd, G4double Ei, G4double Ii, G4bool IsWrite, G4String filename);
-    void UpdateModel3compartments(G4double timeInit, G4double timeEnd, G4double Ei, G4double Mi, G4double Ii, G4bool IsWrite, G4String filename);
+    void UpdateModel3compartments(G4double timeInit, G4double timeEnd, G4double Ei, G4double Mi, G4double Ii, G4double Di, G4bool IsWrite, G4String filename);
     void UpdateModel4compartments(G4double timeInit, G4double timeEnd, G4double Ei, G4double Mi, G4double Ii, G4double Di, G4bool IsWrite, G4String filename);
     void UpdateModelManual(G4double timeInit, G4double timeEnd, G4double Ei, G4double Mi, G4double Ii, G4double Ni, G4double Di);
 
