@@ -1169,14 +1169,38 @@ G4WT0 > Begin processing for Run: 1, History: 236
 G4WT0 > Begin processing for Run: 1, History: 237
 G4WT0 > Begin processing for Run: 1, History: 238
 G4WT0 > Begin processing for Run: 1, History: 239
+G4WT0 > Begin processing for Run: 1, History: 240
+G4WT0 > Begin processing for Run: 1, History: 241
+G4WT0 > Begin processing for Run: 1, History: 242
+G4WT0 > Begin processing for Run: 1, History: 243
+G4WT0 > Begin processing for Run: 1, History: 244
+G4WT0 > Begin processing for Run: 1, History: 245
+G4WT0 > Begin processing for Run: 1, History: 246
+G4WT0 > Begin processing for Run: 1, History: 247
+G4WT0 > Begin processing for Run: 1, History: 248
+G4WT0 > Begin processing for Run: 1, History: 249
+G4WT0 > Begin processing for Run: 1, History: 250
+G4WT0 > Begin processing for Run: 1, History: 251
+G4WT0 > Begin processing for Run: 1, History: 252
+G4WT0 > Begin processing for Run: 1, History: 253
+G4WT0 > Begin processing for Run: 1, History: 254
+G4WT0 > Begin processing for Run: 1, History: 255
+G4WT0 > Begin processing for Run: 1, History: 256
+G4WT0 > Begin processing for Run: 1, History: 257
+G4WT0 > Begin processing for Run: 1, History: 258
+G4WT0 > Begin processing for Run: 1, History: 259
+G4WT0 > Begin processing for Run: 1, History: 260
+G4WT0 > Begin processing for Run: 1, History: 261
+G4WT0 > Begin processing for Run: 1, History: 262
+G4WT0 > Begin processing for Run: 1, History: 263
 
 TOPAS run sequence complete.
-Particle source Bind: Total number of histories: 640
+Particle source Bind: Total number of histories: 664
 Particle source Demo: Total number of histories: 0
 
 Elapsed times:
-Parameter Reading : User=0.000000s Real=0.000703s Sys=0.000000s [Cpu=0.0%]
-    Initialization: User=0.020000s Real=0.025302s Sys=0.010000s [Cpu=118.6%]
-         Execution: User=0.620000s Real=0.715652s Sys=0.090000s [Cpu=99.2%]
+Parameter Reading : User=0.000000s Real=0.000712s Sys=0.000000s [Cpu=0.0%]
+    Initialization: User=0.030000s Real=0.025473s Sys=0.010000s [Cpu=157.0%]
+         Execution: User=0.590000s Real=0.695897s Sys=0.090000s [Cpu=97.7%]
       Finalization: User=0.000000s Real=0.000005s Sys=0.000000s [Cpu=0.0%]
-             Total: User=0.64s Real=0.741662s Sys=0.1s
+             Total: User=0.62s Real=0.722086s Sys=0.1s

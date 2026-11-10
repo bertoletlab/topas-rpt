@@ -105,6 +105,15 @@ G4ParticleDefinition* ResolveParticleDefinitionByName(const G4String& particleNa
     return ionTable->GetIon(Z, A, excitationEnergy);
 }
 
+// Decay time of a nucleus known to decay within [0, stepDuration): the exponential decay law
+// truncated to the step (inverse CDF). Close to uniform when the step is short against the meanlife.
+G4double SampleDecayTimeWithinStep(G4double meanlife, G4double stepDuration)
+{
+    if (!(meanlife > 0.) || !(stepDuration > 0.))
+        return 0.;
+    return -meanlife * std::log1p(G4UniformRand() * std::expm1(-stepDuration / meanlife));
+}
+
 G4String GetBaseEmitterName(const G4String& emitterName)
 {
     size_t bracketPosition = emitterName.find("[");
@@ -977,6 +986,14 @@ void TsRadioactiveTimeGenerator::GeneratePrimaries(G4Event* anEvent)
     if (fVerbosity > 0) G4cout << "Decaying: " << fParticleDefinition->GetParticleName() << G4endl;
     fEmitterParticleName = fParticleDefinition->GetParticleName();
 
+    // The primary decays at a time within the step drawn from its own decay law, so its daughters
+    // get the rest of the step to decay in. With the primary at time 0, every daughter had the whole
+    // step, and daughters decayed in-step too often (Pb-212 -> Bi-212, 1 h steps: 50% of the Bi-212
+    // left at the end of the step instead of 73%).
+    fIntraStepTime = SampleDecayTimeWithinStep(fParticleDefinition->GetPDGLifeTime() / second,
+                                               fNextTime - fCurrentTime);
+    if (fVerbosity > 1) G4cout << "The intra-step time for this decay is " << fIntraStepTime << " s" << G4endl;
+
     // Load decay table
     G4DecayTable* decayTable = fDecay->LoadDecayTable(AsIonOrThrow(
             fParticleDefinition, "TsRadioactiveTimeGenerator::GeneratePrimaries"));
@@ -1041,14 +1058,16 @@ void TsRadioactiveTimeGenerator::GeneratePrimaries(G4Event* anEvent)
         if (fFilterParticlesToSimulateSet.empty() || fFilterParticlesToSimulateSet.find(particleNames[i]) == fFilterParticlesToSimulateSet.end())
         {
             AddThisParticle(anEvent, particleNames[i], particleEnergies[i], particleCharges[i], particleMomenta[i], newHistory);
-            if (fIncludeWholeDecayChain){
-                G4ParticleDefinition* particle = ResolveParticleDefinitionByName(particleNames[i]);
-                if (particle)
-                    AddRecursivelyToIsotopeListIfRadioactive(anEvent, particle);
-                newHistory = false;
-            }
+            // All the products of one decay start at the decay position, whether or not the chain is followed.
+            newHistory = false;
         }
-         
+        // The chain continues through a product even when that product is not transported, as in the
+        // recursive branches.
+        if (fIncludeWholeDecayChain) {
+            G4ParticleDefinition* particle = ResolveParticleDefinitionByName(particleNames[i]);
+            if (particle)
+                AddRecursivelyToIsotopeListIfRadioactive(anEvent, particle);
+        }
     }
     
     DecreaseAbundance(fParticleDefinition);
@@ -1084,7 +1103,8 @@ void TsRadioactiveTimeGenerator::AddThisParticle(G4Event* anEvent, G4String name
     p.dCos2 = momentum.y();
     p.dCos3 = momentum.z();
     TransformPrimaryForComponent(&p);
-    if (fMode == "diffusion" && fIntraStepTime < fDiffusionGenerationStartTime)
+    // TimeGenerationStart is a timeline time; fIntraStepTime counts from the start of the step.
+    if (fMode == "diffusion" && fCurrentTime + fIntraStepTime < fDiffusionGenerationStartTime)
         return;
     GenerateOnePrimary(anEvent, p);
     UpdateCounts(p.particleDefinition->GetParticleName());
@@ -1228,18 +1248,19 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
             G4ParticleDefinition* productParticle = ResolveParticleDefinitionByName(particleNames[i]);
             if (!productParticle)
                 continue;
-            if (productParticle->GetParticleType() != "nucleus" || particleCharges[i] != 2) {
-                if (fFilterParticlesToSimulateSet.empty() || fFilterParticlesToSimulateSet.find(particleNames[i]) == fFilterParticlesToSimulateSet.end())
-                {
-                    AddThisParticle(anEvent, particleNames[i], particleEnergies[i], particleCharges[i], particleMomenta[i], newHistory);
-                    // Checks recursively for more decays
-                    if (fVerbosity > 2) G4cout << "....... and checking recursively if this guy has more decays" << G4endl;
-                    if (productParticle != particle &&
-                        productParticle->GetParticleName() != particle->GetParticleName()) {
-                        AddRecursivelyToIsotopeListIfRadioactive(anEvent, productParticle);
-                    }
-                    newHistory = false;
-                }
+            // Every product is emitted, alphas included (products that were nuclei with charge 2,
+            // i.e. alphas, used to be dropped here), and the chain continues through a product that
+            // is not transported, as in the timed branch.
+            if (fFilterParticlesToSimulateSet.empty() || fFilterParticlesToSimulateSet.find(particleNames[i]) == fFilterParticlesToSimulateSet.end())
+            {
+                AddThisParticle(anEvent, particleNames[i], particleEnergies[i], particleCharges[i], particleMomenta[i], newHistory);
+                newHistory = false;
+            }
+            // Checks recursively for more decays
+            if (fVerbosity > 2) G4cout << "....... and checking recursively if this guy has more decays" << G4endl;
+            if (productParticle != particle &&
+                productParticle->GetParticleName() != particle->GetParticleName()) {
+                AddRecursivelyToIsotopeListIfRadioactive(anEvent, productParticle);
             }
         }
     }
