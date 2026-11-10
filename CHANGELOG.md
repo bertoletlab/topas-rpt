@@ -22,6 +22,10 @@ All notable changes to `topas-rpt` are documented here. The format follows
   every step, reads `ModeParams/BindingModel`, and applies a washout.
 - `tests/regtests/validate_decay_chain_timing.sh`: Bi-212 from Pb-212 against
   the Bateman solution, and one position per decay with the chain off.
+- `tests/regtests/validate_multithread_chain_bookkeeping.sh`: the decay chain
+  must not depend on the thread count or on `CorrectByNumberOfHistories`.
+- `tests/regtests/validate_output_files.sh`: default abundance file, times of
+  1e6 s and more written and read back, uptake-file id check.
 
 ### Fixed
 - `invitro_bind`: the washout was never applied during the run when
@@ -88,6 +92,36 @@ All notable changes to `topas-rpt` are documented here. The format follows
   not with the time within the step.
 - Regression baselines regenerated for the decay-timing change (decay counts
   of the second step of the Pb-212 decks are about 10% higher).
+- Multithreaded runs: each worker thread depleted the parent only with the
+  decays of its own histories, so with N threads the chain decayed about N
+  times too slowly and later steps had too many decays (Pb-212, 4 threads:
+  0.85 left at 10 h instead of 0.52). The worker threads now pool their
+  abundance changes at the end of each step, and the shared output files
+  (`run_metadata.json`, the abundance CSV, the binding-probability trace) are
+  written by one thread instead of all of them. Who should check: any run
+  with `Ts/NumberOfThreads` above 1 and more than one time step. Doses per
+  step were too high in later steps, by an amount that grows with the thread
+  count and the decay over the timeline. Single-thread runs are unchanged.
+- `CorrectByNumberOfHistories = "False"`: the abundance bookkeeping used the
+  rescaled primary weight, so the parent was depleted too fast (Pb-212, 10 h
+  steps: 0.04 left at 20 h instead of 0.27). The abundances now always follow
+  the physical number of decays. Who should check: runs with this setting and
+  more than one time step.
+- The isotopic abundance file was not written unless `WriteIsotopicAbundance`
+  was set explicitly (it is on by default, but the default file name was
+  missing), and a `temp.csv` was left in the run folder. It is now written as
+  `isotopic_abundance.csv` by default, and the temporary file sits next to it
+  (`<name>.tmp`).
+- Abundance files: times of 1e6 s (11.6 days) and more were written as
+  `1.2096e+06` and read back as 1, so `TimeToLoadIsotopicAbundance` loaded the
+  wrong row; and an exact time match took `FractionOfDecaysAtTime0` from the
+  last row. Who should check: runs that used `ReadIsotopicAbundanceFromFile`
+  with files covering more than 11 days.
+- `invitro_bind`: an `UptakePerCellFilename` entry with a cell id outside
+  0..NumOfCells-1 wrote outside memory; it is now rejected at setup.
+- `DoseInVitroRPT`: "Alpha number" counted an alpha on every step inside a
+  nucleus, so it was inflated when steps are short (fine cuts or step limits);
+  it now counts each alpha once per nucleus it enters. Doses are unchanged.
 
 ## [1.0.1] - 2026-09-09
 

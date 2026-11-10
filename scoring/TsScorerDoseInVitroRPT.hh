@@ -20,6 +20,8 @@
 
 #include "G4VProcess.hh"
 
+#include <set>
+
 
 class TsScorerDoseInVitroRPT : public TsVNtupleScorer
 {
@@ -45,7 +47,7 @@ protected:
     G4float fDose_hist_isotope;
     G4int fNucleusNumber;
     G4int fAlphaNumber;
-    G4bool fIsFirstAlpha;
+    G4int fEventID; // Event of fTrackID
     G4bool fIsNewHist;
     G4int fTrackID;
     G4float fDoseAtCulture;
@@ -65,6 +67,7 @@ private:
     std::map<G4int, G4double> fDoseGammaMap;
     std::map<G4int, G4double> fDoseIsotopeMap;
     std::map<G4int, G4int> fAlphasMap;
+    std::set<G4int> fNucleiCountedForTrack; // Nuclei in which the current alpha track was already counted
     std::map<std::tuple<G4int, G4int, G4int, G4int>, std::vector<G4double>> fDosePerTrackMap;
 
 

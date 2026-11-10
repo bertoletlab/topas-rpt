@@ -7,6 +7,8 @@
 
 #include <cstdio>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 
 #include "IIsotopicAbundanceReporter.hh"
 
@@ -38,7 +40,10 @@ private:
                          const std::map<G4String, G4double>& abundances,
                          G4double currentTimeS)
     {
-        out << currentTimeS;
+        // Full precision: with the default 6 digits, 1209600 s was written as 1.2096e+06.
+        std::ostringstream time;
+        time << std::setprecision(15) << currentTimeS;
+        out << time.str();
         for (size_t i = 0; i < orderedIsotopes.size(); i++) {
             auto it = abundances.find(orderedIsotopes[i]);
             out << "," << (it != abundances.end() ? it->second : 0.);

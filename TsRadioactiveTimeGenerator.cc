@@ -41,6 +41,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cctype>
+#include <mutex>
 
 namespace
 {
@@ -120,12 +121,41 @@ G4String GetBaseEmitterName(const G4String& emitterName)
         return emitterName;
     return emitterName.substr(0, bracketPosition);
 }
+
+// TOPAS builds one generator per worker thread, but the source and the output files are shared.
+// The generators of a source register here so that they can pool their abundance changes between
+// runs and so that only one of them writes the shared files.
+struct TsChainBookkeepingRegistry
+{
+    std::vector<TsRadioactiveTimeGenerator*> generators;
+    G4int mergedRunID = -1;
+    std::map<G4String, G4double> mergedDifferences;
+};
+
+std::mutex& ChainBookkeepingMutex()
+{
+    static std::mutex mutex;
+    return mutex;
+}
+
+std::map<G4String, TsChainBookkeepingRegistry>& ChainBookkeepingRegistry()
+{
+    static std::map<G4String, TsChainBookkeepingRegistry> registry;
+    return registry;
+}
 }
 
 
 TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, TsGeometryManager* gM, TsGeneratorManager* pgM, G4String sourceName)
 :TsVGenerator(pM, gM, pgM, sourceName)
 {
+    {
+        std::lock_guard<std::mutex> lock(ChainBookkeepingMutex());
+        std::vector<TsRadioactiveTimeGenerator*>& generators = ChainBookkeepingRegistry()[fSourceName].generators;
+        generators.push_back(this);
+        fIsOutputWriter = (generators.size() == 1);
+    }
+
     // Time related parameters
     G4double hour = 3600;
     fInitialTime = 0.0;
@@ -217,6 +247,11 @@ TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, T
 
 TsRadioactiveTimeGenerator::~TsRadioactiveTimeGenerator()
 {
+    {
+        std::lock_guard<std::mutex> lock(ChainBookkeepingMutex());
+        std::vector<TsRadioactiveTimeGenerator*>& generators = ChainBookkeepingRegistry()[fSourceName].generators;
+        generators.erase(std::remove(generators.begin(), generators.end(), this), generators.end());
+    }
     delete fITDecay;
     delete fPhotonEvaporation;
 }
@@ -266,14 +301,14 @@ void TsRadioactiveTimeGenerator::ResolveParameters()
     fCorrectByNumberOfHistories = true;
     if (fPm->ParameterExists(GetFullParmName("CorrectByNumberOfHistories")))
         fCorrectByNumberOfHistories = fPm->GetBooleanParameter(GetFullParmName("CorrectByNumberOfHistories"));
+    // Written by default, so the file name needs its default too (it was set only when
+    // WriteIsotopicAbundance was given: by default no file was written and temp.csv was left).
     fWriteIsotopicAbundance = true;
-    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundance"))) {
+    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundance")))
         fWriteIsotopicAbundance = fPm->GetBooleanParameter(GetFullParmName("WriteIsotopicAbundance"));
-        fWriteIsotopicAbundanceFileName = "isotopic_abundance.csv";
-        if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundanceFileName"))) {
-            fWriteIsotopicAbundanceFileName = fPm->GetStringParameter(GetFullParmName("WriteIsotopicAbundanceFileName"));
-        }
-    }
+    fWriteIsotopicAbundanceFileName = "isotopic_abundance.csv";
+    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundanceFileName")))
+        fWriteIsotopicAbundanceFileName = fPm->GetStringParameter(GetFullParmName("WriteIsotopicAbundanceFileName"));
     fTreatAdditionalDecaysAsNewHistories = true;
     if (fPm->ParameterExists(GetFullParmName("TreatAdditionalDecaysAsNewHistories")))
         fTreatAdditionalDecaysAsNewHistories = fPm->GetBooleanParameter(GetFullParmName("TreatAdditionalDecaysAsNewHistories"));
@@ -285,6 +320,8 @@ void TsRadioactiveTimeGenerator::ResolveParameters()
         fRecursivelyIncludeChildren = fPm->GetBooleanParameter(GetFullParmName("RecursivelyIncludeChildren"));
     fVerbosity = 0;
     fReadIsotopicAbundanceFromFile = false;
+    fTimeToLoadIsotopicAbundance = -1;
+    fUseFractionOfActivityFromFile = false;
     if (fPm->ParameterExists(GetFullParmName("ReadIsotopicAbundanceFromFile"))) {
         fReadIsotopicAbundanceFromFile = fPm->GetBooleanParameter(GetFullParmName("ReadIsotopicAbundanceFromFile"));
         fReadIsotopicAbundanceFileName = "isotopic_abundance.csv";
@@ -1326,7 +1363,7 @@ void TsRadioactiveTimeGenerator::UpdateForNewRun(G4bool )
     else
         fNextTime = fTimeList[fRunID + 1];
 
-    ConsolidateAbundanceDifferences();
+    MergeAbundanceDifferencesAcrossThreads();
     GetNumberOfIndependentDecaysDuringThisStep();
     fFractionsOfActivityAtTime0.push_back(fNumberOfIndependentDecaysDuringThisStep / fNumberOfIndependentDecaysDuringFirstStep);
     if (fCorrectByNumberOfHistories) {
@@ -1416,7 +1453,7 @@ G4ParticleDefinition* TsRadioactiveTimeGenerator::PickNextRadionuclide()
 }
 
 void TsRadioactiveTimeGenerator::IncreaseAbundance(G4ParticleDefinition* particle) {
-    G4double weightOfAHistory = ComputePrimaryWeight();
+    G4double weightOfAHistory = ComputeAbundanceWeight();
     G4String name = particle->GetParticleName();
     if (fIsotopicAbundanceDifferencePerStep.find(name) == fIsotopicAbundanceDifferencePerStep.end())
         fIsotopicAbundanceDifferencePerStep[name] = weightOfAHistory / fCurrentNAtoms;
@@ -1426,7 +1463,7 @@ void TsRadioactiveTimeGenerator::IncreaseAbundance(G4ParticleDefinition* particl
 
 void TsRadioactiveTimeGenerator::DecreaseAbundance(G4ParticleDefinition* particle)
 {
-    G4double weightOfAHistory = ComputePrimaryWeight();
+    G4double weightOfAHistory = ComputeAbundanceWeight();
     G4String name = particle->GetParticleName();
     if (fIsotopicAbundanceDifferencePerStep.find(name) == fIsotopicAbundanceDifferencePerStep.end())
         fIsotopicAbundanceDifferencePerStep[name] = -weightOfAHistory / fCurrentNAtoms;
@@ -1453,10 +1490,37 @@ void TsRadioactiveTimeGenerator::ConsolidateAbundanceDifferences()
         fIsotopicAbundanceDifferencePerStep[pair.first] = 0;
 }
 
+void TsRadioactiveTimeGenerator::MergeAbundanceDifferencesAcrossThreads()
+{
+    // Each worker thread records the decays of its own histories only, while every history is
+    // weighted for the whole run, so the abundance change of a run is the sum over all the
+    // generators of this source. TOPAS calls UpdateForNewRun of every generator from the master
+    // thread once the run has ended: the first generator to get here for a run adds them all up
+    // and the others reuse that sum, so every thread starts the next run from the same chain.
+    {
+        std::lock_guard<std::mutex> lock(ChainBookkeepingMutex());
+        TsChainBookkeepingRegistry& registry = ChainBookkeepingRegistry()[fSourceName];
+        if (registry.mergedRunID != fRunID) {
+            registry.mergedDifferences.clear();
+            for (TsRadioactiveTimeGenerator* generator : registry.generators) {
+                for (auto& pair : generator->fIsotopicAbundanceDifferencePerStep) {
+                    registry.mergedDifferences[pair.first] += pair.second;
+                    pair.second = 0.;
+                }
+            }
+            registry.mergedRunID = fRunID;
+        }
+        for (const auto& pair : registry.mergedDifferences)
+            fIsotopicAbundanceDifferencePerStep[pair.first] = pair.second;
+    }
+    ConsolidateAbundanceDifferences();
+}
+
 void TsRadioactiveTimeGenerator::ReadIsotopicAbundanceFile() {
     // Read csv file
-    std::map<G4int, std::map<G4String, G4double>> csvData;  // <time, <isotope, abundance>>
-    std::map<G4int, G4double> fractionsOfActivityAtTime0; // <time, fraction of activity at time 0>
+    // Times are in seconds and may be fractional or in exponent form (1.2096e+06).
+    std::map<G4double, std::map<G4String, G4double>> csvData;  // <time, <isotope, abundance>>
+    std::map<G4double, G4double> fractionsOfActivityAtTime0; // <time, fraction of activity at time 0>
     std::ifstream infile(fReadIsotopicAbundanceFileName);
 
     std::string line;
@@ -1478,7 +1542,7 @@ void TsRadioactiveTimeGenerator::ReadIsotopicAbundanceFile() {
         std::istringstream iss(line);
         std::string token;
         std::getline(iss, token, ','); // Read time
-        G4int time = std::stoi(token);
+        G4double time = std::stod(token);
         std::map<G4String, G4double> abundances;
         for (G4int i = 1; i < (G4int)headers.size() - 1; i++) {
             std::getline(iss, token, ',');
@@ -1517,13 +1581,13 @@ void TsRadioactiveTimeGenerator::ReadIsotopicAbundanceFile() {
         // If the target times matches the time of the first entry, or if the target time is between the first and second entry, load the first entry
         fIsotopicAbundance = it->second;
         if (fUseFractionOfActivityFromFile)
-            fFractionsOfActivityAtTime0.push_back(fractionsOfActivityAtTime0.rbegin()->second);
+            fFractionsOfActivityAtTime0.push_back(itFractionOfActivityAtTime0->second);
         return;
     }
     // Interpolate between the closest two points
     auto itPrev = std::prev(it);
     auto itFractionOfActivityAtTime0Prev = std::prev(itFractionOfActivityAtTime0);
-    G4double ratio = G4double(fTimeToLoadIsotopicAbundance - itPrev->first) / G4double(it->first - itPrev->first);
+    G4double ratio = (fTimeToLoadIsotopicAbundance - itPrev->first) / (it->first - itPrev->first);
     for (G4int i = 1; i < (G4int)headers.size() - 1; i++) {
         if (headers[i] == "Time") continue;
         fIsotopicAbundance[headers[i]] = itPrev->second[headers[i]] + ratio * (it->second[headers[i]] - itPrev->second[headers[i]]);
@@ -1794,6 +1858,14 @@ G4double TsRadioactiveTimeGenerator::ComputePrimaryWeight() const
                             : BuildNormalizationContext().ComputePrimaryWeight();
 }
 
+G4double TsRadioactiveTimeGenerator::ComputeAbundanceWeight() const
+{
+    // Decays that one history stands for. The primary weight is rescaled when
+    // CorrectByNumberOfHistories is False (a normalisation of the scored quantities, undone with
+    // FractionOfDecaysAtTime0); the abundances must follow the physical number of decays.
+    return fHistoriesPerStep > 0. ? fNumberOfIndependentDecaysDuringThisStep / fHistoriesPerStep : 0.;
+}
+
 void TsRadioactiveTimeGenerator::AppendCurrentRunMetadata()
 {
     fNormalizationHistory.push_back(BuildNormalizationContext());
@@ -1835,7 +1907,7 @@ TsNormalizationContext TsRadioactiveTimeGenerator::BuildNormalizationContext() c
 
 void TsRadioactiveTimeGenerator::SaveRunMetadata() const
 {
-    if (!fWriteRunMetadata)
+    if (!fWriteRunMetadata || !fIsOutputWriter)
         return;
     if (fResultReporter)
         fResultReporter->WriteRunMetadata(fRunMetadataFileName, fMode, GetModeMetadataJson(), fNormalizationHistory);
@@ -1912,7 +1984,7 @@ void TsRadioactiveTimeGenerator::WriteActivityMapSummary() const
 
 void TsRadioactiveTimeGenerator::SaveIsotopicAbundanceSnapshot(G4bool initializeFile) const
 {
-    if (!fIsotopicReporter)
+    if (!fIsotopicReporter || !fIsOutputWriter)
         return;
     if (initializeFile) {
         fIsotopicReporter->Initialize(fWriteIsotopicAbundanceFileName, fOrderedIsotopes,
