@@ -6,6 +6,8 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-10
+
 ### Added
 - `invitro_bind`: several washouts per run with
   `ModeParams/WashoutTimes` (a time vector), for repeated medium changes.
