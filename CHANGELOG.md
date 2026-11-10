@@ -6,6 +6,14 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Regression deck `bind_washout_boundary` and
+  `tests/regtests/validate_washout_trace_consistency.sh` (trace on/off parity,
+  washout on a step boundary, post-wash sampling).
+- `krec` is printed in the binding-model summary for `3compartments`.
+- `tests/regtests/validate_multithread_chain_bookkeeping.sh`: the decay chain
+  must not depend on the thread count or on `CorrectByNumberOfHistories`.
+
 ### Fixed
 - `invitro_bind`: the washout was never applied during the run when
   `SaveProbabilityDistribution = "True"`. Writing the trace integrated the
@@ -37,12 +45,21 @@ All notable changes to `topas-rpt` are documented here. The format follows
   almost zero after 24 h on the regression deck). Degraded ligand is outside
   the cell, so free receptors are now `Ri - M - I`. Who should check: every
   `4compartments` result, including rate constants fitted with this model.
-
-### Added
-- Regression deck `bind_washout_boundary` and
-  `tests/regtests/validate_washout_trace_consistency.sh` (trace on/off parity,
-  washout on a step boundary, post-wash sampling).
-- `krec` is printed in the binding-model summary for `3compartments`.
+- Multithreaded runs: each worker thread depleted the parent only with the
+  decays of its own histories, so with N threads the chain decayed about N
+  times too slowly and later steps had too many decays (Pb-212, 4 threads:
+  0.85 left at 10 h instead of 0.52). The worker threads now pool their
+  abundance changes at the end of each step, and the shared output files
+  (`run_metadata.json`, the abundance CSV, the binding-probability trace) are
+  written by one thread instead of all of them. Who should check: any run
+  with `Ts/NumberOfThreads` above 1 and more than one time step. Doses per
+  step were too high in later steps, by an amount that grows with the thread
+  count and the decay over the timeline. Single-thread runs are unchanged.
+- `CorrectByNumberOfHistories = "False"`: the abundance bookkeeping used the
+  rescaled primary weight, so the parent was depleted too fast (Pb-212, 10 h
+  steps: 0.04 left at 20 h instead of 0.27). The abundances now always follow
+  the physical number of decays. Who should check: runs with this setting and
+  more than one time step.
 
 ## [1.0.1] - 2026-09-09
 
