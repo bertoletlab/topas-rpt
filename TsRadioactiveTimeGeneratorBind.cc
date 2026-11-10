@@ -105,6 +105,16 @@ void TsRadioactiveTimeGeneratorBind::ResolveParameters() {
                                                 &washOutTimeRaw, &sourceTag)) {
         fWashOutTime = washOutTimeRaw / second;
         fModeParamSources["washout_time_s"] = sourceTag;
+        // The kinetics start at TimelineStart with all ligand in the medium, so a washout at or
+        // before that time has nothing to act on (it was silently skipped, or emptied the medium
+        // at once, depending on the step grid).
+        if (fWashOutTime <= fInitialTime) {
+            G4cerr << "Topas is exiting due to a serious error in source setup." << G4endl;
+            G4cerr << "WashoutTime (" << fWashOutTime << " s) must be later than Tf/TimelineStart ("
+                   << fInitialTime << " s)." << G4endl;
+            exit(1);
+        }
+        fWashoutTimes.push_back(fWashOutTime);
     }
 
 
@@ -141,7 +151,7 @@ void TsRadioactiveTimeGeneratorBind::ResolveParameters() {
     state.totalConcentration = fConcentration;
     fKineticsModelAdapter.reset(
             new TsInVitroBindKineticsModel(fModel, fModelName, fProbabilitiesFilename, state));
-    if (fSaveModelToFile) {
+    if (fSaveModelToFile && fIsOutputWriter) {
         fKineticsModelAdapter->WriteProbabilityTrace(fInitialTime, fFinalTime, fProbabilitiesFilename.c_str());
     }
 
@@ -303,6 +313,9 @@ void TsRadioactiveTimeGeneratorBind::SettingBindingKineticModel(){
             G4cerr << "Please check the parameter file." << G4endl; 
             exit(1);
         }
+        // Recycling (cytoplasm -> membrane) is optional in this model. Without this, the unset
+        // sentinel value -1 would enter the equations as a rate.
+        if (fkrec == -1) fkrec = 0.;
     } else if (fModelName == "4compartments") {
         if (fkint == -1 || fkrec == -1 || fkefflux == -1) {
             G4cerr << "Topas is exiting due to a serious error in source setup." << G4endl;
@@ -325,7 +338,7 @@ void TsRadioactiveTimeGeneratorBind::SettingBindingKineticModel(){
 
     // Initialize the dynamic binding model.
     fModel = new TsDynamicBindModel(fkoff, fkon, fkint, fkrec, fkefflux,
-                                    fRi, fConcentration, fWashOutTime);
+                                    fRi, fConcentration, fWashoutTimes);
 
     showBindingModel();
 
@@ -427,6 +440,7 @@ void TsRadioactiveTimeGeneratorBind::showBindingModel() {
         G4cout << "kon: " << fkon << " nM^-1 s^-1" << G4endl;
         if (fModelName == "3compartments") {
             G4cout << "kint: " << fkint << " s^-1" << G4endl;
+            G4cout << "krec: " << fkrec << " s^-1" << G4endl;
             G4cout << "kefflux: " << fkefflux << " s^-1" << G4endl;
         } else if (fModelName == "4compartments") {
             G4cout << "kint: " << fkint << " s^-1" << G4endl;
