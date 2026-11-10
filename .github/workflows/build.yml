@@ -13,7 +13,9 @@ defaults:
 jobs:
   build-and-test:
     name: Build (Geant4 11.2.2 + OpenTOPAS 4.2.3, patched) + regression suite
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04 (GCC 15.2) and decay-chain regression steps started failing
+    # against the Geant4 11.2.2 / OpenTOPAS 4.2.3 build. 24.04 (GCC 13.3) was the last green image.
+    runs-on: ubuntu-24.04
     env:
       G4_TAG: v11.2.2
       TOPAS_TAG: v4.2.3
