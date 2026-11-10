@@ -292,14 +292,14 @@ void TsRadioactiveTimeGenerator::ResolveParameters()
     fCorrectByNumberOfHistories = true;
     if (fPm->ParameterExists(GetFullParmName("CorrectByNumberOfHistories")))
         fCorrectByNumberOfHistories = fPm->GetBooleanParameter(GetFullParmName("CorrectByNumberOfHistories"));
+    // Written by default, so the file name needs its default too (it was set only when
+    // WriteIsotopicAbundance was given: by default no file was written and temp.csv was left).
     fWriteIsotopicAbundance = true;
-    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundance"))) {
+    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundance")))
         fWriteIsotopicAbundance = fPm->GetBooleanParameter(GetFullParmName("WriteIsotopicAbundance"));
-        fWriteIsotopicAbundanceFileName = "isotopic_abundance.csv";
-        if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundanceFileName"))) {
-            fWriteIsotopicAbundanceFileName = fPm->GetStringParameter(GetFullParmName("WriteIsotopicAbundanceFileName"));
-        }
-    }
+    fWriteIsotopicAbundanceFileName = "isotopic_abundance.csv";
+    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundanceFileName")))
+        fWriteIsotopicAbundanceFileName = fPm->GetStringParameter(GetFullParmName("WriteIsotopicAbundanceFileName"));
     fTreatAdditionalDecaysAsNewHistories = true;
     if (fPm->ParameterExists(GetFullParmName("TreatAdditionalDecaysAsNewHistories")))
         fTreatAdditionalDecaysAsNewHistories = fPm->GetBooleanParameter(GetFullParmName("TreatAdditionalDecaysAsNewHistories"));
@@ -311,6 +311,8 @@ void TsRadioactiveTimeGenerator::ResolveParameters()
         fRecursivelyIncludeChildren = fPm->GetBooleanParameter(GetFullParmName("RecursivelyIncludeChildren"));
     fVerbosity = 0;
     fReadIsotopicAbundanceFromFile = false;
+    fTimeToLoadIsotopicAbundance = -1;
+    fUseFractionOfActivityFromFile = false;
     if (fPm->ParameterExists(GetFullParmName("ReadIsotopicAbundanceFromFile"))) {
         fReadIsotopicAbundanceFromFile = fPm->GetBooleanParameter(GetFullParmName("ReadIsotopicAbundanceFromFile"));
         fReadIsotopicAbundanceFileName = "isotopic_abundance.csv";
@@ -1495,8 +1497,9 @@ void TsRadioactiveTimeGenerator::MergeAbundanceDifferencesAcrossThreads()
 
 void TsRadioactiveTimeGenerator::ReadIsotopicAbundanceFile() {
     // Read csv file
-    std::map<G4int, std::map<G4String, G4double>> csvData;  // <time, <isotope, abundance>>
-    std::map<G4int, G4double> fractionsOfActivityAtTime0; // <time, fraction of activity at time 0>
+    // Times are in seconds and may be fractional or in exponent form (1.2096e+06).
+    std::map<G4double, std::map<G4String, G4double>> csvData;  // <time, <isotope, abundance>>
+    std::map<G4double, G4double> fractionsOfActivityAtTime0; // <time, fraction of activity at time 0>
     std::ifstream infile(fReadIsotopicAbundanceFileName);
 
     std::string line;
@@ -1518,7 +1521,7 @@ void TsRadioactiveTimeGenerator::ReadIsotopicAbundanceFile() {
         std::istringstream iss(line);
         std::string token;
         std::getline(iss, token, ','); // Read time
-        G4int time = std::stoi(token);
+        G4double time = std::stod(token);
         std::map<G4String, G4double> abundances;
         for (G4int i = 1; i < (G4int)headers.size() - 1; i++) {
             std::getline(iss, token, ',');
@@ -1557,13 +1560,13 @@ void TsRadioactiveTimeGenerator::ReadIsotopicAbundanceFile() {
         // If the target times matches the time of the first entry, or if the target time is between the first and second entry, load the first entry
         fIsotopicAbundance = it->second;
         if (fUseFractionOfActivityFromFile)
-            fFractionsOfActivityAtTime0.push_back(fractionsOfActivityAtTime0.rbegin()->second);
+            fFractionsOfActivityAtTime0.push_back(itFractionOfActivityAtTime0->second);
         return;
     }
     // Interpolate between the closest two points
     auto itPrev = std::prev(it);
     auto itFractionOfActivityAtTime0Prev = std::prev(itFractionOfActivityAtTime0);
-    G4double ratio = G4double(fTimeToLoadIsotopicAbundance - itPrev->first) / G4double(it->first - itPrev->first);
+    G4double ratio = (fTimeToLoadIsotopicAbundance - itPrev->first) / (it->first - itPrev->first);
     for (G4int i = 1; i < (G4int)headers.size() - 1; i++) {
         if (headers[i] == "Time") continue;
         fIsotopicAbundance[headers[i]] = itPrev->second[headers[i]] + ratio * (it->second[headers[i]] - itPrev->second[headers[i]]);

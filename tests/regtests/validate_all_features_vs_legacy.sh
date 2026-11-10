@@ -13,6 +13,7 @@ set -euo pipefail
 # - Run metadata schema contract across generated outputs.
 # - invitro_bind washout contract (trace on/off parity, washout on a step boundary).
 # - Decay-chain bookkeeping independent of thread count and CorrectByNumberOfHistories.
+# - Output files: default abundance file, full-precision times and read-back, uptake id check.
 # - Activity-map smoke run (optional; SKIP without required DICOM env).
 
 if [[ $# -ne 1 ]]; then
@@ -104,6 +105,9 @@ run_step "invitro_bind washout: trace on/off parity and step-boundary washout" \
 
 run_step "decay-chain bookkeeping: thread count and CorrectByNumberOfHistories" \
   "${ROOT}/tests/regtests/validate_multithread_chain_bookkeeping.sh" "${TOPAS_BIN}"
+
+run_step "output files: default abundance file, read-back, uptake ids" \
+  "${ROOT}/tests/regtests/validate_output_files.sh" "${TOPAS_BIN}"
 
 run_optional_step "activity_map mode contract (optional)" \
   "${ROOT}/tests/regtests/validate_activity_map_contract.sh" "${TOPAS_BIN}"

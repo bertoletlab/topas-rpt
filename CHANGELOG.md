@@ -13,6 +13,8 @@ All notable changes to `topas-rpt` are documented here. The format follows
 - `krec` is printed in the binding-model summary for `3compartments`.
 - `tests/regtests/validate_multithread_chain_bookkeeping.sh`: the decay chain
   must not depend on the thread count or on `CorrectByNumberOfHistories`.
+- `tests/regtests/validate_output_files.sh`: default abundance file, times of
+  1e6 s and more written and read back, uptake-file id check.
 
 ### Fixed
 - `invitro_bind`: the washout was never applied during the run when
@@ -60,6 +62,21 @@ All notable changes to `topas-rpt` are documented here. The format follows
   steps: 0.04 left at 20 h instead of 0.27). The abundances now always follow
   the physical number of decays. Who should check: runs with this setting and
   more than one time step.
+- The isotopic abundance file was not written unless `WriteIsotopicAbundance`
+  was set explicitly (it is on by default, but the default file name was
+  missing), and a `temp.csv` was left in the run folder. It is now written as
+  `isotopic_abundance.csv` by default, and the temporary file sits next to it
+  (`<name>.tmp`).
+- Abundance files: times of 1e6 s (11.6 days) and more were written as
+  `1.2096e+06` and read back as 1, so `TimeToLoadIsotopicAbundance` loaded the
+  wrong row; and an exact time match took `FractionOfDecaysAtTime0` from the
+  last row. Who should check: runs that used `ReadIsotopicAbundanceFromFile`
+  with files covering more than 11 days.
+- `invitro_bind`: an `UptakePerCellFilename` entry with a cell id outside
+  0..NumOfCells-1 wrote outside memory; it is now rejected at setup.
+- `DoseInVitroRPT`: "Alpha number" counted an alpha on every step inside a
+  nucleus, so it was inflated when steps are short (fine cuts or step limits);
+  it now counts each alpha once per nucleus it enters. Doses are unchanged.
 
 ## [1.0.1] - 2026-09-09
 
