@@ -4,3 +4,4 @@ date_utc=2026-02-11T05:21:20Z
 # not with the CI toolchain (Geant4 11.2.2); regenerate in CI if decay-data differences exceed tolerance.
 # 2026-11-09: bind_3comp, bind_4comp and bind_washout_boundary regenerated (3compartments efflux kept as
 #   non-binding medium activity; 4compartments free receptors Ri - M - I), same toolchain as above.
+# 2026-11-09: bind_washout_multiple added (several washouts), same toolchain as above.

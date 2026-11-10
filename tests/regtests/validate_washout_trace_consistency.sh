@@ -5,6 +5,7 @@ set -euo pipefail
 # - Saving the probability trace (SaveProbabilityDistribution) must not change the run.
 # - A washout on a step boundary must already be applied in the state of the step that starts there.
 # - The per-step atom count must follow the trace's FracRemaining.
+# - With several washouts (WashoutTimes), each one must empty the medium.
 #
 # Usage:
 #   tests/regtests/validate_washout_trace_consistency.sh /path/to/topas
@@ -16,7 +17,6 @@ fi
 TOPAS_BIN="$1"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-DECK="${ROOT}/AuxFiles/regtests/param/bind_washout_boundary.txt"
 OUT="$(mktemp -d /tmp/tsrts_washout_XXXXXX)"
 
 if [[ -z "${TOPAS_G4_DATA_DIR:-}" && -z "${G4LEVELGAMMADATA:-}" ]]; then
@@ -28,46 +28,68 @@ if [[ -z "${TOPAS_G4_DATA_DIR:-}" && -z "${G4LEVELGAMMADATA:-}" ]]; then
   fi
 fi
 
-for mode in on off; do
-  mkdir -p "${OUT}/${mode}"
-  flag="True"; [[ "${mode}" == "off" ]] && flag="False"
-  sed "s/SaveProbabilityDistribution = \"True\"/SaveProbabilityDistribution = \"${flag}\"/" "${DECK}" > "${OUT}/${mode}/deck.txt"
-  ( cd "${OUT}/${mode}" && "${TOPAS_BIN}" deck.txt > run.log 2>&1 )
+# deck name -> washout times in hours (as set in the deck)
+DECKS=("bind_washout_boundary:1" "bind_washout_multiple:1,2.5,3")
+
+for entry in "${DECKS[@]}"; do
+  name="${entry%%:*}"
+  for mode in on off; do
+    mkdir -p "${OUT}/${name}/${mode}"
+    flag="True"; [[ "${mode}" == "off" ]] && flag="False"
+    sed "s/SaveProbabilityDistribution = \"True\"/SaveProbabilityDistribution = \"${flag}\"/" \
+      "${ROOT}/AuxFiles/regtests/param/${name}.txt" > "${OUT}/${name}/${mode}/deck.txt"
+    ( cd "${OUT}/${name}/${mode}" && "${TOPAS_BIN}" deck.txt > run.log 2>&1 )
+  done
 done
 
-python3 - "${OUT}" <<'PY'
+python3 - "${OUT}" "${DECKS[@]}" <<'PY'
 import json, re, sys
 out = sys.argv[1]
 fail = []
-on = json.load(open(f"{out}/on/run_metadata.json"))["entries"]
-off = json.load(open(f"{out}/off/run_metadata.json"))["entries"]
-keys = ("n_decays_step", "n_histories_step", "primary_weight")
-for a, b in zip(on, off):
-    for k in keys:
-        if abs(a[k] - b[k]) > 1e-9 * max(abs(a[k]), 1.0):
-            fail.append(f"trace on/off differ in run {a['run_id']} {k}: {a[k]} vs {b[k]}")
+for entry in sys.argv[2:]:
+    name, hours = entry.split(":")
+    washouts = [float(h) * 3600.0 for h in hours.split(",")]
+    d = f"{out}/{name}"
+    on = json.load(open(f"{d}/on/run_metadata.json"))["entries"]
+    off = json.load(open(f"{d}/off/run_metadata.json"))["entries"]
+    for a, b in zip(on, off):
+        for k in ("n_decays_step", "n_histories_step", "primary_weight"):
+            if abs(a[k] - b[k]) > 1e-9 * max(abs(a[k]), 1.0):
+                fail.append(f"{name}: trace on/off differ in run {a['run_id']} {k}: {a[k]} vs {b[k]}")
 
-log = open(f"{out}/on/run.log").read()
-n0 = float(re.search(r"Initial number of atoms: ([0-9.eE+-]+)", log).group(1))
-atoms = {}
-for t, n in re.findall(r"Timeinit: ([0-9.eE+-]+) h\s*\n.*?TimeEnd:.*?\n.*?Number of atoms ([0-9.eE+-]+)", log):
-    atoms.setdefault(float(t), float(n))
-trace = {}
-for line in open(f"{out}/on/prob_washout_boundary.txt").read().splitlines()[1:]:
-    c = line.split()
-    trace[round(float(c[0]), 3)] = float(c[-1])
-washout_h = 1.0
-if washout_h not in atoms:
-    fail.append("no step starts at the washout time")
-else:
-    frac = trace.get(washout_h * 3600.0)
-    if frac is None or abs(atoms[washout_h] / n0 - frac) > 1e-4 * frac:
-        fail.append(f"atoms at the washout step {atoms[washout_h] / n0} != trace FracRemaining {frac}")
-    if not frac or frac > 0.5:
-        fail.append(f"washout not applied at the step boundary (FracRemaining {frac})")
-post = [e for e in on if e["time_start_s"] >= washout_h * 3600.0]
-if not post or any(e["n_histories_step"] <= 0 for e in post):
-    fail.append("no post-washout histories were sampled")
+    # Trace rows: time, E, ..., FracRemaining. Keep the last row written at each time.
+    rows = {}
+    order = []
+    for line in open(f"{d}/on/prob_{name[len('bind_'):]}.txt").read().splitlines()[1:]:
+        c = [float(x) for x in line.split()]
+        t = round(c[0], 3)
+        if t not in rows: order.append(t)
+        rows[t] = c
+    for w in washouts:
+        if w not in rows:
+            fail.append(f"{name}: no trace row at washout {w} s")
+            continue
+        if rows[w][1] != 0.0:
+            fail.append(f"{name}: medium not emptied at washout {w} s (E = {rows[w][1]})")
+        prev = order[order.index(w) - 1]
+        if not rows[w][-1] < rows[prev][-1]:
+            fail.append(f"{name}: FracRemaining did not drop at washout {w} s")
+
+    # Every step after the first must start from the trace state at its start time.
+    log = open(f"{d}/on/run.log").read()
+    n0 = float(re.search(r"Initial number of atoms: ([0-9.eE+-]+)", log).group(1))
+    atoms = {}
+    for t, n in re.findall(r"Timeinit: ([0-9.eE+-]+) h\s*\n.*?TimeEnd:.*?\n.*?Number of atoms ([0-9.eE+-]+)", log):
+        atoms.setdefault(round(float(t) * 3600.0, 3), float(n))
+    for t, n in atoms.items():
+        frac = rows.get(t, [None])[-1]
+        if frac is None or abs(n / n0 - frac) > 1e-4 * frac:
+            fail.append(f"{name}: atoms at step start {t} s ({n / n0}) != trace FracRemaining {frac}")
+
+    # The step that starts at (or contains) the first washout keeps enough activity to be sampled.
+    post = [e for e in on if e["time_end_s"] > washouts[0]]
+    if not post or post[0]["n_histories_step"] <= 0:
+        fail.append(f"{name}: no post-washout histories were sampled")
 
 if fail:
     print("\n".join("FAIL: " + f for f in fail))

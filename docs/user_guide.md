@@ -30,6 +30,14 @@ Astatine 211-ParaThanatrace validation (Onecha et al., IJROBP 2025), which
 matched simulated dose-response curves to real ovarian cancer cell viability
 data.
 
+A washout replaces the medium with fresh, ligand-free medium: it empties the
+medium compartment (and the degraded one) at that time, while bound and
+internalized ligand stay. Set one washout with `ModeParams/WashoutTime`, or
+several with `ModeParams/WashoutTimes`, a time vector such as
+`dv:So/<Source>/ModeParams/WashoutTimes = 3 18 42 66 h` (not both). Each
+washout must be later than `Tf/TimelineStart`. It is applied at exactly its
+time, also when that time falls inside a time step or on a step boundary.
+
 **`activity_map`** - decay positions sampled from a voxelized DICOM activity
 map. Each voxel's activity value becomes a sampling weight:
 `topas-rpt` builds a cumulative probability distribution over all non-zero
