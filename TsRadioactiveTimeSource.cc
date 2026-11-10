@@ -20,14 +20,13 @@ TsRadioactiveTimeSource::~TsRadioactiveTimeSource()
 
 void TsRadioactiveTimeSource::ResolveParameters() {
     TsSource::ResolveParameters();
+    // Same defaults as the generator, which writes the rows this source completes at the end.
     fWriteIsotopicAbundance = true;
-    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundance"))) {
+    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundance")))
         fWriteIsotopicAbundance = fPm->GetBooleanParameter(GetFullParmName("WriteIsotopicAbundance"));
-        fIsotopicAbundanceFileName = "isotopic_abundance.csv";
-        if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundanceFileName"))) {
-            fIsotopicAbundanceFileName = fPm->GetStringParameter(GetFullParmName("WriteIsotopicAbundanceFileName"));
-        }
-    }
+    fIsotopicAbundanceFileName = "isotopic_abundance.csv";
+    if (fPm->ParameterExists(GetFullParmName("WriteIsotopicAbundanceFileName")))
+        fIsotopicAbundanceFileName = fPm->GetStringParameter(GetFullParmName("WriteIsotopicAbundanceFileName"));
 }
 
 void TsRadioactiveTimeSource::UpdateForNewRun(G4bool ) {
@@ -36,7 +35,8 @@ void TsRadioactiveTimeSource::UpdateForEndOfRun()
 {
     if (fWriteIsotopicAbundance && fIsFinalRun) {
         std::string oldFileName = fIsotopicAbundanceFileName;
-        std::string tempFileName = "temp.csv";
+        // Next to the output, so that two sources writing in one folder do not share it.
+        std::string tempFileName = oldFileName + ".tmp";
 
         // Open original file and temporary file
         std::ifstream oldFile(oldFileName);

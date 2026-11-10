@@ -32,7 +32,11 @@ if [[ -z "${TOPAS_G4_DATA_DIR:-}" && -z "${G4LEVELGAMMADATA:-}" ]]; then
   fi
 fi
 
-"${ROOT}/scripts/run_time_feature_decay_chain_test.sh" "${TOPAS_BIN}" >/tmp/validate_time_chain_control.log
+if ! "${ROOT}/scripts/run_time_feature_decay_chain_test.sh" "${TOPAS_BIN}" >/tmp/validate_time_chain_control.log 2>&1; then
+  echo "ERROR: the time-feature decay-chain example failed; last lines of its output:"
+  tail -n 40 /tmp/validate_time_chain_control.log
+  exit 1
+fi
 
 RUN_DIR="$(sed -n 's/^RUN_DIR=//p' /tmp/validate_time_chain_control.log | tail -n 1)"
 RUN_ON_DIR="${RUN_DIR}/chain_on"
@@ -50,10 +54,13 @@ for f in run_metadata_chain_off.json iso_chain_off.csv run.log; do
 done
 
 if command -v jq >/dev/null 2>&1; then
-  jq -e '.schema_version == "tsrts.run_metadata.v1" and .mode == "uniform" and (.entries | length == 4)' \
-    "${RUN_ON_DIR}/run_metadata_chain.json" >/dev/null
-  jq -e '.schema_version == "tsrts.run_metadata.v1" and .mode == "uniform" and (.entries | length == 4)' \
-    "${RUN_OFF_DIR}/run_metadata_chain_off.json" >/dev/null
+  for meta in "${RUN_ON_DIR}/run_metadata_chain.json" "${RUN_OFF_DIR}/run_metadata_chain_off.json"; do
+    if ! jq -e '.schema_version == "tsrts.run_metadata.v1" and .mode == "uniform" and (.entries | length == 4)' \
+        "${meta}" >/dev/null; then
+      echo "ERROR: unexpected run metadata (schema, mode or 4 entries): ${meta}"
+      exit 1
+    fi
+  done
 else
   rg -q '"schema_version"[[:space:]]*:[[:space:]]*"tsrts.run_metadata.v1"' "${RUN_ON_DIR}/run_metadata_chain.json"
   rg -q '"schema_version"[[:space:]]*:[[:space:]]*"tsrts.run_metadata.v1"' "${RUN_OFF_DIR}/run_metadata_chain_off.json"

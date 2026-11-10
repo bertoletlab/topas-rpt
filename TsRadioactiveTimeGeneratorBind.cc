@@ -171,7 +171,7 @@ void TsRadioactiveTimeGeneratorBind::ResolveParameters() {
     state.totalConcentration = fConcentration;
     fKineticsModelAdapter.reset(
             new TsInVitroBindKineticsModel(fModel, fModelName, fProbabilitiesFilename, state));
-    if (fSaveModelToFile) {
+    if (fSaveModelToFile && fIsOutputWriter) {
         fKineticsModelAdapter->WriteProbabilityTrace(fInitialTime, fFinalTime, fProbabilitiesFilename.c_str());
     }
 
@@ -516,6 +516,12 @@ void TsRadioactiveTimeGeneratorBind::SetUptakePerCell() {
         // Set uptake vector size to the number of cells.
         fUptakePerCell.resize(int(fNumberOfCells),0.0);
         while (infile >> id >> value) {
+            if (id < 0 || id >= fNumberOfCells) {
+                G4cerr << "Topas is exiting due to a serious error in source setup." << G4endl;
+                G4cerr << "Uptake file " << fUptakeFilename << " has cell id " << id
+                       << "; ids must be from 0 to NumOfCells - 1 (" << fNumberOfCells - 1 << ")." << G4endl;
+                exit(1);
+            }
             fUptakePerCell[id] = value;
         }
         infile.close();

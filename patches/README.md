@@ -1,7 +1,6 @@
 # Patches
 
-Two small, independent one-line-scale fixes this build needs, neither of
-which has made it into an official release yet.
+Small, independent fixes this build needs on top of the pinned releases.
 
 ## `0001-opentopas-harden-dicom-activity-map.patch`
 
@@ -39,4 +38,21 @@ nothing to apply.
 
 ```bash
 git apply /path/to/topas-rpt/patches/0002-geant4-fix-columns-icc-typo.patch
+```
+
+## `0003-opentopas-zero-ke-momentum.patch`
+
+Applies to OpenTOPAS 4.2.3, file `primary/TsVGenerator.cc`. Backport of the
+fix in OpenTOPAS 4.3.0 (commit 1a4639d).
+
+A primary with zero kinetic energy, such as a radionuclide placed at rest by
+this extension, gets its momentum from `sqrt(E*E - m*m)` with `E = m`.
+Depending on the compiler and the ion mass, rounding makes the argument
+slightly negative, and 4.2.3 then aborts the session with "Invalid kinetic
+energy; energy^2 - mass^2 < 0". The patch computes the momentum as
+`sqrt(T*(T + 2m))`, which is exactly zero at rest. On Ubuntu 26.04 (GCC 15)
+the Pb-212 regression runs abort without it.
+
+```bash
+git apply /path/to/topas-rpt/patches/0003-opentopas-zero-ke-momentum.patch
 ```
