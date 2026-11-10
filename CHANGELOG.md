@@ -7,10 +7,44 @@ All notable changes to `topas-rpt` are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Regression deck `bind_washout_boundary` and
+  `tests/regtests/validate_washout_trace_consistency.sh` (trace on/off parity,
+  washout on a step boundary, post-wash sampling).
+- `krec` is printed in the binding-model summary for `3compartments`.
 - `tests/regtests/validate_multithread_chain_bookkeeping.sh`: the decay chain
   must not depend on the thread count or on `CorrectByNumberOfHistories`.
 
 ### Fixed
+- `invitro_bind`: the washout was never applied during the run when
+  `SaveProbabilityDistribution = "True"`. Writing the trace integrated the
+  whole timeline first and left a "washout done" flag set, so every step kept
+  the full medium activity, decay count and medium probability after
+  `WashoutTime`, while the trace file itself showed the wash. The washout is
+  now applied without stored state, at exactly `WashoutTime`, in both the
+  trace and the run. Who should check their results: any `invitro_bind` run
+  with a `WashoutTime` and `SaveProbabilityDistribution = "True"`; post-wash
+  doses from those runs are not valid.
+- `invitro_bind`: a washout that falls exactly on a time-step boundary now
+  applies to the step that starts there; it was deferred by one step. Who
+  should check: washout runs whose `WashoutTime` is a multiple of the step
+  length (common with hour-aligned washouts); the first post-wash step was
+  simulated with the pre-wash medium activity.
+- `invitro_bind`: a `WashoutTime` at or before `Tf/TimelineStart` is now
+  rejected with an error.
+- `3compartments`: free receptors used the cytoplasm amount (`Ri - I`),
+  unbinding released `koff * I` instead of `koff * M`, recycling had the wrong
+  sign and was missing from the membrane, and an unset `krec` entered the
+  equations as -1 1/s. The model now uses the 4-compartment terms, and an
+  unset `krec` means no recycling. Effluxed activity, which used to leave the
+  simulation, now stays in the well as non-binding medium activity (the
+  degraded compartment) until a washout. Who should check: every
+  `3compartments` result (internalised fractions were about 200x too low).
+- `4compartments`: degraded ligand counted against the free receptors
+  (`Ri - M - I - D`), so catabolite accumulated until it filled the receptor
+  pool and binding stopped (cell-bound activity 3x too low after 2 h and
+  almost zero after 24 h on the regression deck). Degraded ligand is outside
+  the cell, so free receptors are now `Ri - M - I`. Who should check: every
+  `4compartments` result, including rate constants fitted with this model.
 - Multithreaded runs: each worker thread depleted the parent only with the
   decays of its own histories, so with N threads the chain decayed about N
   times too slowly and later steps had too many decays (Pb-212, 4 threads:
