@@ -5,3 +5,4 @@ date_utc=2026-02-11T05:21:20Z
 # 2026-11-09: bind_3comp, bind_4comp and bind_washout_boundary regenerated (3compartments efflux kept as
 #   non-binding medium activity; 4compartments free receptors Ri - M - I), same toolchain as above.
 # 2026-11-09: bind_washout_multiple added (several washouts), same toolchain as above.
+# 2026-11-09: bind_manual regenerated (Manual split kept after step 1), same toolchain as above.
