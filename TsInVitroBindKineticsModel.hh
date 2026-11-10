@@ -91,7 +91,7 @@ private:
                                                     *fState.nconcentration, isWrite, filename);
         } else if (fModelName == "3compartments") {
             fModel->UpdateModel3compartments(timeStartS, timeEndS, *fState.econcentration, *fState.mconcentration,
-                                             *fState.iconcentration, isWrite, filename);
+                                             *fState.iconcentration, *fState.dconcentration, isWrite, filename);
         } else if (fModelName == "4compartments") {
             fModel->UpdateModel4compartments(timeStartS, timeEndS, *fState.econcentration, *fState.mconcentration,
                                              *fState.iconcentration, *fState.dconcentration, isWrite, filename);

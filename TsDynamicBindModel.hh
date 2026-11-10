@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <vector>
 #include "TsParameterManager.hh"
 #include "TsSource.hh"
 #include "TsGeometryManager.hh"
@@ -15,14 +16,14 @@ class TsDynamicBindModel {
 public:
     //Constructor
     TsDynamicBindModel(G4double koff, G4double kon, G4double kint, G4double krec, G4double kefflux,
-                        G4double Ri, G4double totalConcentrationInit, G4double washoutTime);
+                        G4double Ri, G4double totalConcentrationInit, const std::vector<G4double>& washoutTimes);
 
     ~TsDynamicBindModel();
 
     // Methods to calculate the probabilties with each binding kinetic models
     void UpdateModel2compartmentsCell(G4double timeInit, G4double timeEnd, G4double Ei, G4double Ii, G4bool IsWrite, G4String filename);
     void UpdateModel2compartmentsNucleus(G4double timeInit, G4double timeEnd, G4double Ei, G4double Ii, G4bool IsWrite, G4String filename);
-    void UpdateModel3compartments(G4double timeInit, G4double timeEnd, G4double Ei, G4double Mi, G4double Ii, G4bool IsWrite, G4String filename);
+    void UpdateModel3compartments(G4double timeInit, G4double timeEnd, G4double Ei, G4double Mi, G4double Ii, G4double Di, G4bool IsWrite, G4String filename);
     void UpdateModel4compartments(G4double timeInit, G4double timeEnd, G4double Ei, G4double Mi, G4double Ii, G4double Di, G4bool IsWrite, G4String filename);
     void UpdateModelManual(G4double timeInit, G4double timeEnd, G4double Ei, G4double Mi, G4double Ii, G4double Ni, G4double Di);
 
@@ -56,16 +57,17 @@ protected:
     G4double fkrec; // From cytoplasm to membrane
     G4double fkefflux; // From cytoplasm to medium (or degraded)
     G4double fRi; // Concentration of receptors
-    G4double fKd; // Dissociation constant
 
     G4double fTotalConcentrationInit; // Total concentration of isotopes at the beginning
     G4double fFractionOfIsotopesRemaining; // Fraction of isotopes remaining
 
     //Time parameters
-    G4double fTini;
-    G4double fTend;
-    G4double fWashoutTime;
-    G4double fIsWashoutDone;
+    std::vector<G4double> fWashoutTimes; // Sorted washout times [s]; each one empties the medium (and D)
+
+    // Next integration time: ttime + dtMax, cut at the next washout time and at timeEnd.
+    G4double NextTime(G4double ttime, G4double timeEnd, G4double dtMax) const;
+    // Empties the medium (and the degraded compartment) if ttime is a washout time.
+    void ApplyWashoutIfDue(G4double ttime);
 
 
 
