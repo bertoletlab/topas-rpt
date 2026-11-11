@@ -183,6 +183,14 @@ TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, T
 
 void TsRadioactiveTimeGenerator::Initialize()
 {
+    if (fInitialized) {
+        G4ExceptionDescription msg;
+        msg << "Initialize() called twice for source " << fSourceName
+            << ". A subclass that passes deferInitialization = true must call it exactly once, at the end of"
+            << " its constructor.";
+        G4Exception("TsRadioactiveTimeGenerator::Initialize()", "TsRADIOACTIVE042", FatalException, msg);
+    }
+    fInitialized = true;
     ResolveParameters();
 
     fCurrentTime = fInitialTime;
@@ -982,8 +990,19 @@ void TsRadioactiveTimeGenerator::ConfigureBioDistMode()
     fBioDistBackendAvailable = false;
 }
 
+void TsRadioactiveTimeGenerator::RequireInitialized(const char* caller) const
+{
+    if (fInitialized)
+        return;
+    G4ExceptionDescription msg;
+    msg << "Source " << fSourceName << " was never initialized: a subclass that passes"
+        << " deferInitialization = true must call Initialize() at the end of its constructor.";
+    G4Exception(caller, "TsRADIOACTIVE043", FatalException, msg);
+}
+
 void TsRadioactiveTimeGenerator::GeneratePrimaries(G4Event* anEvent)
 {
+    RequireInitialized("TsRadioactiveTimeGenerator::GeneratePrimaries()");
     fIntraStepTime = 0.0;
     if (CurrentSourceHasGeneratedEnough())  return;
     if (fMode == "biodist" && !fBioDistBackendAvailable) {
@@ -1368,6 +1387,7 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
 
 void TsRadioactiveTimeGenerator::UpdateForNewRun(G4bool )
 {
+    RequireInitialized("TsRadioactiveTimeGenerator::UpdateForNewRun()");
     GetSource();
     fRunID++;
     fCurrentTime = fTimeList[fRunID];

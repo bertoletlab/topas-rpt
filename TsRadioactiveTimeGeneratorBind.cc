@@ -27,10 +27,17 @@
 
 TsRadioactiveTimeGeneratorBind::TsRadioactiveTimeGeneratorBind(TsParameterManager *pM, TsGeometryManager *gM,
                                                                TsGeneratorManager *pgM, G4String sourceName)
+        : TsRadioactiveTimeGeneratorBind(pM, gM, pgM, sourceName, false) {}
+
+TsRadioactiveTimeGeneratorBind::TsRadioactiveTimeGeneratorBind(TsParameterManager *pM, TsGeometryManager *gM,
+                                                               TsGeneratorManager *pgM, G4String sourceName,
+                                                               G4bool deferInitialization)
         : TsRadioactiveTimeGenerator(pM, gM, pgM, sourceName, true),
           fSumProb(false), fMediumIsSphere(false), SamplingPosition(new TsSamplingAtVolumes()) {
-    // The base class defers its set-up so that it can call this class's overrides.
-    Initialize();
+    // The base class defers its set-up so that it can call this class's overrides; a subclass of
+    // this one defers it once more and calls Initialize() itself.
+    if (!deferInitialization)
+        Initialize();
 }
 
 TsRadioactiveTimeGeneratorBind::~TsRadioactiveTimeGeneratorBind() {}
@@ -404,6 +411,7 @@ void TsRadioactiveTimeGeneratorBind::SetNewPositionForHistory() {
 }
 
 void TsRadioactiveTimeGeneratorBind::UpdateForNewRun(bool force) {
+    RequireInitialized("TsRadioactiveTimeGeneratorBind::UpdateForNewRun()");
 
     // This method is called to update the binding probabilities and the isotopic abundance of the source
     

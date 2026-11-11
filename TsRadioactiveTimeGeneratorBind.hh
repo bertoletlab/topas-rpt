@@ -43,6 +43,12 @@ public:
     void SetUptakePerCell(); // Method to set the uptake per cell
     G4String GetModeMetadataJson() const override;
 
+protected:
+    // For a subclass of this generator: pass deferInitialization = true and call Initialize() at
+    // the end of the subclass constructor, as this class does with its base.
+    TsRadioactiveTimeGeneratorBind(TsParameterManager *pM, TsGeometryManager *gM, TsGeneratorManager *pgM,
+                                   G4String sourceName, G4bool deferInitialization);
+
 private:
 
 

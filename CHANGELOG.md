@@ -17,8 +17,12 @@ All notable changes to `topas-rpt` are documented here. The format follows
   afterwards, its `GetAdaptedSource()` never ran, and the first
   `run_metadata.json` had an empty `mode_settings`. Subclasses now pass
   `deferInitialization = true` to the base constructor and call `Initialize()`
-  at the end of their own. Parameter files and outputs are unchanged, apart from
-  the fix below.
+  at the end of their own (`TsRadioactiveTimeGeneratorBind` offers the same
+  protected constructor to its own subclasses), and `Initialize()` stops with an
+  error if it runs twice, or if it never ran when the first run starts.
+  Parameter files and results are unchanged, apart from the fix below; in
+  `run.log`, the `invitro_bind` parameter summary now prints before the
+  first-step summary.
 
 ### Fixed
 - `invitro_bind`: a single-step run wrote `run_metadata.json` with an empty

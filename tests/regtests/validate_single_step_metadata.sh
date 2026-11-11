@@ -36,28 +36,31 @@ if [[ -z "${TOPAS_G4_DATA_DIR:-}" && -z "${G4LEVELGAMMADATA:-}" ]]; then
   fi
 fi
 
+command -v jq >/dev/null 2>&1 || { echo "ERROR: jq is required for this check."; exit 2; }
 RUN_DIR="$(mktemp -d "${TMPDIR:-/tmp}/tsrts_single_step.XXXXXX")"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BASE_DECK="${ROOT}/examples/canonical/invitro_bind_minimal.txt"
 
 fail=0
-for steps in 1 2; do
-  mkdir -p "${RUN_DIR}/s${steps}"
-  { grep -vE '^[a-z]+:(So/BindSource/NumberOfHistoriesInRun|Tf/NumberOfSequentialTimes) *=' "${BASE_DECK}"
+for cfg in 1:1 2:1 1:4; do
+  IFS=: read -r steps threads <<<"${cfg}"
+  mkdir -p "${RUN_DIR}/s${steps}t${threads}"
+  { grep -vE '^[a-z]+:(So/BindSource/NumberOfHistoriesInRun|Tf/NumberOfSequentialTimes|Ts/NumberOfThreads) *=' "${BASE_DECK}"
     echo "i:So/BindSource/NumberOfHistoriesInRun = 20"
-    echo "i:Tf/NumberOfSequentialTimes = ${steps}"; } > "${RUN_DIR}/s${steps}/deck.txt"
-  (cd "${RUN_DIR}/s${steps}" && "${TOPAS_BIN}" deck.txt > run.log 2>&1) || {
-    echo "ERROR: TOPAS run failed (${steps} step(s)); see ${RUN_DIR}/s${steps}/run.log"; exit 1; }
-  meta="${RUN_DIR}/s${steps}/run_metadata_invitro.json"
+    echo "i:Tf/NumberOfSequentialTimes = ${steps}"
+    echo "i:Ts/NumberOfThreads = ${threads}"; } > "${RUN_DIR}/s${steps}t${threads}/deck.txt"
+  (cd "${RUN_DIR}/s${steps}t${threads}" && "${TOPAS_BIN}" deck.txt > run.log 2>&1) || {
+    echo "ERROR: TOPAS run failed (${steps} step(s)); see ${RUN_DIR}/s${steps}t${threads}/run.log"; exit 1; }
+  meta="${RUN_DIR}/s${steps}t${threads}/run_metadata_invitro.json"
   [[ -f "${meta}" ]] || { echo "ERROR: missing ${meta}"; exit 1; }
   model="$(jq -r '.mode_settings.binding_model // empty' "${meta}")"
   activity="$(jq -r '.mode_settings.activity_per_ml // empty' "${meta}")"
   entries="$(jq '.entries | length' "${meta}")"
   if [[ -z "${model}" || -z "${activity}" ]]; then
-    echo "FAIL: ${steps} step(s): mode_settings lacks binding_model/activity_per_ml"; fail=1
+    echo "FAIL: ${steps} step(s), ${threads} thread(s): mode_settings lacks binding_model/activity_per_ml"; fail=1
   fi
   if [[ "${entries}" != "${steps}" ]]; then
-    echo "FAIL: ${steps} step(s): ${entries} metadata entries"; fail=1
+    echo "FAIL: ${steps} step(s), ${threads} thread(s): ${entries} metadata entries"; fail=1
   fi
 done
 
@@ -65,4 +68,5 @@ if [[ "${fail}" -ne 0 ]]; then
   echo "Single-step metadata check failed (${RUN_DIR})."
   exit 1
 fi
-echo "PASS: invitro_bind mode_settings written for single- and two-step runs (${RUN_DIR})"
+rm -rf "${RUN_DIR}"
+echo "PASS: invitro_bind mode_settings written for single- and two-step runs, 1 and 4 threads"

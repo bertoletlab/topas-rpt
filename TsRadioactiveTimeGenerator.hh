@@ -50,6 +50,9 @@ protected:
     void Initialize();
     // Hook for subclass set-up that needs the atom count and the first step (both known here).
     virtual void FinishInitialization() {}
+    // Stops with a clear message if Initialize() never ran (a subclass that deferred it and did
+    // not call it), instead of failing later on an empty timeline or an unset source.
+    void RequireInitialized(const char* caller) const;
 
 public:
 
@@ -105,6 +108,7 @@ protected:
     std::map<G4String, G4double> fIsotopicAbundanceDifferencePerStep;
     std::vector<G4String> fOrderedIsotopes;
     G4bool fFirstTimeGettingSource;
+    G4bool fInitialized = false;
     G4bool fWriteIsotopicAbundance;
     G4String fWriteIsotopicAbundanceFileName;
 
