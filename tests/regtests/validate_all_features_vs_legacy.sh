@@ -117,6 +117,18 @@ run_step "decay-chain bookkeeping: thread count and CorrectByNumberOfHistories" 
 run_step "output files: default abundance file, read-back, uptake ids" \
   "${ROOT}/tests/regtests/validate_output_files.sh" "${TOPAS_BIN}"
 
+run_step "decay chain keeps decaying once scaled histories reach zero" \
+  "${ROOT}/tests/regtests/validate_zero_history_steps.sh" "${TOPAS_BIN}"
+
+run_step "restart from an abundance file, with and without UseFractionOfActivityFromFile" \
+  "${ROOT}/tests/regtests/validate_abundance_restart.sh" "${TOPAS_BIN}"
+
+run_step "invitro_bind: InitialActivity checked against Activity_permL x medium volume" \
+  "${ROOT}/tests/regtests/validate_activity_consistency.sh" "${TOPAS_BIN}"
+
+run_step "AbundanceUpdate = Analytic: Bateman abundances, independent of seed and threads" \
+  "${ROOT}/tests/regtests/validate_analytic_abundance.sh" "${TOPAS_BIN}"
+
 run_step "invitro_bind: mode_settings in the metadata of a single-step run" \
   "${ROOT}/tests/regtests/validate_single_step_metadata.sh" "${TOPAS_BIN}"
 

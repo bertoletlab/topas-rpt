@@ -6,7 +6,7 @@
   <a href="https://topas-rpt.readthedocs.io/"><img src="https://img.shields.io/badge/docs-Read%20the%20Docs-8CA1AF?logo=readthedocs&logoColor=white" alt="Documentation"></a>
   <a href="https://github.com/bertoletlab/topas-rpt/releases"><img src="https://img.shields.io/github/v/release/bertoletlab/topas-rpt?label=release&color=1f2a56" alt="Release"></a>
   <a href="https://doi.org/10.5281/zenodo.22651399"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.22651399.svg" alt="DOI"></a>
-  <img src="https://img.shields.io/badge/OpenTOPAS-4.2.3-1f2a56" alt="OpenTOPAS 4.2.3">
+  <img src="https://img.shields.io/badge/OpenTOPAS-4.3.0-1f2a56" alt="OpenTOPAS 4.3.0">
 </p>
 
 Standard Monte Carlo dosimetry approaches generally treat each decay as an
@@ -26,10 +26,9 @@ Cell Viability in Targeted &alpha;-Particle Therapy With Astatine
 
 ## Requirements
 
-- OpenTOPAS 4.2.3
-- Geant4 11.2.2, with a one-line patch (see `patches/`) - the version this
-  build and its CI are pinned to and tested against (see
-  [Known Limitations](docs/known_limitations.md))
+- OpenTOPAS 4.3.0
+- Geant4 11.3.2 - the version this build and its CI are pinned to and tested
+  against (see [Known Limitations](docs/known_limitations.md))
 - GDCM 2.6.8, for DICOM-driven activity maps
 - CMake (Ninja recommended)
 
@@ -42,7 +41,7 @@ for the patch and how to apply it (a couple of minutes, no rebuild of anything
 else required).
 
 ```bash
-git clone https://github.com/OpenTOPAS/OpenTOPAS --branch v4.2.3
+git clone https://github.com/OpenTOPAS/OpenTOPAS --branch v4.3.0
 cd OpenTOPAS
 git apply /path/to/topas-rpt/patches/0001-opentopas-harden-dicom-activity-map.patch
 

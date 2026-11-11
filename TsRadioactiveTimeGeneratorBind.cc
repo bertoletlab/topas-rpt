@@ -207,6 +207,66 @@ void TsRadioactiveTimeGeneratorBind::FinishInitialization() {
         }
     }
 
+    CheckInitialActivityConsistency();
+}
+
+void TsRadioactiveTimeGeneratorBind::CheckInitialActivityConsistency() {
+    // InitialActivity (total Bq) sets the number of decays, and so the dose, while Activity_permL
+    // only sets the ligand concentration of the binding kinetics. Nothing ties the two together,
+    // so a unit slip in either (uL for mL, kBq for Bq, a half-length entered as a length) changes
+    // the dose by that factor without any other sign. Compare InitialActivity with Activity_permL
+    // times the medium volume. Both the whole envelope and the envelope minus the cells are
+    // accepted, since decks use either convention.
+    auto modeParam = [this](const G4String& key) { return GetFullParmName("ModeParams/" + key); };
+    auto legacyParam = [this](const G4String& key) { return GetFullParmName(key); };
+    G4String sourceTag;
+    G4String check = fActivityConsistencyCheck;
+    if (TsInVitroBindModeAdapter::ResolveString(fPm, modeParam("ActivityConsistencyCheck"),
+                                                legacyParam("ActivityConsistencyCheck"), &check, &sourceTag))
+        fModeParamSources["activity_consistency_check"] = sourceTag;
+    if (check != "Warn" && check != "Error" && check != "Off") {
+        G4cerr << "Topas is exiting due to a serious error in source setup." << G4endl;
+        G4cerr << "ModeParams/ActivityConsistencyCheck must be Warn, Error or Off (got \"" << check << "\")." << G4endl;
+        exit(1);
+    }
+    fActivityConsistencyCheck = check;
+    G4double tolerance = fActivityConsistencyTolerance;
+    if (TsInVitroBindModeAdapter::ResolveUnitless(fPm, modeParam("ActivityConsistencyTolerance"),
+                                                  legacyParam("ActivityConsistencyTolerance"), &tolerance, &sourceTag)) {
+        fModeParamSources["activity_consistency_tolerance"] = sourceTag;
+        if (tolerance < 0.) {
+            G4cerr << "Topas is exiting due to a serious error in source setup." << G4endl;
+            G4cerr << "ModeParams/ActivityConsistencyTolerance must not be negative." << G4endl;
+            exit(1);
+        }
+    }
+    fActivityConsistencyTolerance = tolerance;
+
+    // Volumes in Geant4 internal units (mm3); 1 mL = 1 cm3.
+    G4double envelopeVolume = fMediumIsSphere ? 4. / 3. * CLHEP::pi * std::pow(fMediumRadius, 3)
+                                              : fPhysicalVolumes[0]->GetLogicalVolume()->GetSolid()->GetCubicVolume();
+    G4double cellsVolume = fNumberOfCells * fPhysicalVolumes[1]->GetLogicalVolume()->GetSolid()->GetCubicVolume();
+    G4double liquidVolume = std::max(envelopeVolume - cellsVolume, 0.);
+    fImpliedActivityEnvelopeBq = fActivity_permL * envelopeVolume / cm3;
+    fImpliedActivityLiquidBq = fActivity_permL * liquidVolume / cm3;
+
+    if (fActivityConsistencyCheck == "Off") return;
+    G4double low = fImpliedActivityLiquidBq * (1. - fActivityConsistencyTolerance);
+    G4double high = fImpliedActivityEnvelopeBq * (1. + fActivityConsistencyTolerance);
+    if (fInitialActivity >= low && fInitialActivity <= high) return;
+    // One generator exists per worker thread; warn once, but stop from any of them.
+    if (fActivityConsistencyCheck == "Warn" && !fIsOutputWriter) return;
+
+    G4double ratio = fImpliedActivityEnvelopeBq > 0. ? fInitialActivity / fImpliedActivityEnvelopeBq : 0.;
+    G4ExceptionDescription msg;
+    msg << "InitialActivity = " << fInitialActivity << " Bq does not match Activity_permL x medium volume: "
+        << fActivity_permL << " Bq/mL x " << envelopeVolume / cm3 * 1e3 << " uL = " << fImpliedActivityEnvelopeBq
+        << " Bq (" << fImpliedActivityLiquidBq << " Bq without the cell volume). InitialActivity sets the number of"
+        << " decays and the dose; Activity_permL sets only the binding kinetics. Ratio InitialActivity / implied = "
+        << ratio << ". Check the units of both and the medium half-lengths, or set"
+        << " ModeParams/ActivityConsistencyCheck = \"Off\" if the difference is intended.";
+    G4Exception("TsRadioactiveTimeGeneratorBind::CheckInitialActivityConsistency()", "TsRADIOACTIVEBIND001",
+                fActivityConsistencyCheck == "Error" ? FatalException : JustWarning, msg);
 }
 
 void TsRadioactiveTimeGeneratorBind::GettingBindingKineticParameters() {
@@ -587,6 +647,9 @@ G4String TsRadioactiveTimeGeneratorBind::GetModeMetadataJson() const
     out << "\"activity_per_ml\":" << fActivity_permL << ",";
     out << "\"specific_activity_per_nmol\":" << fSpecificActivity_pernmol << ",";
     out << "\"concentration_nmol_per_l\":" << fConcentration << ",";
+    out << "\"implied_initial_activity_bq\":" << fImpliedActivityEnvelopeBq << ",";
+    out << "\"implied_initial_activity_liquid_bq\":" << fImpliedActivityLiquidBq << ",";
+    out << "\"activity_consistency_check\":\"" << fActivityConsistencyCheck << "\",";
     out << "\"washout_time_s\":" << fWashOutTime << ",";
     out << "\"washout_times_s\":[";
     for (size_t i = 0; i < fWashoutTimes.size(); i++) {

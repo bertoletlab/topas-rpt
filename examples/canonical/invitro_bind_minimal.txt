@@ -31,8 +31,7 @@ b:So/BindSource/TreatAdditionalDecaysAsNewHistories = "True"
 b:So/BindSource/IncludeWholeDecayChain              = "True"
 b:So/BindSource/WriteRunMetadata                     = "True"
 s:So/BindSource/RunMetadataFileName                  = "run_metadata_invitro.json"
-u:So/BindSource/InitialActivity                      = 5
-
+u:So/BindSource/InitialActivity                      = 1.6   # Bq = 20 kBq/mL x 0.08 uL medium (1 x 1 x 0.08 mm); see ModeParams/Activity_permL
 i:So/BindSource/NumberOfHistoriesInRun               = 200
 
 u:So/BindSource/ModeParams/Activity_permL            = 20 * kBq

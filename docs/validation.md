@@ -18,6 +18,24 @@ install it first if a step fails unexpectedly.
   their names imply.
 - **Metadata schema** - every run's `run_metadata.json` matches the documented
   schema.
+- **Zero-history steps** (`validate_zero_history_steps.sh`) - with
+  `CorrectByNumberOfHistories`, every step that still has decays runs at least
+  one history, so the decay chain keeps evolving once the scaled history count
+  would round to zero.
+- **Restart from an abundance file** (`validate_abundance_restart.sh`) - a
+  run restarted with `ReadIsotopicAbundanceFromFile` gives the same first-step
+  decays as the uninterrupted run, with or without
+  `UseFractionOfActivityFromFile`, and writes a `FractionOfDecaysAtTime0` column
+  that starts at 1.
+- **Activity consistency** (`validate_activity_consistency.sh`) -
+  `invitro_bind` warns when `InitialActivity` does not match
+  `ModeParams/Activity_permL` times the medium volume (x1000, /1000, x8 slips),
+  stops with `"Error"`, stays silent with `"Off"`, and leaves the dose
+  unchanged.
+- **Analytic abundances** (`validate_analytic_abundance.sh`) - with
+  `AbundanceUpdate = "Analytic"`, Pb-212, Bi-212 and Tl-208 follow the Bateman
+  solution, the abundance file is identical for different seeds and thread
+  counts, and an unknown value stops the run.
 - **`activity_map` contract** - optional, skips cleanly without
   `ACTIVITYMAP_CT_DICOM_DIR`/`ACTIVITYMAP_NM_DICOM_DIR` set to real DICOM
   data.
@@ -34,6 +52,7 @@ exit codes and the absence of fatal errors.
 
 ## Continuous integration
 
-`.github/workflows/build.yml` builds Geant4 11.2.2 and OpenTOPAS 4.2.3 from
-source (with the two patches in `patches/` applied), links this extension
-against them, and runs the suite above on every push and pull request.
+`.github/workflows/build.yml` builds Geant4 11.3.2 and OpenTOPAS 4.3.0 from
+source (with the DICOM activity-map patch in `patches/` applied), links this
+extension against them, and runs the suite above on Ubuntu 24.04 and 26.04 on
+every push and pull request.

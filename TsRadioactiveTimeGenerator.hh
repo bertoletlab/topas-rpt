@@ -77,6 +77,7 @@ public:
     G4VDecayChannel* GetDecayChannelManually(G4DecayTable* decayTable);
 
     void GetNumberOfIndependentDecaysDuringThisStep();
+    void EvolveAbundancesAnalytically(G4double stepDuration);
 
     void setPositionForHistory(G4ThreeVector NewPosition);
     virtual void GetAdaptedSource();
@@ -129,6 +130,8 @@ protected:
     G4double fNumberOfIndependentDecaysDuringFirstStep;
     G4double fNumberOfIndependentDecaysDuringThisStep;
     std::vector<G4double> fFractionsOfActivityAtTime0;
+    // FractionOfDecaysAtTime0 read from the abundance file on a restart, for the notice only.
+    G4double fFractionOfDecaysFromFile = -1.;
 
     G4String fEmitterParticleName;
 
@@ -144,6 +147,9 @@ protected:
     G4bool fCorrectByNumberOfHistories;
 
     G4bool fTreatAdditionalDecaysAsNewHistories;
+    // AbundanceUpdate = "Analytic": the isotopic abundances follow the Bateman solution of the
+    // decay chain each step instead of the decays sampled by the histories.
+    G4bool fAnalyticAbundanceUpdate = false;
     G4bool fIncludeWholeDecayChain;
 
     G4bool fReadIsotopicAbundanceFromFile;
