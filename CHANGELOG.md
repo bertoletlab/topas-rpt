@@ -19,9 +19,13 @@ All notable changes to `topas-rpt` are documented here. The format follows
   `"Off"`; `ModeParams/ActivityConsistencyTolerance` sets the 5%. The run
   metadata records `implied_initial_activity_bq`,
   `implied_initial_activity_liquid_bq` and `activity_consistency_check`. The
-  check changes no result. It flags `examples/canonical/invitro_bind_minimal.txt`
-  (5 Bq set, 1.6 Bq implied) and the `invitro_bind` regression decks, whose
-  activities are arbitrary test values.
+  check changes no result. It flags the `invitro_bind` regression decks, whose activities are
+  arbitrary test values.
+
+### Changed
+- `examples/canonical/invitro_bind_minimal.txt`: `InitialActivity` 5 -> 1.6 Bq,
+  the activity of its 0.08 uL medium at 20 kBq/mL. The binding kinetics are
+  unchanged (same concentration); doses scale by 0.32.
 - `tests/regtests/validate_activity_consistency.sh`.
 
 ## [1.1.0] - 2026-11-10
