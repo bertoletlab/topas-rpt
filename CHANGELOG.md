@@ -7,6 +7,24 @@ All notable changes to `topas-rpt` are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
+  steps with 200 histories; every step with decays runs a history and Pb-212
+  keeps decaying.
+- `tests/regtests/validate_abundance_restart.sh`.
+- `invitro_bind`: `InitialActivity` (total Bq; sets the decays and the dose)
+  is now compared at start-up with `ModeParams/Activity_permL` times the
+  medium volume (Bq/mL; until now used only for the binding kinetics). Nothing
+  tied the two together, so a unit slip in either one (uL for mL, kBq for Bq,
+  a half-length entered as a length) changed the dose by that factor without
+  any sign. A value outside the range from the liquid volume (medium minus
+  cells) to the whole medium envelope, widened by 5%, gives warning
+  `TsRADIOACTIVEBIND001` with both values and their ratio.
+  `ModeParams/ActivityConsistencyCheck` = `"Warn"` (default), `"Error"` or
+  `"Off"`; `ModeParams/ActivityConsistencyTolerance` sets the 5%. The run
+  metadata records `implied_initial_activity_bq`,
+  `implied_initial_activity_liquid_bq` and `activity_consistency_check`. The
+  check changes no result. It flags the `invitro_bind` regression decks, whose activities are
+  arbitrary test values.
 - `s:So/<Source>/AbundanceUpdate = "Analytic"` (default `"MonteCarlo"`, the
   behaviour so far): the isotopic abundances advance each step with the Bateman
   solution of the decay chain, using the half-lives and branching ratios of the
@@ -22,6 +40,45 @@ All notable changes to `topas-rpt` are documented here. The format follows
   chain. Doses still come from the histories; only the abundances, and so the
   decay count of each step, change.
 - `tests/regtests/validate_analytic_abundance.sh`.
+
+### Changed
+- CI and the documented requirements move to OpenTOPAS 4.3.0 and Geant4
+  11.3.2, the pair the regression baselines were already generated with. CI
+  runs on both Ubuntu 24.04 (GCC 13) and 26.04 (GCC 15). Geant4 dataset paths
+  are read from `geant4-config --datasets` instead of being listed by version.
+- `examples/canonical/invitro_bind_minimal.txt`: `InitialActivity` 5 -> 1.6 Bq,
+  the activity of its 0.08 uL medium at 20 kBq/mL. The binding kinetics are
+  unchanged (same concentration); doses scale by 0.32.
+- `tests/regtests/validate_activity_consistency.sh`.
+
+### Removed
+- `patches/0002-geant4-fix-columns-icc-typo.patch` and
+  `patches/0003-opentopas-zero-ke-momentum.patch`: Geant4 11.3.2 and OpenTOPAS
+  4.3.0 already contain both fixes. `0001` (DICOM activity map) still applies
+  to 4.3.0 and is kept.
+
+### Fixed
+- `CorrectByNumberOfHistories = "True"`: once a step's scaled history count
+  (the first step's count times its share of decays, truncated) reached 0, no
+  history updated the isotopic abundances, so the decay chain froze and every
+  later row of the abundance file repeated the same values. A step with decays
+  now always runs at least one history, which carries the step's decays as its
+  weight. Who should check their results: runs whose late steps had fewer
+  decays than the first step divided by `NumberOfHistoriesInRun`, for their
+  abundance files. Dose in those steps was 0 before (its share of the total
+  is at most 1/`NumberOfHistoriesInRun` per step).
+- Restart from an isotopic-abundance file (`ReadIsotopicAbundanceFromFile`):
+  the `FractionOfDecaysAtTime0` column written by the restarted run was
+  shifted by one row and ended in 0 without `UseFractionOfActivityFromFile`,
+  and started from the file's value with it. Since the column undoes the
+  normalisation of the scored quantities to the run's first step
+  (`CorrectByNumberOfHistories = "False"`), it now starts at 1 in every run.
+  With the flag, `InitialActivity` was also multiplied by the file's value and
+  reported as "the actual activity used", although the decays never used it:
+  the abundances in the file are fractions of the atoms at the original time 0
+  and already carry the decay since then. `InitialActivity` now stays as set,
+  and the notice reports the file's value and says that it changes neither the
+  decays nor the column. Decay counts and doses are unchanged.
 
 ## [1.1.0] - 2026-11-10
 

@@ -42,6 +42,7 @@ public:
     void showBindingModel(); // Method to show the binding model
     void SetUptakePerCell(); // Method to set the uptake per cell
     G4String GetModeMetadataJson() const override;
+    void CheckInitialActivityConsistency(); // InitialActivity against Activity_permL x medium volume
 
 private:
 
@@ -54,6 +55,12 @@ private:
     G4double fActivity_permL = -1; // Activity (per ml)
     G4double fSpecificActivity_pernmol = -1; // Specific activity (per nmol)
     G4double fConcentration; // Concentration (nM)
+    // InitialActivity implied by Activity_permL: over the whole medium envelope, and over the
+    // envelope minus the cells (the liquid volume). Either convention is accepted.
+    G4double fImpliedActivityEnvelopeBq = 0.;
+    G4double fImpliedActivityLiquidBq = 0.;
+    G4String fActivityConsistencyCheck = "Warn"; // Warn, Error or Off
+    G4double fActivityConsistencyTolerance = 0.05; // relative, outside [liquid, envelope]
     G4double fNumberOfCells; // Number of cells
     G4double fWashOutTime; // Washout time (s)
     std::vector<G4double> fWashoutTimes; // Washout times passed to the kinetic model (s)
