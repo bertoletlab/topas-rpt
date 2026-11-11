@@ -18,6 +18,10 @@ install it first if a step fails unexpectedly.
   their names imply.
 - **Metadata schema** - every run's `run_metadata.json` matches the documented
   schema.
+- **Zero-history steps** (`validate_zero_history_steps.sh`) - with
+  `CorrectByNumberOfHistories`, every step that still has decays runs at least
+  one history, so the decay chain keeps evolving once the scaled history count
+  would round to zero.
 - **`activity_map` contract** - optional, skips cleanly without
   `ACTIVITYMAP_CT_DICOM_DIR`/`ACTIVITYMAP_NM_DICOM_DIR` set to real DICOM
   data.

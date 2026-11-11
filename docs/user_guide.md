@@ -66,6 +66,14 @@ already reflects the activity and timeline you configured. When comparing two
 runs, compare all four numbers together: dose, `n_decays_step`,
 `n_histories_step`, and `primary_weight`.
 
+With `CorrectByNumberOfHistories = "True"` (the usual setting), the number of
+histories in a step is `NumberOfHistoriesInRun` times the step's decays divided
+by the first step's decays, truncated to an integer, so late steps of a
+decaying source run fewer histories at the same weight. A step that still has
+decays never drops below one history: that history carries all of the step's
+decays as its weight, so dose stays unbiased, although a step with very few
+histories is noisy. Raise `NumberOfHistoriesInRun` when the late steps matter.
+
 ## What to check after a run
 
 - `run.log` - no fatal warnings or exceptions.
