@@ -1369,8 +1369,11 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
         }
     }
 
-    G4bool hasLifetime = particle->GetPDGLifeTime() > 0;
-    if (fVerbosity > 2) G4cout << "has lifetime? " << hasLifetime << " Lifetime (h): " << particle->GetPDGLifeTime() / (3600. * s) << G4endl;
+    // Same mean life as the isomer cut and the abundances (MeanLifeOfNucleus); for a ground state
+    // it is the PDG lifetime.
+    const G4double chainMeanLife = MeanLifeOfNucleus(particle);
+    G4bool hasLifetime = chainMeanLife > 0;
+    if (fVerbosity > 2) G4cout << "has lifetime? " << hasLifetime << " Lifetime (h): " << chainMeanLife / 3600. << G4endl;
     if (!hasLifetime)
     {
         // Simulate all products immediately
@@ -1429,7 +1432,7 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
     else
     {
         // Sample decay time and add if within step
-        G4double meanlife = particle->GetPDGLifeTime()/second;
+        G4double meanlife = chainMeanLife;
         G4double lambda = 1 / meanlife;
         G4double decayTime = -log(G4UniformRand()) / lambda;
         if (fIntraStepTime + decayTime < fNextTime - fCurrentTime)

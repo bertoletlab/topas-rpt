@@ -31,7 +31,8 @@ void TsRadioactiveTimeSource::ResolveParameters() {
     // the module list of the physics list is checked as well.
     if (fPm->ParameterExists(GetFullParmName("DeexciteDaughters")) &&
         fPm->GetBooleanParameter(GetFullParmName("DeexciteDaughters"))) {
-        G4String modulesParm = "Ph/" + fPm->GetStringParameter("Ph/ListName") + "/Modules";
+        const G4String listName = fPm->GetStringParameter("Ph/ListName");
+        G4String modulesParm = "Ph/" + listName + "/Modules";
         G4bool hasModule = false;
         if (fPm->ParameterExists(modulesParm)) {
             G4String* modules = fPm->GetStringVector(modulesParm);
@@ -44,8 +45,11 @@ void TsRadioactiveTimeSource::ResolveParameters() {
         if (!hasModule || !G4NuclearLevelData::GetInstance()->GetParameters()->StoreICLevelData()) {
             G4ExceptionDescription msg;
             msg << GetFullParmName("DeexciteDaughters") << " is True, but "
-                << (hasModule ? "internal-conversion data are off"
-                              : "the \"tsrts_deexcitation\" physics module is not in " + modulesParm)
+                << (hasModule ? G4String("internal-conversion data are off")
+                    : fPm->ParameterExists(modulesParm)
+                        ? "the \"tsrts_deexcitation\" physics module is not in " + modulesParm
+                        : "physics list \"" + listName + "\" has no module list (" + modulesParm
+                          + "); DeexciteDaughters needs a Geant4_Modular list")
                 << ", so the de-excitation products would be incomplete. Add the "
                 << "\"tsrts_deexcitation\" physics module after the EM module.";
             G4Exception("TsRadioactiveTimeSource::ResolveParameters()", "TsRADIOACTIVE020",
