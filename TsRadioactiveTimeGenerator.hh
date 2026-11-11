@@ -78,6 +78,8 @@ public:
 
     G4VDecayChannel* GetDecayChannelManually(G4DecayTable* decayTable);
     // DeexciteDaughters: cascade excited daughter ions to the ground state (or an isomer).
+    // One decay of particle from decayTable (isomeric transitions through fITDecay before Geant4 11.3).
+    G4DecayProducts* SampleDecayProducts(const G4ParticleDefinition* particle, G4DecayTable* decayTable);
     G4DecayProducts* DeexciteDaughterIons(G4DecayProducts* products);
     // True when DeexciteDaughters keeps this excited ion as an isomer: its mean life, read as
     // the isotopic abundances read it, is above IsomerLifetimeThreshold.

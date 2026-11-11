@@ -129,7 +129,8 @@ With `IncludeWholeDecayChain`, the chain then decays it with its own lifetime
 and decay table, and an isomer still present at the end of a step carries over
 as its own entry of the abundance file (Mo-99 feeds `Tc99[142.684]`, whose
 abundance followed the Bateman solution within 2% over 18 h in 6 h steps).
-`AbundanceUpdate = "Analytic"` does not keep isomers apart (see above), so a
+`AbundanceUpdate = "Analytic"` follows excited daughters as their ground state,
+so it does not keep these isomers between steps (warning `TsRADIOACTIVE044`); a
 chain through an isomer needs the default `"MonteCarlo"`. `DeexciteDaughters` without the
 module stops the run (`TsRADIOACTIVE020`). Do not add `g4radioactivedecay`:
 it decays the chain a second time during tracking.

@@ -123,12 +123,16 @@ All notable changes to `topas-rpt` are documented here. The format follows
 - `DeexciteDaughters` with `IncludeWholeDecayChain`: an isomer kept by the de-excitation
   (Tc-99m from Mo-99) was replaced by its ground state in the chain, so it never decayed
   (0.04 gammas of 140.5 keV per Mo-99 decay instead of 0.83). It now decays with its own
-  lifetime and carries over between steps as its own abundance entry. The isomer cut
-  reads the lifetime as the isotopic abundances do.
+  lifetime and carries over between steps as its own abundance entry. Before Geant4
+  11.3, the chain now decays such an isomer through the source's own isomeric-transition
+  decay, as the first decay already did (the IT channel of the decay table has no photon
+  evaporation and stopped the run). The isomer cut reads the ion table's lifetime for the
+  level. `AbundanceUpdate = "Analytic"` still carries isomers as their ground state between
+  steps and warns (`TsRADIOACTIVE044`) when combined with `DeexciteDaughters` and the chain.
 - `FirstForbiddenBetaShape = "allowed"` finds the decay data as Geant4 does
   (`G4FindDataDir`), matches the parent level within 10 eV and on its floating level,
   keys branches by daughter floating level, and warns (`TsRADIOACTIVE023`) when the file
-  cannot be read instead of keeping the Geant4 shapes silently.
+  of a radioactive nuclide cannot be read instead of keeping the Geant4 shapes silently.
 - `DeexciteDaughters` without the `tsrts_deexcitation` module now stops with
   `TsRADIOACTIVE020` on Geant4 11.3 as well. The check looked only at the
   internal-conversion data flag, which Geant4 11.3 turns on by default, so it never

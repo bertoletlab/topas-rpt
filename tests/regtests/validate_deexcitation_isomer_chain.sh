@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Validates that an isomer kept by DeexciteDaughters stays an isomer in the decay chain.
-# Mo-99 feeds Tc99[142.683] (Tc-99m, mean life 8.7 h) in about 88% of its decays; the
+# Mo-99 feeds Tc99[142.684] (Tc-99m, mean life 8.7 h) in about 88% of its decays; the
 # de-excitation stops there (IsomerLifetimeThreshold), and with IncludeWholeDecayChain the
 # chain must then decay Tc-99m with its own lifetime, emitting its 140.5 keV gamma (89% per
 # Tc-99m decay). A Mo-99 point source in vacuum over one 30-day step must give about 0.8
