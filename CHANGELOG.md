@@ -6,6 +6,21 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- Restart from an isotopic-abundance file (`ReadIsotopicAbundanceFromFile`):
+  the `FractionOfDecaysAtTime0` column written by the restarted run was
+  shifted by one row and ended in 0 without `UseFractionOfActivityFromFile`,
+  and mixed two reference times with it. It now starts at 1 without the flag
+  and continues from the value read from the file with it. With the flag,
+  `InitialActivity` was also multiplied by that value and reported as "the
+  actual activity used", although the decays never used it: the abundances
+  in the file are fractions of the atoms at the original time 0 and already
+  carry the decay since then. `InitialActivity` now stays as set and the
+  notice says what the flag does. Decay counts and doses are unchanged.
+
+### Added
+- `tests/regtests/validate_abundance_restart.sh`.
+
 ## [1.1.0] - 2026-11-10
 
 ### Added

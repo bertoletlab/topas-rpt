@@ -105,10 +105,11 @@ i:Tf/NumberOfSequentialTimes = 1
 DECK
   } > "${OUT}/b/deck.txt"
   ( cd "${OUT}/b" && "${TOPAS_BIN}" deck.txt > run.log 2>&1 ) || { echo "FAIL: B: run failed; see ${OUT}/b/run.log"; exit 1; }
-  expected="$(awk -F, '$1 == 1209600 { printf("%.6g", 1e6 * $NF) }' "${OUT}/a/isotopic_abundance.csv")"
-  got="$(sed -n 's/.*an actual activity: \([0-9.eE+-]*\) Bq.*/\1/p' "${OUT}/b/run.log" | head -n 1)"
+  # The fraction loaded from the file is where the run's FractionOfDecaysAtTime0 column starts.
+  expected="$(awk -F, '$1 == 1209600 { printf("%.6g", $NF) }' "${OUT}/a/isotopic_abundance.csv")"
+  got="$(sed -n 's/.*FractionOfDecaysAtTime0 continues from \([0-9.eE+-]*\) .*/\1/p' "${OUT}/b/run.log" | head -n 1)"
   if [[ -z "${got}" ]] || ! awk -v g="${got}" -v e="${expected}" 'BEGIN { d = g - e; if (d < 0) d = -d; exit !(e > 0 && d <= 1e-4 * e) }'; then
-    echo "FAIL: B: activity loaded for 1209600 s is '${got}' Bq, expected ${expected} Bq (from that row's FractionOfDecaysAtTime0)"
+    echo "FAIL: B: fraction loaded for 1209600 s is '${got}', expected ${expected} (that row's FractionOfDecaysAtTime0)"
     fail=1
   fi
 fi
