@@ -114,6 +114,10 @@ case "${QT_MODE}" in
     QT_DESCRIPTION="ON (forced; ${QT_VERSION_DESCRIPTION})"
     ;;
   OFF)
+    if [[ "${GEANT4_QT}" == ON ]]; then
+      echo "WARNING: TOPAS_USE_QT=OFF, but ${GEANT4_CONFIG_FILE} says Geant4 was built with Qt;"
+      echo "         its targets define G4UI_USE_QT, so the link will likely fail on TsQt symbols."
+    fi
     QT_ARGS=(-DTOPAS_USE_QT=OFF -DTOPAS_USE_QT6=OFF)
     QT_DESCRIPTION="OFF (forced; OpenTOPAS turns it back on if it detects Qt in Geant4)"
     ;;
