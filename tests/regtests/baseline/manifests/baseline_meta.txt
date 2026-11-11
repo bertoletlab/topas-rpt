@@ -8,3 +8,5 @@ date_utc=2026-02-11T05:21:20Z
 # 2026-11-09: bind_manual regenerated (Manual split kept after step 1), same toolchain as above.
 # 2026-11-09: all regtest and example baselines regenerated (primary decay time drawn within the step,
 #   uniform cytoplasm sampling), same toolchain as above.
+# 2026-11-10: CI moved to OpenTOPAS 4.3.0 + Geant4 11.3.2, the toolchain these baselines were
+#   generated with; no baseline regenerated for the move.

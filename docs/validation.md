@@ -34,6 +34,7 @@ exit codes and the absence of fatal errors.
 
 ## Continuous integration
 
-`.github/workflows/build.yml` builds Geant4 11.2.2 and OpenTOPAS 4.2.3 from
-source (with the two patches in `patches/` applied), links this extension
-against them, and runs the suite above on every push and pull request.
+`.github/workflows/build.yml` builds Geant4 11.3.2 and OpenTOPAS 4.3.0 from
+source (with the DICOM activity-map patch in `patches/` applied), links this
+extension against them, and runs the suite above on Ubuntu 24.04 and 26.04 on
+every push and pull request.
