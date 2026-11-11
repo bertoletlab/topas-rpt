@@ -6,7 +6,34 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
+  steps with 200 histories; every step with decays runs a history and Pb-212
+  keeps decaying.
+- `tests/regtests/validate_abundance_restart.sh`.
+
+### Changed
+- CI and the documented requirements move to OpenTOPAS 4.3.0 and Geant4
+  11.3.2, the pair the regression baselines were already generated with. CI
+  runs on both Ubuntu 24.04 (GCC 13) and 26.04 (GCC 15). Geant4 dataset paths
+  are read from `geant4-config --datasets` instead of being listed by version.
+
+### Removed
+- `patches/0002-geant4-fix-columns-icc-typo.patch` and
+  `patches/0003-opentopas-zero-ke-momentum.patch`: Geant4 11.3.2 and OpenTOPAS
+  4.3.0 already contain both fixes. `0001` (DICOM activity map) still applies
+  to 4.3.0 and is kept.
+
 ### Fixed
+- `CorrectByNumberOfHistories = "True"`: once a step's scaled history count
+  (the first step's count times its share of decays, truncated) reached 0, no
+  history updated the isotopic abundances, so the decay chain froze and every
+  later row of the abundance file repeated the same values. A step with decays
+  now always runs at least one history, which carries the step's decays as its
+  weight. Who should check their results: runs whose late steps had fewer
+  decays than the first step divided by `NumberOfHistoriesInRun`, for their
+  abundance files. Dose in those steps was 0 before (its share of the total
+  is at most 1/`NumberOfHistoriesInRun` per step).
 - Restart from an isotopic-abundance file (`ReadIsotopicAbundanceFromFile`):
   the `FractionOfDecaysAtTime0` column written by the restarted run was
   shifted by one row and ended in 0 without `UseFractionOfActivityFromFile`,
@@ -19,9 +46,6 @@ All notable changes to `topas-rpt` are documented here. The format follows
   and already carry the decay since then. `InitialActivity` now stays as set,
   and the notice reports the file's value and says that it changes neither the
   decays nor the column. Decay counts and doses are unchanged.
-
-### Added
-- `tests/regtests/validate_abundance_restart.sh`.
 
 ## [1.1.0] - 2026-11-10
 

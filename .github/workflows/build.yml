@@ -12,14 +12,17 @@ defaults:
 
 jobs:
   build-and-test:
-    name: Build (Geant4 11.2.2 + OpenTOPAS 4.2.3, patched) + regression suite
-    # Pinned: 24.04 (GCC 13) is the image this suite was validated on;
-    # ubuntu-latest moved to 26.04 (GCC 15) in late 2026. Move deliberately,
-    # together with the cache keys below.
-    runs-on: ubuntu-24.04
+    name: Build (Geant4 11.3.2 + OpenTOPAS 4.3.0) + regression suite (${{ matrix.os }})
+    # Runner images are pinned rather than ubuntu-latest, so an image change is a
+    # deliberate edit here. 24.04 has GCC 13, 26.04 has GCC 15.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-26.04]
+    runs-on: ${{ matrix.os }}
     env:
-      G4_TAG: v11.2.2
-      TOPAS_TAG: v4.2.3
+      G4_TAG: v11.3.2
+      TOPAS_TAG: v4.3.0
       GDCM_TAG: v2.6.8
     steps:
       - uses: actions/checkout@v4
@@ -43,14 +46,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/geant4-install
-          key: geant4-${{ env.G4_TAG }}-patched-install-${{ runner.os }}-ubuntu-24.04
+          key: geant4-${{ env.G4_TAG }}-install-${{ matrix.os }}
 
-      - name: Build Geant4 (patched) from source
+      - name: Build Geant4 from source
         if: steps.g4cache.outputs.cache-hit != 'true'
         run: |
           set -euxo pipefail
           git clone --branch "$G4_TAG" --depth 1 https://github.com/Geant4/geant4 ~/geant4-src
-          git -C ~/geant4-src apply "$GITHUB_WORKSPACE/patches/0002-geant4-fix-columns-icc-typo.patch"
           cmake -S ~/geant4-src -B ~/geant4-build \
             -DGEANT4_INSTALL_DATA=ON \
             -DGEANT4_BUILD_MULTITHREADED=ON \
@@ -69,7 +71,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/gdcm-install
-          key: gdcm-${{ env.GDCM_TAG }}-install-${{ runner.os }}-ubuntu-24.04
+          key: gdcm-${{ env.GDCM_TAG }}-install-${{ matrix.os }}
 
       - name: Build GDCM from source (if not cached)
         if: steps.gdcmcache.outputs.cache-hit != 'true'
@@ -89,7 +91,6 @@ jobs:
           set -euxo pipefail
           git clone --branch "$TOPAS_TAG" --depth 1 https://github.com/OpenTOPAS/OpenTOPAS ~/OpenTOPAS
           git -C ~/OpenTOPAS apply "$GITHUB_WORKSPACE/patches/0001-opentopas-harden-dicom-activity-map.patch"
-          git -C ~/OpenTOPAS apply "$GITHUB_WORKSPACE/patches/0003-opentopas-zero-ke-momentum.patch"
           cmake -S ~/OpenTOPAS -B ~/topas-build \
             -DCMAKE_INSTALL_PREFIX="$HOME/topas-install" \
             -DTOPAS_EXTENSIONS_DIR="$GITHUB_WORKSPACE" \
@@ -104,20 +105,13 @@ jobs:
           set -euxo pipefail
           source "$HOME/geant4-install/bin/geant4.sh"
           export LD_LIBRARY_PATH="$HOME/topas-install/lib:$HOME/geant4-install/lib:$HOME/gdcm-install/lib:${LD_LIBRARY_PATH:-}"
-          # geant4.sh only sets GEANT4_DATA_DIR; the individual per-dataset vars
-          # TOPAS itself checks for are left commented out. Set them explicitly.
-          G4DATA="$GEANT4_DATA_DIR"
-          export G4NEUTRONHPDATA="$G4DATA/G4NDL4.7.1"
-          export G4LEDATA="$G4DATA/G4EMLOW8.5"
-          export G4LEVELGAMMADATA="$G4DATA/PhotonEvaporation5.7"
-          export G4RADIOACTIVEDATA="$G4DATA/RadioactiveDecay5.6"
-          export G4PARTICLEXSDATA="$G4DATA/G4PARTICLEXS4.0"
-          export G4PIIDATA="$G4DATA/G4PII1.3"
-          export G4REALSURFACEDATA="$G4DATA/RealSurface2.2"
-          export G4SAIDXSDATA="$G4DATA/G4SAIDDATA2.0"
-          export G4ABLADATA="$G4DATA/G4ABLA3.3"
-          export G4INCLDATA="$G4DATA/G4INCL1.2"
-          export G4ENSDFSTATEDATA="$G4DATA/G4ENSDFSTATE2.3"
+          # geant4.sh only sets GEANT4_DATA_DIR; the per-dataset variables TOPAS
+          # checks for are left commented out. geant4-config lists each dataset as
+          # "name variable path", so this follows the Geant4 version without
+          # hard-coding dataset versions.
+          while read -r _name var path; do
+            export "$var=$path"
+          done < <("$HOME/geant4-install/bin/geant4-config" --datasets)
           bash tests/regtests/validate_all_features_vs_legacy.sh "$HOME/topas-install/bin/topas"
 
       - name: Show TOPAS run logs (on failure)
@@ -133,7 +127,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: regtest-logs
+          name: regtest-logs-${{ matrix.os }}
           path: |
             /tmp/validate_*.log
             /tmp/tsrts_*/**/run.log

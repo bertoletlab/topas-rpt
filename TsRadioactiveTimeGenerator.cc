@@ -1380,8 +1380,14 @@ void TsRadioactiveTimeGenerator::UpdateForNewRun(G4bool )
     fFractionsOfActivityAtTime0.push_back(fNumberOfIndependentDecaysDuringThisStep / fNumberOfIndependentDecaysDuringFirstStep);
     if (fCorrectByNumberOfHistories) {
         G4double correctionFactor = fNumberOfIndependentDecaysDuringThisStep / fNumberOfIndependentDecaysDuringFirstStep;
-        if (fVerbosity > 1) G4cout << "New histories: " << (G4int)(fOriginalHistoriesPerStep * correctionFactor) << G4endl;
-        fSource->SetNewNumberOfHistories((G4int)(fOriginalHistoriesPerStep * correctionFactor));
+        G4int newHistories = (G4int)(fOriginalHistoriesPerStep * correctionFactor);
+        // Keep at least one history while the step still has decays. With none, nothing would
+        // update the isotopic abundances, so the chain would freeze from this step on. The one
+        // history carries the step's decays as its weight, so dose stays unbiased.
+        if (newHistories < 1 && fNumberOfIndependentDecaysDuringThisStep > 0.)
+            newHistories = 1;
+        if (fVerbosity > 1) G4cout << "New histories: " << newHistories << G4endl;
+        fSource->SetNewNumberOfHistories(newHistories);
     }
     fHistoriesPerStep = GetSource()->GetNumberOfHistoriesInRun();
     if (fVerbosity > 0) G4cout << "Theoretical histories per step: " << fHistoriesPerStep << G4endl;
