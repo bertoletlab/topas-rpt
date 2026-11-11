@@ -59,6 +59,7 @@ public:
     G4VDecayChannel* GetDecayChannelManually(G4DecayTable* decayTable);
 
     void GetNumberOfIndependentDecaysDuringThisStep();
+    void EvolveAbundancesAnalytically(G4double stepDuration);
 
     void setPositionForHistory(G4ThreeVector NewPosition);
     virtual void GetAdaptedSource();
@@ -127,6 +128,9 @@ protected:
     G4bool fCorrectByNumberOfHistories;
 
     G4bool fTreatAdditionalDecaysAsNewHistories;
+    // AbundanceUpdate = "Analytic": the isotopic abundances follow the Bateman solution of the
+    // decay chain each step instead of the decays sampled by the histories.
+    G4bool fAnalyticAbundanceUpdate = false;
     G4bool fIncludeWholeDecayChain;
 
     G4bool fReadIsotopicAbundanceFromFile;

@@ -32,6 +32,10 @@ install it first if a step fails unexpectedly.
   `ModeParams/Activity_permL` times the medium volume (x1000, /1000, x8 slips),
   stops with `"Error"`, stays silent with `"Off"`, and leaves the dose
   unchanged.
+- **Analytic abundances** (`validate_analytic_abundance.sh`) - with
+  `AbundanceUpdate = "Analytic"`, Pb-212, Bi-212 and Tl-208 follow the Bateman
+  solution, the abundance file is identical for different seeds and thread
+  counts, and an unknown value stops the run.
 - **`activity_map` contract** - optional, skips cleanly without
   `ACTIVITYMAP_CT_DICOM_DIR`/`ACTIVITYMAP_NM_DICOM_DIR` set to real DICOM
   data.

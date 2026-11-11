@@ -25,6 +25,21 @@ All notable changes to `topas-rpt` are documented here. The format follows
   `implied_initial_activity_liquid_bq` and `activity_consistency_check`. The
   check changes no result. It flags the `invitro_bind` regression decks, whose activities are
   arbitrary test values.
+- `s:So/<Source>/AbundanceUpdate = "Analytic"` (default `"MonteCarlo"`, the
+  behaviour so far): the isotopic abundances advance each step with the Bateman
+  solution of the decay chain, using the half-lives and branching ratios of the
+  Geant4 decay data, instead of the decays sampled by the histories. The
+  sampled bookkeeping gets noisy when a step has few histories (late steps of
+  a `CorrectByNumberOfHistories` run, or a low `NumberOfHistoriesInRun`); the
+  analytic update has no noise and does not depend on the seed, the thread
+  count or the number of histories. It follows the rules of the sampled
+  bookkeeping: excited daughters as their ground state, nuclides without a
+  lifetime (or with a meanlife below 1e-6 of the step) passed straight to
+  their daughters, daughters only with `IncludeWholeDecayChain`. Not available
+  in `diffusion` mode, whose clearance and desorption are outside the decay
+  chain. Doses still come from the histories; only the abundances, and so the
+  decay count of each step, change.
+- `tests/regtests/validate_analytic_abundance.sh`.
 
 ### Changed
 - CI and the documented requirements move to OpenTOPAS 4.3.0 and Geant4

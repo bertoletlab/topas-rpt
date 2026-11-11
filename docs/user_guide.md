@@ -55,6 +55,40 @@ takes `"Warn"` (default), `"Error"` (stop the run) or `"Off"`, and
 run metadata records both implied activities (`implied_initial_activity_bq`,
 `implied_initial_activity_liquid_bq`).
 
+**Isotopic abundances.** Every mode tracks the composition of the decay chain
+between steps (written with `WriteIsotopicAbundance`). By default
+(`s:So/<Source>/AbundanceUpdate = "MonteCarlo"`) each history moves its share of
+the step's decays from the nuclide it sampled to the daughters it produced, so
+the composition carries the sampling noise of the histories, which grows when a
+step has few of them. `AbundanceUpdate = "Analytic"` advances the composition
+with the Bateman solution of the chain (Geant4 half-lives and branching ratios)
+instead: the result has no noise and does not depend on the seed, the thread
+count or the number of histories. It is not available in `diffusion` mode.
+
+Since the decay count of every later step comes from the abundances, the
+choice also affects the dose normalisation. For a Pb-212 source over 72
+one-hour steps (30 seeds), the sampled update gave these totals of decays
+against the Bateman solution:
+
+| `NumberOfHistoriesInRun` | sampled / Bateman | spread between runs |
+|---|---|---|
+| 20 | 1.016 | 1.4% |
+| 200 | 1.003 | about 0.5% |
+| 2000 | 1.0005 (no significant bias) | about 0.2% |
+
+The small excess at low history counts comes from abundances that a single
+history drives below zero being reset to zero. Daughters scatter much more
+than the parent: with 20 histories, Bi-212 at 46 h ranged from 0 to 2.4 times
+its Bateman value. The analytic update follows the same chain rules as the
+sampled one: excited daughters are followed as their ground state (isomers
+such as Tc-99m are not kept apart), and a nuclide with a meanlife below 1e-6
+of the step passes straight to its daughters, so very short-lived nuclides
+(At-217, Po-212) appear in the file only when the steps are short. It also
+differs in one corner case: in `invitro_bind` with `"Manual"` probabilities
+that sum below 1 (which prints `SUM OF PROBABILITIES IS NOT 1`), the sampled
+update adds no daughters for the dropped histories, while the analytic update
+keeps the whole chain.
+
 **`activity_map`** - decay positions sampled from a voxelized DICOM activity
 map. Each voxel's activity value becomes a sampling weight:
 `topas-rpt` builds a cumulative probability distribution over all non-zero

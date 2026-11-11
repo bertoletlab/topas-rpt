@@ -42,6 +42,7 @@
 #include <algorithm>
 #include <cctype>
 #include <mutex>
+#include <functional>
 
 namespace
 {
@@ -112,6 +113,74 @@ G4double SampleDecayTimeWithinStep(G4double meanlife, G4double stepDuration)
     if (!(meanlife > 0.) || !(stepDuration > 0.))
         return 0.;
     return -meanlife * std::log1p(G4UniformRand() * std::expm1(-stepDuration / meanlife));
+}
+
+// Meanlife (s) of an isotopic-abundance entry, "Name" or "Name[E in keV]" for an excited state,
+// read as GetNumberOfIndependentDecaysDuringThisStep reads it. -1 if unknown.
+G4double MeanLifeOfAbundanceEntry(const G4String& name)
+{
+    G4ParticleDefinition* particle = ResolveParticleDefinitionByName(name);
+    if (!particle)
+        return -1.;
+    if (const auto* ion = dynamic_cast<const G4Ions*>(particle)) {
+        if (ion->GetExcitationEnergy() > 0.) {
+            G4double lifetime = G4IonTable::GetIonTable()->GetLifeTime(ion->GetAtomicNumber(), ion->GetAtomicMass(),
+                                                                      ion->GetExcitationEnergy());
+            if (lifetime != -1001.)
+                return lifetime / second;
+        }
+    }
+    return particle->GetPDGLifeTime() / second;
+}
+
+// exp(M) for a small dense matrix, by scaling and squaring of a Taylor series. M is a decay-chain
+// generator times the step (non-positive diagonal, non-negative off-diagonal), so exp(M) is
+// non-negative and the scaled series converges quickly.
+std::vector<std::vector<G4double>> MatrixExponential(const std::vector<std::vector<G4double>>& M)
+{
+    const size_t n = M.size();
+    auto multiply = [n](const std::vector<std::vector<G4double>>& a, const std::vector<std::vector<G4double>>& b) {
+        std::vector<std::vector<G4double>> c(n, std::vector<G4double>(n, 0.));
+        for (size_t i = 0; i < n; i++)
+            for (size_t k = 0; k < n; k++) {
+                if (a[i][k] == 0.) continue;
+                for (size_t j = 0; j < n; j++)
+                    c[i][j] += a[i][k] * b[k][j];
+            }
+        return c;
+    };
+    G4double norm = 0.;
+    for (size_t j = 0; j < n; j++) {
+        G4double column = 0.;
+        for (size_t i = 0; i < n; i++)
+            column += std::abs(M[i][j]);
+        norm = std::max(norm, column);
+    }
+    const G4int squarings = norm > 0.5 ? (G4int)std::ceil(std::log2(norm / 0.5)) : 0;
+    const G4double scale = std::ldexp(1., -squarings);
+    std::vector<std::vector<G4double>> B(n, std::vector<G4double>(n, 0.));
+    for (size_t i = 0; i < n; i++)
+        for (size_t j = 0; j < n; j++)
+            B[i][j] = M[i][j] * scale;
+    std::vector<std::vector<G4double>> result(n, std::vector<G4double>(n, 0.));
+    std::vector<std::vector<G4double>> term(n, std::vector<G4double>(n, 0.));
+    for (size_t i = 0; i < n; i++)
+        result[i][i] = term[i][i] = 1.;
+    for (G4int k = 1; k <= 30; k++) {
+        term = multiply(term, B);
+        G4double largest = 0.;
+        for (size_t i = 0; i < n; i++)
+            for (size_t j = 0; j < n; j++) {
+                term[i][j] /= k;
+                result[i][j] += term[i][j];
+                largest = std::max(largest, std::abs(term[i][j]));
+            }
+        if (largest < 1e-18)
+            break;
+    }
+    for (G4int s = 0; s < squarings; s++)
+        result = multiply(result, result);
+    return result;
 }
 
 G4String GetBaseEmitterName(const G4String& emitterName)
@@ -351,6 +420,17 @@ void TsRadioactiveTimeGenerator::ResolveParameters()
     }
     if (fPm->ParameterExists(GetFullParmName("Verbosity")))
         fVerbosity = fPm->GetIntegerParameter(GetFullParmName("Verbosity"));
+    fAnalyticAbundanceUpdate = false;
+    if (fPm->ParameterExists(GetFullParmName("AbundanceUpdate"))) {
+        G4String update = fPm->GetStringParameter(GetFullParmName("AbundanceUpdate"));
+        if (update == "Analytic")
+            fAnalyticAbundanceUpdate = true;
+        else if (update != "MonteCarlo") {
+            G4ExceptionDescription msg;
+            msg << "AbundanceUpdate must be \"MonteCarlo\" or \"Analytic\" (got \"" << update << "\").";
+            G4Exception("TsRadioactiveTimeGenerator::ResolveParameters()", "TsRADIOACTIVE040", FatalException, msg);
+        }
+    }
     TsSourceModeResolver::Resolution modeResolution =
             TsSourceModeResolver::ResolveRequestedMode(fPm, GetFullParmName("Mode"), GetFullParmName("Type"));
     G4bool modeSetExplicitly = modeResolution.modeSetExplicitly;
@@ -364,6 +444,13 @@ void TsRadioactiveTimeGenerator::ResolveParameters()
                     "TsRADIOACTIVE002", FatalException, msg);
     } else if (modeId == TsModeFactory::ModeId::Unknown) {
         fMode = "uniform";
+    }
+    if (fAnalyticAbundanceUpdate && modeId == TsModeFactory::ModeId::Diffusion) {
+        // Diffusion removes progeny by biological clearance and desorption, which the decay chain
+        // alone does not describe.
+        G4ExceptionDescription msg;
+        msg << "AbundanceUpdate = \"Analytic\" is not available in diffusion mode.";
+        G4Exception("TsRadioactiveTimeGenerator::ResolveParameters()", "TsRADIOACTIVE041", FatalException, msg);
     }
     if (modeResolution.usedLegacyTypeMapping) {
         G4cout << "WARNING: Source mode inferred from legacy Type='" << modeResolution.legacyTypeValue
@@ -1368,6 +1455,7 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
 void TsRadioactiveTimeGenerator::UpdateForNewRun(G4bool )
 {
     GetSource();
+    const G4double finishedStepStart = fCurrentTime;
     fRunID++;
     fCurrentTime = fTimeList[fRunID];
     if (fRunID == (G4int)fTimeList.size() - 1)
@@ -1376,6 +1464,8 @@ void TsRadioactiveTimeGenerator::UpdateForNewRun(G4bool )
         fNextTime = fTimeList[fRunID + 1];
 
     MergeAbundanceDifferencesAcrossThreads();
+    if (fAnalyticAbundanceUpdate)
+        EvolveAbundancesAnalytically(fCurrentTime - finishedStepStart);
     GetNumberOfIndependentDecaysDuringThisStep();
     fFractionsOfActivityAtTime0.push_back(fNumberOfIndependentDecaysDuringThisStep / fNumberOfIndependentDecaysDuringFirstStep);
     if (fCorrectByNumberOfHistories) {
@@ -1471,6 +1561,7 @@ G4ParticleDefinition* TsRadioactiveTimeGenerator::PickNextRadionuclide()
 }
 
 void TsRadioactiveTimeGenerator::IncreaseAbundance(G4ParticleDefinition* particle) {
+    if (fAnalyticAbundanceUpdate) return;
     G4double weightOfAHistory = ComputeAbundanceWeight();
     G4String name = particle->GetParticleName();
     if (fIsotopicAbundanceDifferencePerStep.find(name) == fIsotopicAbundanceDifferencePerStep.end())
@@ -1481,6 +1572,7 @@ void TsRadioactiveTimeGenerator::IncreaseAbundance(G4ParticleDefinition* particl
 
 void TsRadioactiveTimeGenerator::DecreaseAbundance(G4ParticleDefinition* particle)
 {
+    if (fAnalyticAbundanceUpdate) return;
     G4double weightOfAHistory = ComputeAbundanceWeight();
     G4String name = particle->GetParticleName();
     if (fIsotopicAbundanceDifferencePerStep.find(name) == fIsotopicAbundanceDifferencePerStep.end())
@@ -1645,6 +1737,136 @@ G4VDecayChannel* TsRadioactiveTimeGenerator::GetDecayChannelManually(G4DecayTabl
         }
     }
     return decayTable->GetDecayChannel(selectedChannel);
+}
+
+void TsRadioactiveTimeGenerator::EvolveAbundancesAnalytically(G4double stepDuration)
+{
+    // Advances the isotopic abundances (fractions of the initial atoms) over one step with the
+    // Bateman solution of the decay chain, n(t + dt) = exp(A dt) n(t), so that they no longer
+    // depend on which nuclides the histories happened to sample. The chain follows the rules of
+    // the sampled bookkeeping in AddRecursivelyToIsotopeListIfRadioactive:
+    //  - a nuclide without a decay table, without channels, or marked stable ends the chain;
+    //  - excited daughters are followed as their ground state;
+    //  - a nuclide without a lifetime decays at once, and so does one whose meanlife is below 1e-6
+    //    of the step (Po-212, 0.3 us), whose abundance at a step boundary is negligible: its
+    //    branches pass straight to its daughters;
+    //  - with IncludeWholeDecayChain = False, daughters are not followed.
+    if (!(stepDuration > 0.))
+        return;
+    const G4double promptMeanLife = 1e-6 * stepDuration;
+    G4IonTable* ionTable = G4ParticleTable::GetParticleTable()->GetIonTable();
+
+    // 0: ends the chain, 1: decays at once, 2: followed with its own lifetime
+    auto classify = [&](G4ParticleDefinition* particle, G4double meanlife, G4DecayTable*& table) -> G4int {
+        table = nullptr;
+        if (!particle || particle->GetParticleType() != "nucleus" || particle->GetBaryonNumber() <= 4)
+            return 0;
+        if (!dynamic_cast<const G4Ions*>(particle))
+            return 0;
+        table = fDecay->LoadDecayTable(AsIonOrThrow(particle, "TsRadioactiveTimeGenerator::EvolveAbundancesAnalytically"));
+        if (!table || table->entries() <= 0 || particle->GetPDGStable())
+            return 0;
+        return (meanlife > promptMeanLife) ? 2 : 1;
+    };
+    auto groundState = [&](G4ParticleDefinition* particle) -> G4ParticleDefinition* {
+        const auto* ion = dynamic_cast<const G4Ions*>(particle);
+        if (ion && ion->GetExcitationEnergy() > 0. && ionTable) {
+            G4ParticleDefinition* ground = ionTable->GetIon(ion->GetAtomicNumber(), ion->GetAtomicMass(), 0.);
+            if (ground) return ground;
+        }
+        return particle;
+    };
+    // Followed daughters (name, yield per decay) of one decay, passing through prompt ones.
+    std::function<void(G4DecayTable*, G4double, std::map<G4String, G4double>&, G4int)> collectDaughters;
+    collectDaughters = [&](G4DecayTable* table, G4double weight, std::map<G4String, G4double>& out, G4int depth) {
+        if (!table || depth > 64) return;
+        G4double sumBR = 0.;
+        for (G4int c = 0; c < table->entries(); c++)
+            sumBR += table->GetDecayChannel(c)->GetBR();
+        if (!(sumBR > 0.)) return;
+        for (G4int c = 0; c < table->entries(); c++) {
+            G4VDecayChannel* channel = table->GetDecayChannel(c);
+            const G4double branch = weight * channel->GetBR() / sumBR;
+            if (!(branch > 0.)) continue;
+            for (G4int d = 0; d < channel->GetNumberOfDaughters(); d++) {
+                G4ParticleDefinition* daughter = channel->GetDaughter(d);
+                if (!daughter || daughter->GetParticleType() != "nucleus" || daughter->GetBaryonNumber() <= 4)
+                    continue;
+                daughter = groundState(daughter);
+                G4DecayTable* daughterTable = nullptr;
+                const G4int kind = classify(daughter, daughter->GetPDGLifeTime() / second, daughterTable);
+                if (kind == 2)
+                    out[daughter->GetParticleName()] += branch;
+                else if (kind == 1)
+                    collectDaughters(daughterTable, branch, out, depth + 1);
+            }
+        }
+    };
+
+    // Nodes: the current entries, then every followed descendant.
+    std::vector<G4String> nodes;
+    std::map<G4String, size_t> index;
+    std::vector<G4double> lambdas;
+    std::vector<std::map<G4String, G4double>> daughters;
+    std::vector<G4double> start;
+    std::map<G4String, G4double> promptAtStart;
+    std::vector<G4String> queue;
+    for (const G4String& name : fOrderedIsotopes)
+        if (fIsotopicAbundance.count(name)) queue.push_back(name);
+    for (const auto& pair : fIsotopicAbundance)
+        if (std::find(queue.begin(), queue.end(), pair.first) == queue.end()) queue.push_back(pair.first);
+    std::set<G4String> visited;
+    for (size_t q = 0; q < queue.size(); q++) {
+        const G4String name = queue[q];
+        if (!visited.insert(name).second) continue;
+        G4ParticleDefinition* particle = ResolveParticleDefinitionByName(name);
+        const G4double meanlife = MeanLifeOfAbundanceEntry(name);
+        G4DecayTable* table = nullptr;
+        const G4int kind = classify(particle, meanlife, table);
+        const G4bool isEntry = fIsotopicAbundance.count(name) > 0;
+        std::map<G4String, G4double> out;
+        if (fIncludeWholeDecayChain && kind > 0)
+            collectDaughters(table, 1., out, 0);
+        if (kind == 1 && isEntry) {
+            // An entry that decays at once hands its abundance to its daughters.
+            for (const auto& d : out) {
+                promptAtStart[d.first] += fIsotopicAbundance[name] * d.second;
+                queue.push_back(d.first);
+            }
+            fIsotopicAbundance[name] = 0.;
+            continue;
+        }
+        index[name] = nodes.size();
+        nodes.push_back(name);
+        lambdas.push_back(kind == 2 && meanlife > 0. ? 1. / meanlife : 0.);
+        daughters.push_back(out);
+        start.push_back(isEntry ? fIsotopicAbundance[name] : 0.);
+        for (const auto& d : out) queue.push_back(d.first);
+    }
+    for (const auto& p : promptAtStart)
+        if (index.count(p.first)) start[index[p.first]] += p.second;
+
+    const size_t n = nodes.size();
+    if (n == 0)
+        return;
+    std::vector<std::vector<G4double>> M(n, std::vector<G4double>(n, 0.));
+    for (size_t i = 0; i < n; i++) {
+        M[i][i] -= lambdas[i] * stepDuration;
+        for (const auto& d : daughters[i])
+            M[index[d.first]][i] += lambdas[i] * d.second * stepDuration;
+    }
+    const std::vector<std::vector<G4double>> E = MatrixExponential(M);
+    for (size_t i = 0; i < n; i++) {
+        G4double value = 0.;
+        for (size_t j = 0; j < n; j++)
+            value += E[i][j] * start[j];
+        if (value < 0.) value = 0.;
+        if (!fIsotopicAbundance.count(nodes[i])) {
+            if (value <= 0.) continue;
+            fOrderedIsotopes.push_back(nodes[i]);
+        }
+        fIsotopicAbundance[nodes[i]] = value;
+    }
 }
 
 void TsRadioactiveTimeGenerator::GetNumberOfIndependentDecaysDuringThisStep()
