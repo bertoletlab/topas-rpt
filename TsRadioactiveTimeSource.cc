@@ -23,17 +23,34 @@ TsRadioactiveTimeSource::~TsRadioactiveTimeSource()
 
 void TsRadioactiveTimeSource::ResolveParameters() {
     TsSource::ResolveParameters();
-    // DeexciteDaughters needs the internal-conversion shell data that only a physics
-    // constructor can switch on (before initialization): the tsrts_deexcitation module.
+    // DeexciteDaughters needs the tsrts_deexcitation module: it switches on the
+    // internal-conversion shell data, isomer production and Auger options, which only a
+    // physics constructor can set (before initialization), and installs the atomic
+    // de-excitation that keeps stale vacancies out of the next decay. Geant4 11.3 stores the
+    // IC data by default, so the IC flag alone no longer shows whether the module is there;
+    // the module list of the physics list is checked as well.
     if (fPm->ParameterExists(GetFullParmName("DeexciteDaughters")) &&
-        fPm->GetBooleanParameter(GetFullParmName("DeexciteDaughters")) &&
-        !G4NuclearLevelData::GetInstance()->GetParameters()->StoreICLevelData()) {
-        G4ExceptionDescription msg;
-        msg << GetFullParmName("DeexciteDaughters") << " is True, but internal-conversion data "
-            << "are off, so no conversion electrons or x-rays would be emitted. Add the "
-            << "\"tsrts_deexcitation\" physics module after the EM module.";
-        G4Exception("TsRadioactiveTimeSource::ResolveParameters()", "TsRADIOACTIVE020",
-                    FatalException, msg);
+        fPm->GetBooleanParameter(GetFullParmName("DeexciteDaughters"))) {
+        G4String modulesParm = "Ph/" + fPm->GetStringParameter("Ph/ListName") + "/Modules";
+        G4bool hasModule = false;
+        if (fPm->ParameterExists(modulesParm)) {
+            G4String* modules = fPm->GetStringVector(modulesParm);
+            for (G4int i = 0; i < fPm->GetVectorLength(modulesParm); ++i) {
+                G4String name = modules[i];
+                G4StrUtil::to_lower(name);
+                if (name == "tsrts_deexcitation") hasModule = true;
+            }
+        }
+        if (!hasModule || !G4NuclearLevelData::GetInstance()->GetParameters()->StoreICLevelData()) {
+            G4ExceptionDescription msg;
+            msg << GetFullParmName("DeexciteDaughters") << " is True, but "
+                << (hasModule ? "internal-conversion data are off"
+                              : "the \"tsrts_deexcitation\" physics module is not in " + modulesParm)
+                << ", so the de-excitation products would be incomplete. Add the "
+                << "\"tsrts_deexcitation\" physics module after the EM module.";
+            G4Exception("TsRadioactiveTimeSource::ResolveParameters()", "TsRADIOACTIVE020",
+                        FatalException, msg);
+        }
     }
     // Same defaults as the generator, which writes the rows this source completes at the end.
     fWriteIsotopicAbundance = true;

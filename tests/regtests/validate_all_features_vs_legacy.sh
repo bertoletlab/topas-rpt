@@ -16,6 +16,8 @@ set -euo pipefail
 # - Decay timing (Bi-212 against Bateman) and one position per decay with the chain off.
 # - Decay-chain bookkeeping independent of thread count and CorrectByNumberOfHistories.
 # - Output files: default abundance file, full-precision times and read-back, uptake id check.
+# - Daughter de-excitation: products, energy per decay against g4radioactivedecay,
+#   first-forbidden beta shape, no stale atomic vacancy.
 # - Activity-map smoke run (optional; SKIP without required DICOM env).
 
 if [[ $# -ne 1 ]]; then
@@ -131,6 +133,18 @@ run_step "AbundanceUpdate = Analytic: Bateman abundances, independent of seed an
 
 run_step "invitro_bind: mode_settings in the metadata of a single-step run" \
   "${ROOT}/tests/regtests/validate_single_step_metadata.sh" "${TOPAS_BIN}"
+
+run_step "DeexciteDaughters: Lu-177 de-excitation products, only with the flag and the module" \
+  "${ROOT}/tests/regtests/validate_deexcite_daughters.sh" "${TOPAS_BIN}"
+
+run_step "DeexciteDaughters: energy per decay against g4radioactivedecay (Lu-177, Pb-212 chain)" \
+  "${ROOT}/tests/regtests/validate_deexcitation_energy.sh" "${TOPAS_BIN}"
+
+run_step "FirstForbiddenBetaShape: Tb-161 mean beta energy against ICRP 107" \
+  "${ROOT}/tests/regtests/validate_first_forbidden_shape.sh" "${TOPAS_BIN}"
+
+run_step "tsrts_deexcitation: no stale atomic vacancy reaches the next decay" \
+  "${ROOT}/tests/regtests/validate_no_stale_vacancy.sh" "${TOPAS_BIN}"
 
 run_optional_step "activity_map mode contract (optional)" \
   "${ROOT}/tests/regtests/validate_activity_map_contract.sh" "${TOPAS_BIN}"

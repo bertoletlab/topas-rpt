@@ -102,6 +102,48 @@ activity concentration) or raw counts (`"Counts"`, with
 statistics, calibration settings, and a sanity check that the map and its
 parent patient geometry actually agree on extent.
 
+## Daughter de-excitation
+
+`topas-rpt` samples each decay itself, so the daughter nucleus can come out in
+an excited state, and with electromagnetic physics alone nothing de-excites
+it. Its gammas, conversion electrons, X-rays and Auger electrons are then
+missing (see [Known Limitations](known_limitations.md)). To emit them, add the
+`tsrts_deexcitation` physics module after the EM module and turn on
+`DeexciteDaughters`:
+
+```
+sv:Ph/Default/Modules = 2 "g4em-livermore" "tsrts_deexcitation"
+b:Ph/Default/Fluorescence = "True"
+b:Ph/Default/Auger = "True"
+b:Ph/Default/DeexcitationIgnoreCut = "True"
+b:So/<Source>/DeexciteDaughters = "True"
+```
+
+The excited daughter of every sampled decay, first decay and chain decays
+alike, is then taken to its ground state through Geant4's isomeric-transition
+decay (photon evaporation, internal conversion, atomic relaxation), and every
+product is emitted as a primary at the decay position. A daughter level with a
+mean life above `d:So/<Source>/IsomerLifetimeThreshold` (default 1 min) is
+left as an isomer and emitted as it is. `DeexciteDaughters` without the
+module stops the run (`TsRADIOACTIVE020`). Do not add `g4radioactivedecay`:
+it decays the chain a second time during tracking.
+
+`DeexciteDaughters` is off by default, so existing decks give the same results
+as before. For a source in a 0.5 mm water sphere inside a 60 cm water box, it
+brings the energy per decay to that of `g4radioactivedecay` within 2.5%
+in the sphere and 1.5% in total (Lu-177, Tb-161, Pb-212 with its chain, At-211,
+Ac-225), where it was 14% and 26% low for Lu-177 and 36% and 39% low for
+Tb-161 without it. A metastable source such as Tc-99m is set as
+`GenericIon(43,99)` with `d:So/<Source>/ExcitationEnergy = 142.6836 keV`; it
+needs the flag, since without it almost all of its energy is lost.
+
+`s:So/<Source>/FirstForbiddenBetaShape = "allowed"` (default `"geant4"`)
+rebuilds the beta branches that the decay data tag as first-forbidden with the
+allowed spectrum shape. The Geant4 shape factor for those branches is a fit to
+Bi-210 data; it puts the mean beta energy of Tb-161 and Er-169 6 to 9% below
+ICRP 107, and `"allowed"` brings them within 2%. Nuclides without such a
+branch, including Lu-177, are unchanged.
+
 ## How the output weighting works
 
 Every run writes normalization metadata to `run_metadata.json`. The rule that

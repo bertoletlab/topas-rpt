@@ -26,6 +26,11 @@ All notable changes to `topas-rpt` are documented here. The format follows
   Nuclides without such a branch are unchanged.
 - `tests/regtests/validate_deexcite_daughters.sh`, `tests/regtests/validate_first_forbidden_shape.sh`,
   `tests/regtests/validate_no_stale_vacancy.sh`.
+- `tests/regtests/validate_deexcitation_energy.sh`: energy per decay in a 0.5 mm
+  water sphere and in total against `g4radioactivedecay`, for Lu-177 and for Pb-212
+  with its chain; Lu-177 without `DeexciteDaughters` must fall short. The four
+  de-excitation tests run in the suite (`validate_all_features_vs_legacy.sh`), and
+  the user guide has a "Daughter de-excitation" section.
 - `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
   steps with 200 histories; every step with decays runs a history and Pb-212
   keeps decaying.
@@ -108,6 +113,12 @@ All notable changes to `topas-rpt` are documented here. The format follows
   `FirstForbiddenBetaShape = "allowed"`; 6-7% low without it), and within 1% of
   `g4radioactivedecay` where the daughter is stable. Opt-in, so existing decks are
   unchanged.
+- `DeexciteDaughters` without the `tsrts_deexcitation` module now stops with
+  `TsRADIOACTIVE020` on Geant4 11.3 as well. The check looked only at the
+  internal-conversion data flag, which Geant4 11.3 turns on by default, so it never
+  fired there, and runs went ahead without the module's isomer, Auger and
+  stale-vacancy settings. It now also checks that the module is in
+  `Ph/<ListName>/Modules`.
 - With `tsrts_deexcitation`, a source in a finite phantom containing hydrogen emitted spurious
   daughter K x-rays and K Auger electrons. With the Auger cascade active,
   `G4UAtomicDeexcitation::GenerateParticles` (Geant4 11.2.2 and 11.3.2) stores the vacancy before
