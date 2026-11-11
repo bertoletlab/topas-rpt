@@ -122,9 +122,15 @@ b:So/<Source>/DeexciteDaughters = "True"
 The excited daughter of every sampled decay, first decay and chain decays
 alike, is then taken to its ground state through Geant4's isomeric-transition
 decay (photon evaporation, internal conversion, atomic relaxation), and every
-product is emitted as a primary at the decay position. A daughter level with a
-mean life above `d:So/<Source>/IsomerLifetimeThreshold` (default 1 min) is
-left as an isomer and emitted as it is. `DeexciteDaughters` without the
+product is emitted as a primary at the decay position, moving with the
+recoil of the nucleus it came from. A daughter level with a mean life above
+`d:So/<Source>/IsomerLifetimeThreshold` (default 1 min) is kept as an isomer.
+With `IncludeWholeDecayChain`, the chain then decays it with its own lifetime
+and decay table, and an isomer still present at the end of a step carries over
+as its own entry of the abundance file (Mo-99 feeds `Tc99[142.684]`, whose
+abundance followed the Bateman solution within 2% over 18 h in 6 h steps).
+`AbundanceUpdate = "Analytic"` does not keep isomers apart (see above), so a
+chain through an isomer needs the default `"MonteCarlo"`. `DeexciteDaughters` without the
 module stops the run (`TsRADIOACTIVE020`). Do not add `g4radioactivedecay`:
 it decays the chain a second time during tracking.
 

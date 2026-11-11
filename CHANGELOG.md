@@ -31,6 +31,9 @@ All notable changes to `topas-rpt` are documented here. The format follows
   with its chain; Lu-177 without `DeexciteDaughters` must fall short. The four
   de-excitation tests run in the suite (`validate_all_features_vs_legacy.sh`), and
   the user guide has a "Daughter de-excitation" section.
+- `tests/regtests/validate_deexcitation_recoil.sh` (Am-241 recoil with and without
+  `DeexciteDaughters`) and `tests/regtests/validate_deexcitation_isomer_chain.sh`
+  (Mo-99 to Tc-99m in the chain).
 - `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
   steps with 200 histories; every step with decays runs a history and Pb-212
   keeps decaying.
@@ -113,6 +116,19 @@ All notable changes to `topas-rpt` are documented here. The format follows
   `FirstForbiddenBetaShape = "allowed"`; 6-7% low without it), and within 1% of
   `g4radioactivedecay` where the daughter is stable. Opt-in, so existing decks are
   unchanged.
+- `DeexciteDaughters`: the de-excitation products were created at rest, so a daughter
+  left excited by an alpha decay lost its recoil (Am-241: 92.6 keV per decay without the
+  flag, 0.35 keV with it). They now move with the recoiling nucleus, as in
+  `G4VRadioactiveDecay`.
+- `DeexciteDaughters` with `IncludeWholeDecayChain`: an isomer kept by the de-excitation
+  (Tc-99m from Mo-99) was replaced by its ground state in the chain, so it never decayed
+  (0.04 gammas of 140.5 keV per Mo-99 decay instead of 0.83). It now decays with its own
+  lifetime and carries over between steps as its own abundance entry. The isomer cut
+  reads the lifetime as the isotopic abundances do.
+- `FirstForbiddenBetaShape = "allowed"` finds the decay data as Geant4 does
+  (`G4FindDataDir`), matches the parent level within 10 eV and on its floating level,
+  keys branches by daughter floating level, and warns (`TsRADIOACTIVE023`) when the file
+  cannot be read instead of keeping the Geant4 shapes silently.
 - `DeexciteDaughters` without the `tsrts_deexcitation` module now stops with
   `TsRADIOACTIVE020` on Geant4 11.3 as well. The check looked only at the
   internal-conversion data flag, which Geant4 11.3 turns on by default, so it never

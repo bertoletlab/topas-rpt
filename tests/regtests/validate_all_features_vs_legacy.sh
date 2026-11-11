@@ -16,8 +16,8 @@ set -euo pipefail
 # - Decay timing (Bi-212 against Bateman) and one position per decay with the chain off.
 # - Decay-chain bookkeeping independent of thread count and CorrectByNumberOfHistories.
 # - Output files: default abundance file, full-precision times and read-back, uptake id check.
-# - Daughter de-excitation: products, energy per decay against g4radioactivedecay,
-#   first-forbidden beta shape, no stale atomic vacancy.
+# - Daughter de-excitation: products, energy per decay against g4radioactivedecay, recoil,
+#   isomers in the chain, first-forbidden beta shape, no stale atomic vacancy.
 # - Activity-map smoke run (optional; SKIP without required DICOM env).
 
 if [[ $# -ne 1 ]]; then
@@ -139,6 +139,12 @@ run_step "DeexciteDaughters: Lu-177 de-excitation products, only with the flag a
 
 run_step "DeexciteDaughters: energy per decay against g4radioactivedecay (Lu-177, Pb-212 chain)" \
   "${ROOT}/tests/regtests/validate_deexcitation_energy.sh" "${TOPAS_BIN}"
+
+run_step "DeexciteDaughters: the de-excited daughter keeps its recoil (Am-241)" \
+  "${ROOT}/tests/regtests/validate_deexcitation_recoil.sh" "${TOPAS_BIN}"
+
+run_step "DeexciteDaughters: a kept isomer decays in the chain (Mo-99 to Tc-99m)" \
+  "${ROOT}/tests/regtests/validate_deexcitation_isomer_chain.sh" "${TOPAS_BIN}"
 
 run_step "FirstForbiddenBetaShape: Tb-161 mean beta energy against ICRP 107" \
   "${ROOT}/tests/regtests/validate_first_forbidden_shape.sh" "${TOPAS_BIN}"

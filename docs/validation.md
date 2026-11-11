@@ -47,6 +47,12 @@ install it first if a step fails unexpectedly.
   radioactive decay (`g4radioactivedecay`), for Lu-177 and for Pb-212 with its
   chain; Lu-177 without `DeexciteDaughters` must fall at least 15% short in
   total (26% measured).
+- **Recoil** (`validate_deexcitation_recoil.sh`) - Am-241 decays mostly to
+  excited levels of Np-237; the recoil energy of the Np-237 ions per decay is
+  the same with and without `DeexciteDaughters` (within 2%).
+- **Isomer in the chain** (`validate_deexcitation_isomer_chain.sh`) - with
+  `IncludeWholeDecayChain`, the Tc-99m that Mo-99 feeds and `DeexciteDaughters`
+  keeps is decayed in the chain: about 0.8 gammas of 140.5 keV per Mo-99 decay.
 - **First-forbidden beta shape** (`validate_first_forbidden_shape.sh`) - with
   `FirstForbiddenBetaShape = "allowed"`, the Tb-161 mean beta energy comes to
   ICRP 107, Lu-177 is unchanged, and an unknown value stops the run.
