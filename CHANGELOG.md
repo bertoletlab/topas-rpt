@@ -6,6 +6,11 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
+  steps with 200 histories; every step with decays runs a history and Pb-212
+  keeps decaying.
+
 ### Changed
 - CI and the documented requirements move to OpenTOPAS 4.3.0 and Geant4
   11.3.2, the pair the regression baselines were already generated with. CI
@@ -17,6 +22,17 @@ All notable changes to `topas-rpt` are documented here. The format follows
   `patches/0003-opentopas-zero-ke-momentum.patch`: Geant4 11.3.2 and OpenTOPAS
   4.3.0 already contain both fixes. `0001` (DICOM activity map) still applies
   to 4.3.0 and is kept.
+
+### Fixed
+- `CorrectByNumberOfHistories = "True"`: once a step's scaled history count
+  (the first step's count times its share of decays, truncated) reached 0, no
+  history updated the isotopic abundances, so the decay chain froze and every
+  later row of the abundance file repeated the same values. A step with decays
+  now always runs at least one history, which carries the step's decays as its
+  weight. Who should check their results: runs whose late steps had fewer
+  decays than the first step divided by `NumberOfHistoriesInRun`, for their
+  abundance files. Dose in those steps was 0 before (its share of the total
+  is at most 1/`NumberOfHistoriesInRun` per step).
 
 ## [1.1.0] - 2026-11-10
 

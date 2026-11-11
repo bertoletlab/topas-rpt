@@ -2807,6 +2807,7 @@ Cytoplasm probability: 0.511431
 Nucleus probability: 0
 Degraded probability: 0
 ---------------------------
+G4WT0 > Begin processing for Run: 3, History: 0
 ---------------------------
 New step time (new run) 
 Timeinit: 4 h
@@ -2819,14 +2820,15 @@ Cytoplasm probability: 0.00324339
 Nucleus probability: 0
 Degraded probability: 0.396908
 ---------------------------
+G4WT0 > Begin processing for Run: 4, History: 0
 
 TOPAS run sequence complete.
-Particle source Bind: Total number of histories: 10183
+Particle source Bind: Total number of histories: 10186
 Particle source Demo: Total number of histories: 0
 
 Elapsed times:
-Parameter Reading : User=0.000000s Real=0.000700s Sys=0.000000s [Cpu=0.0%]
-    Initialization: User=0.030000s Real=0.025303s Sys=0.000000s [Cpu=118.6%]
-         Execution: User=0.880000s Real=1.069394s Sys=0.180000s [Cpu=99.1%]
+Parameter Reading : User=0.000000s Real=0.000727s Sys=0.000000s [Cpu=0.0%]
+    Initialization: User=0.020000s Real=0.025708s Sys=0.000000s [Cpu=77.8%]
+         Execution: User=0.890000s Real=1.113450s Sys=0.210000s [Cpu=98.8%]
       Finalization: User=0.000000s Real=0.000005s Sys=0.000000s [Cpu=0.0%]
-             Total: User=0.91s Real=1.0954s Sys=0.18s
+             Total: User=0.91s Real=1.13989s Sys=0.21s
