@@ -129,6 +129,9 @@ run_step "invitro_bind: InitialActivity checked against Activity_permL x medium 
 run_step "AbundanceUpdate = Analytic: Bateman abundances, independent of seed and threads" \
   "${ROOT}/tests/regtests/validate_analytic_abundance.sh" "${TOPAS_BIN}"
 
+run_step "invitro_bind: mode_settings in the metadata of a single-step run" \
+  "${ROOT}/tests/regtests/validate_single_step_metadata.sh" "${TOPAS_BIN}"
+
 run_optional_step "activity_map mode contract (optional)" \
   "${ROOT}/tests/regtests/validate_activity_map_contract.sh" "${TOPAS_BIN}"
 

@@ -40,6 +40,7 @@ All notable changes to `topas-rpt` are documented here. The format follows
   chain. Doses still come from the histories; only the abundances, and so the
   decay count of each step, change.
 - `tests/regtests/validate_analytic_abundance.sh`.
+- `tests/regtests/validate_single_step_metadata.sh`.
 
 ### Changed
 - CI and the documented requirements move to OpenTOPAS 4.3.0 and Geant4
@@ -50,12 +51,32 @@ All notable changes to `topas-rpt` are documented here. The format follows
   the activity of its 0.08 uL medium at 20 kBq/mL. The binding kinetics are
   unchanged (same concentration); doses scale by 0.32.
 - `tests/regtests/validate_activity_consistency.sh`.
+- `TsRadioactiveTimeGenerator` is now set up in two phases. Its constructor
+  only sets defaults; `Initialize()`, run once the whole object exists, reads
+  the parameters through the virtual `ResolveParameters()`, sets up the
+  timeline, abundances, atom count and first step, calls the new
+  `FinishInitialization()` hook, and writes the first run metadata. Before,
+  all of this ran inside the base constructor, where virtual calls reach only
+  the base class: `TsRadioactiveTimeGeneratorBind` read its parameters only
+  afterwards, its `GetAdaptedSource()` never ran, and the first
+  `run_metadata.json` had an empty `mode_settings`. Subclasses now pass
+  `deferInitialization = true` to the base constructor and call `Initialize()`
+  at the end of their own (`TsRadioactiveTimeGeneratorBind` offers the same
+  protected constructor to its own subclasses), and `Initialize()` stops with an
+  error if it runs twice, or if it never ran when the first run starts.
+  Parameter files and results are unchanged, apart from the fix below; in
+  `run.log`, the `invitro_bind` parameter summary now prints before the
+  first-step summary.
 
 ### Removed
 - `patches/0002-geant4-fix-columns-icc-typo.patch` and
   `patches/0003-opentopas-zero-ke-momentum.patch`: Geant4 11.3.2 and OpenTOPAS
   4.3.0 already contain both fixes. `0001` (DICOM activity map) still applies
   to 4.3.0 and is kept.
+- `TsRadioactiveTimeGeneratorBind::GetAdaptedSource()` and its own `fSource`
+  member, which hid the base class's `fSource` and were never used: the base
+  constructor called the base version, which also sets up the source of the
+  `invitro_bind` mode.
 
 ### Fixed
 - `CorrectByNumberOfHistories = "True"`: once a step's scaled history count
@@ -79,6 +100,8 @@ All notable changes to `topas-rpt` are documented here. The format follows
   and already carry the decay since then. `InitialActivity` now stays as set,
   and the notice reports the file's value and says that it changes neither the
   decays nor the column. Decay counts and doses are unchanged.
+- `invitro_bind`: a single-step run wrote `run_metadata.json` with an empty
+  `mode_settings` (no binding model, activities, rates or washout times).
 
 ## [1.1.0] - 2026-11-10
 

@@ -32,21 +32,26 @@ public:
     ~TsRadioactiveTimeGeneratorBind();
 
     void ResolveParameters() override; // Getting experimental parameters
+    void FinishInitialization() override; // Kinetics model and position sampler (need the atom count)
     void GettingBindingKineticParameters(); // Getting binding kinetic parameters
     void SettingBindingKineticModel(); // Setting binding kinetic model
     void CalculateBindingProbabilities(G4double timeInit, G4double timeEnd, 
                                         G4double fEi, G4double fMi, G4double fIi, G4double fDi); // Calculate the binding probabilities
     void SetNewPositionForHistory() override; // Set the new position for the decay
-    void GetAdaptedSource() override; // Get source
     void UpdateForNewRun(G4bool force) override; // All the parameters, included probabilities, are updated in this method
     void showBindingModel(); // Method to show the binding model
     void SetUptakePerCell(); // Method to set the uptake per cell
     G4String GetModeMetadataJson() const override;
     void CheckInitialActivityConsistency(); // InitialActivity against Activity_permL x medium volume
 
+protected:
+    // For a subclass of this generator: pass deferInitialization = true and call Initialize() at
+    // the end of the subclass constructor, as this class does with its base.
+    TsRadioactiveTimeGeneratorBind(TsParameterManager *pM, TsGeometryManager *gM, TsGeneratorManager *pgM,
+                                   G4String sourceName, G4bool deferInitialization);
+
 private:
 
-    TsRadioactiveTimeSourceBind* fSource; // Source
 
     // All parameters are initialized to -1, to check if they are set in the parameter file
     // Probabilities are initialized to 0 for models that do not use all compartments.

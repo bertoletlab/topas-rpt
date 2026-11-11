@@ -216,6 +216,12 @@ std::map<G4String, TsChainBookkeepingRegistry>& ChainBookkeepingRegistry()
 
 
 TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, TsGeometryManager* gM, TsGeneratorManager* pgM, G4String sourceName)
+: TsRadioactiveTimeGenerator(pM, gM, pgM, sourceName, false)
+{
+}
+
+TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, TsGeometryManager* gM, TsGeneratorManager* pgM,
+                                                       G4String sourceName, G4bool deferInitialization)
 :TsVGenerator(pM, gM, pgM, sourceName)
 {
     {
@@ -240,6 +246,20 @@ TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, T
     fIsotopicReporter.reset(new TsIsotopicAbundanceCsvReporter());
     fModeSummaryReporter.reset(new TsModeSummaryReporter());
 
+    if (!deferInitialization)
+        Initialize();
+}
+
+void TsRadioactiveTimeGenerator::Initialize()
+{
+    if (fInitialized) {
+        G4ExceptionDescription msg;
+        msg << "Initialize() called twice for source " << fSourceName
+            << ". A subclass that passes deferInitialization = true must call it exactly once, at the end of"
+            << " its constructor.";
+        G4Exception("TsRadioactiveTimeGenerator::Initialize()", "TsRADIOACTIVE042", FatalException, msg);
+    }
+    fInitialized = true;
     ResolveParameters();
 
     fCurrentTime = fInitialTime;
@@ -308,6 +328,7 @@ TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, T
     G4cout << "Number of independent decays during first step: " << fNumberOfIndependentDecaysDuringFirstStep
                << G4endl;
     G4cout << "Initial number of atoms: " << fInitialNAtoms << " lambda: " << lambda << G4endl;
+    FinishInitialization();
     AppendCurrentRunMetadata();
     SaveRunMetadata();
     fFirstTimeGettingSource = true;
@@ -1068,8 +1089,19 @@ void TsRadioactiveTimeGenerator::ConfigureBioDistMode()
     fBioDistBackendAvailable = false;
 }
 
+void TsRadioactiveTimeGenerator::RequireInitialized(const char* caller) const
+{
+    if (fInitialized)
+        return;
+    G4ExceptionDescription msg;
+    msg << "Source " << fSourceName << " was never initialized: a subclass that passes"
+        << " deferInitialization = true must call Initialize() at the end of its constructor.";
+    G4Exception(caller, "TsRADIOACTIVE043", FatalException, msg);
+}
+
 void TsRadioactiveTimeGenerator::GeneratePrimaries(G4Event* anEvent)
 {
+    RequireInitialized("TsRadioactiveTimeGenerator::GeneratePrimaries()");
     fIntraStepTime = 0.0;
     if (CurrentSourceHasGeneratedEnough())  return;
     if (fMode == "biodist" && !fBioDistBackendAvailable) {
@@ -1454,6 +1486,7 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
 
 void TsRadioactiveTimeGenerator::UpdateForNewRun(G4bool )
 {
+    RequireInitialized("TsRadioactiveTimeGenerator::UpdateForNewRun()");
     GetSource();
     const G4double finishedStepStart = fCurrentTime;
     fRunID++;
