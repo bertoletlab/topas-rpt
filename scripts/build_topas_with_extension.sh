@@ -14,13 +14,15 @@ set -euo pipefail
 # - TOPAS extension loader flattens extension files into one directory. Keep unique basenames.
 # - This script does not touch your OpenTOPAS checkout unless you pass --install,
 #   and even then only writes to TOPAS_INSTALL_PREFIX.
-# - Qt: TOPAS_USE_QT=auto (default), ON or OFF. auto follows the Geant4 build, read from
-#   Geant4_qt_FOUND in ${Geant4_DIR}/Geant4Config.cmake: ON when Geant4 has Qt, OFF when it
-#   does not. Both mismatches fail: ON against a Geant4 without Qt does not compile
-#   ("qobject.h" not found), and OFF against a Geant4 with Qt does not link ("symbol(s) not
-#   found ... TsQt5::..."), since the Geant4 targets still define G4UI_USE_QT for OpenTOPAS.
-#   OpenTOPAS's own detection misses some Qt builds of Geant4 (Qt6 builds exporting only
-#   Geant4_qt_FOUND), so it is not relied on. ON or OFF overrides the choice.
+# - Qt: TOPAS_USE_QT=auto (default), ON or OFF (CMake's spellings, any case, are accepted).
+#   auto follows the Geant4 build, read from ${Geant4_DIR}/Geant4Config.cmake: with Qt it
+#   passes -DTOPAS_USE_QT=ON, and -DTOPAS_USE_QT6=ON when that Qt is Qt6; without Qt it passes
+#   both OFF (which also clears an ON left in a reused build directory). A mismatch fails:
+#   ON against a Geant4 without Qt does not compile ("qobject.h" not found), and a Geant4 with
+#   Qt that OpenTOPAS does not recognise (Qt6 builds exporting only Geant4_qt_FOUND) does not
+#   link on TsQt5 symbols, since the Geant4 targets still define G4UI_USE_QT.
+#   ON forces Qt (Qt6 when Geant4 uses it). OFF cannot remove Qt from a Geant4 that OpenTOPAS
+#   itself detects as built with Qt: OpenTOPAS turns it back on.
 
 INSTALL_AFTER_BUILD=0
 if [[ "${1:-}" == "--install" ]]; then
@@ -51,32 +53,62 @@ if [[ -z "${GDCM_DIR:-}" ]]; then
 fi
 
 TOPAS_USE_QT="${TOPAS_USE_QT:-auto}"
-QT_ARGS=()
-case "${TOPAS_USE_QT}" in
-  auto)
-    GEANT4_CONFIG_FILE="${Geant4_DIR}/Geant4Config.cmake"
-    GEANT4_QT="$(sed -n 's/^set(Geant4_qt_FOUND \(.*\))$/\1/p' "${GEANT4_CONFIG_FILE}" 2>/dev/null | head -1 || true)"
-    case "$(echo "${GEANT4_QT}" | tr '[:lower:]' '[:upper:]')" in
-      ON|TRUE|YES|1)
-        QT_ARGS=(-DTOPAS_USE_QT=ON)
-        QT_DESCRIPTION="ON (Geant4 built with Qt)"
-        ;;
-      "")
-        QT_DESCRIPTION="left to OpenTOPAS (no Geant4_qt_FOUND in ${GEANT4_CONFIG_FILE})"
-        ;;
-      *)
-        QT_ARGS=(-DTOPAS_USE_QT=OFF)
-        QT_DESCRIPTION="OFF (Geant4 built without Qt)"
-        ;;
-    esac
-    ;;
-  ON|OFF)
-    QT_ARGS=(-DTOPAS_USE_QT="${TOPAS_USE_QT}")
-    QT_DESCRIPTION="${TOPAS_USE_QT}"
-    ;;
+case "$(echo "${TOPAS_USE_QT}" | tr '[:lower:]' '[:upper:]')" in
+  AUTO) QT_MODE=auto ;;
+  ON|TRUE|YES|Y|1) QT_MODE=ON ;;
+  OFF|FALSE|NO|N|0) QT_MODE=OFF ;;
   *)
     echo "ERROR: TOPAS_USE_QT must be auto, ON or OFF (got: ${TOPAS_USE_QT})."
     exit 2
+    ;;
+esac
+
+# Qt of the Geant4 build: GEANT4_QT is ON, OFF or empty (unknown); GEANT4_QT_MAJOR is 5, 6 or empty.
+GEANT4_CONFIG_FILE="${Geant4_DIR}/Geant4Config.cmake"
+GEANT4_QT=""
+GEANT4_QT_MAJOR=""
+if [[ -r "${GEANT4_CONFIG_FILE}" ]]; then
+  case "$(sed -n 's/^set(Geant4_qt_FOUND \(.*\))$/\1/p' "${GEANT4_CONFIG_FILE}" | head -1 | tr '[:lower:]' '[:upper:]')" in
+    ON|TRUE|YES|Y|1) GEANT4_QT=ON ;;
+    "") ;;
+    *) GEANT4_QT=OFF ;;
+  esac
+  GEANT4_QT_MAJOR="$(sed -n 's/.*find_dependency(Qt\([56]\)Core.*/\1/p' "${GEANT4_CONFIG_FILE}" | head -1)"
+fi
+
+QT_ARGS=()
+case "${QT_MODE}" in
+  auto)
+    if [[ "${GEANT4_QT}" == ON ]]; then
+      if [[ "${GEANT4_QT_MAJOR}" == 6 ]]; then
+        QT_ARGS=(-DTOPAS_USE_QT=ON -DTOPAS_USE_QT6=ON)
+        QT_DESCRIPTION="ON, Qt6 (Geant4 built with Qt6)"
+      else
+        QT_ARGS=(-DTOPAS_USE_QT=ON -DTOPAS_USE_QT6=OFF)
+        QT_DESCRIPTION="ON (Geant4 built with Qt${GEANT4_QT_MAJOR:-5})"
+      fi
+    elif [[ "${GEANT4_QT}" == OFF ]]; then
+      QT_ARGS=(-DTOPAS_USE_QT=OFF -DTOPAS_USE_QT6=OFF)
+      QT_DESCRIPTION="OFF (Geant4 built without Qt)"
+    elif [[ ! -r "${GEANT4_CONFIG_FILE}" ]]; then
+      echo "WARNING: cannot read ${GEANT4_CONFIG_FILE}; Qt is left to OpenTOPAS's own detection."
+      QT_DESCRIPTION="left to OpenTOPAS (Geant4Config.cmake not readable)"
+    else
+      echo "WARNING: no Geant4_qt_FOUND in ${GEANT4_CONFIG_FILE}; Qt is left to OpenTOPAS's own detection."
+      QT_DESCRIPTION="left to OpenTOPAS (Qt of Geant4 unknown)"
+    fi
+    ;;
+  ON)
+    QT_ARGS=(-DTOPAS_USE_QT=ON)
+    QT_DESCRIPTION="ON (forced)"
+    if [[ "${GEANT4_QT_MAJOR}" == 6 ]]; then
+      QT_ARGS+=(-DTOPAS_USE_QT6=ON)
+      QT_DESCRIPTION="ON, Qt6 (forced)"
+    fi
+    ;;
+  OFF)
+    QT_ARGS=(-DTOPAS_USE_QT=OFF -DTOPAS_USE_QT6=OFF)
+    QT_DESCRIPTION="OFF (forced; OpenTOPAS turns it back on if it detects Qt in Geant4)"
     ;;
 esac
 
