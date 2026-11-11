@@ -10,6 +10,7 @@ All notable changes to `topas-rpt` are documented here. The format follows
 - `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
   steps with 200 histories; every step with decays runs a history and Pb-212
   keeps decaying.
+- `tests/regtests/validate_abundance_restart.sh`.
 
 ### Changed
 - CI and the documented requirements move to OpenTOPAS 4.3.0 and Geant4
@@ -33,6 +34,18 @@ All notable changes to `topas-rpt` are documented here. The format follows
   decays than the first step divided by `NumberOfHistoriesInRun`, for their
   abundance files. Dose in those steps was 0 before (its share of the total
   is at most 1/`NumberOfHistoriesInRun` per step).
+- Restart from an isotopic-abundance file (`ReadIsotopicAbundanceFromFile`):
+  the `FractionOfDecaysAtTime0` column written by the restarted run was
+  shifted by one row and ended in 0 without `UseFractionOfActivityFromFile`,
+  and started from the file's value with it. Since the column undoes the
+  normalisation of the scored quantities to the run's first step
+  (`CorrectByNumberOfHistories = "False"`), it now starts at 1 in every run.
+  With the flag, `InitialActivity` was also multiplied by the file's value and
+  reported as "the actual activity used", although the decays never used it:
+  the abundances in the file are fractions of the atoms at the original time 0
+  and already carry the decay since then. `InitialActivity` now stays as set,
+  and the notice reports the file's value and says that it changes neither the
+  decays nor the column. Decay counts and doses are unchanged.
 
 ## [1.1.0] - 2026-11-10
 

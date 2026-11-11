@@ -203,19 +203,31 @@ TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, T
         fOrderedIsotopes.push_back(ionName);
         fFractionsOfActivityAtTime0.push_back(1.0);
     }
-    else
+    else {
         ReadIsotopicAbundanceFile();
+        // FractionOfDecaysAtTime0 undoes the normalisation of the scored quantities to this run's
+        // first step (CorrectByNumberOfHistories = False), so it starts at 1 in every run. The value
+        // read from the file (UseFractionOfActivityFromFile) is reported, not used.
+        if (!fFractionsOfActivityAtTime0.empty())
+            fFractionOfDecaysFromFile = fFractionsOfActivityAtTime0[0];
+        fFractionsOfActivityAtTime0.assign(1, 1.0);
+    }
 
     // Get initial number of atoms
     G4double lambda = 1 / meanlife;
     fInitialNAtoms = fInitialActivity / lambda;
     fCurrentNAtoms = fInitialNAtoms;
     if (fUseFractionOfActivityFromFile) {
+        // The abundances in the file are fractions of the atoms at the original time 0, so they
+        // already carry the decay since then: InitialActivity stays the activity at that time.
+        // The fraction read from the file only sets where FractionOfDecaysAtTime0 continues.
         G4cout << " ---------- NOTICE --------" << G4endl;
-        G4cout << "Even though the original activity was set to " << fInitialActivity << " Bq";
-        fInitialActivity *= fFractionsOfActivityAtTime0[0];
-        G4cout << ", an actual activity: " << fInitialActivity
-               << " Bq will be used since UseFractionOfActivityFromFile was set to True." << G4endl;
+        G4cout << "UseFractionOfActivityFromFile: the file gives FractionOfDecaysAtTime0 = "
+               << fFractionOfDecaysFromFile << " at the loaded time (" << fReadIsotopicAbundanceFileName
+               << "). It changes neither the decays nor this run's FractionOfDecaysAtTime0, which is"
+               << " relative to this run's first step. InitialActivity (" << fInitialActivity
+               << " Bq) is the activity at the original time 0, since the isotopic abundances in the"
+               << " file are relative to it." << G4endl;
     }
     // Get histories / activity weights
     fOriginalHistoriesPerStep = GetSource()->GetNumberOfHistoriesInRun();

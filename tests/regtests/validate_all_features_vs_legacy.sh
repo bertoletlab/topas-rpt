@@ -120,6 +120,9 @@ run_step "output files: default abundance file, read-back, uptake ids" \
 run_step "decay chain keeps decaying once scaled histories reach zero" \
   "${ROOT}/tests/regtests/validate_zero_history_steps.sh" "${TOPAS_BIN}"
 
+run_step "restart from an abundance file, with and without UseFractionOfActivityFromFile" \
+  "${ROOT}/tests/regtests/validate_abundance_restart.sh" "${TOPAS_BIN}"
+
 run_optional_step "activity_map mode contract (optional)" \
   "${ROOT}/tests/regtests/validate_activity_map_contract.sh" "${TOPAS_BIN}"
 

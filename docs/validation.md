@@ -22,6 +22,11 @@ install it first if a step fails unexpectedly.
   `CorrectByNumberOfHistories`, every step that still has decays runs at least
   one history, so the decay chain keeps evolving once the scaled history count
   would round to zero.
+- **Restart from an abundance file** (`validate_abundance_restart.sh`) - a
+  run restarted with `ReadIsotopicAbundanceFromFile` gives the same first-step
+  decays as the uninterrupted run, with or without
+  `UseFractionOfActivityFromFile`, and writes a `FractionOfDecaysAtTime0` column
+  that starts at 1.
 - **`activity_map` contract** - optional, skips cleanly without
   `ACTIVITYMAP_CT_DICOM_DIR`/`ACTIVITYMAP_NM_DICOM_DIR` set to real DICOM
   data.
