@@ -38,6 +38,16 @@ several with `ModeParams/WashoutTimes`, a time vector such as
 washout must be later than `Tf/TimelineStart`. It is applied at exactly its
 time, also when that time falls inside a time step or on a step boundary.
 
+**Isotopic abundances.** Every mode tracks the composition of the decay chain
+between steps (written with `WriteIsotopicAbundance`). By default
+(`s:So/<Source>/AbundanceUpdate = "MonteCarlo"`) each history moves its share of
+the step's decays from the nuclide it sampled to the daughters it produced, so
+the composition carries the sampling noise of the histories, which grows when a
+step has few of them. `AbundanceUpdate = "Analytic"` advances the composition
+with the Bateman solution of the chain (Geant4 half-lives and branching ratios)
+instead: the result has no noise and does not depend on the seed, the thread
+count or the number of histories. It is not available in `diffusion` mode.
+
 **`activity_map`** - decay positions sampled from a voxelized DICOM activity
 map. Each voxel's activity value becomes a sampling weight:
 `topas-rpt` builds a cumulative probability distribution over all non-zero
