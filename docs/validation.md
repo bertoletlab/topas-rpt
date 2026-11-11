@@ -18,6 +18,11 @@ install it first if a step fails unexpectedly.
   their names imply.
 - **Metadata schema** - every run's `run_metadata.json` matches the documented
   schema.
+- **Restart from an abundance file** (`validate_abundance_restart.sh`) - a
+  run restarted with `ReadIsotopicAbundanceFromFile` gives the same first-step
+  decays as the uninterrupted run, with or without
+  `UseFractionOfActivityFromFile`, and writes a `FractionOfDecaysAtTime0` column
+  that starts at 1.
 - **`activity_map` contract** - optional, skips cleanly without
   `ACTIVITYMAP_CT_DICOM_DIR`/`ACTIVITYMAP_NM_DICOM_DIR` set to real DICOM
   data.
