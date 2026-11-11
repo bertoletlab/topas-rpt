@@ -6,6 +6,24 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `invitro_bind`: `InitialActivity` (total Bq; sets the decays and the dose)
+  is now compared at start-up with `ModeParams/Activity_permL` times the
+  medium volume (Bq/mL; until now used only for the binding kinetics). Nothing
+  tied the two together, so a unit slip in either one (uL for mL, kBq for Bq,
+  a half-length entered as a length) changed the dose by that factor without
+  any sign. A value outside the range from the liquid volume (medium minus
+  cells) to the whole medium envelope, widened by 5%, gives warning
+  `TsRADIOACTIVEBIND001` with both values and their ratio.
+  `ModeParams/ActivityConsistencyCheck` = `"Warn"` (default), `"Error"` or
+  `"Off"`; `ModeParams/ActivityConsistencyTolerance` sets the 5%. The run
+  metadata records `implied_initial_activity_bq`,
+  `implied_initial_activity_liquid_bq` and `activity_consistency_check`. The
+  check changes no result. It flags `examples/canonical/invitro_bind_minimal.txt`
+  (5 Bq set, 1.6 Bq implied) and the `invitro_bind` regression decks, whose
+  activities are arbitrary test values.
+- `tests/regtests/validate_activity_consistency.sh`.
+
 ## [1.1.0] - 2026-11-10
 
 ### Added

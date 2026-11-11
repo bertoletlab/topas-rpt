@@ -117,6 +117,9 @@ run_step "decay-chain bookkeeping: thread count and CorrectByNumberOfHistories" 
 run_step "output files: default abundance file, read-back, uptake ids" \
   "${ROOT}/tests/regtests/validate_output_files.sh" "${TOPAS_BIN}"
 
+run_step "invitro_bind: InitialActivity checked against Activity_permL x medium volume" \
+  "${ROOT}/tests/regtests/validate_activity_consistency.sh" "${TOPAS_BIN}"
+
 run_optional_step "activity_map mode contract (optional)" \
   "${ROOT}/tests/regtests/validate_activity_map_contract.sh" "${TOPAS_BIN}"
 
