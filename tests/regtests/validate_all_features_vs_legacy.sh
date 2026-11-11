@@ -123,6 +123,9 @@ run_step "decay chain keeps decaying once scaled histories reach zero" \
 run_step "restart from an abundance file, with and without UseFractionOfActivityFromFile" \
   "${ROOT}/tests/regtests/validate_abundance_restart.sh" "${TOPAS_BIN}"
 
+run_step "invitro_bind: InitialActivity checked against Activity_permL x medium volume" \
+  "${ROOT}/tests/regtests/validate_activity_consistency.sh" "${TOPAS_BIN}"
+
 run_optional_step "activity_map mode contract (optional)" \
   "${ROOT}/tests/regtests/validate_activity_map_contract.sh" "${TOPAS_BIN}"
 

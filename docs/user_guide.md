@@ -38,6 +38,23 @@ several with `ModeParams/WashoutTimes`, a time vector such as
 washout must be later than `Tf/TimelineStart`. It is applied at exactly its
 time, also when that time falls inside a time step or on a step boundary.
 
+Two inputs set the activity, and they play different roles.
+`InitialActivity` (total Bq in the geometry) sets the number of decays per
+step, and so the dose; `ModeParams/Activity_permL` (Bq/mL), with
+`ModeParams/SpecificActivity_pernmol`, sets the ligand concentration of the
+binding kinetics. For a consistent deck, `InitialActivity` equals
+`Activity_permL` times the medium volume in mL: for example, 1 MBq/mL in a
+4 x 4 x 2.1 mm medium (33.6 uL) gives 33600 Bq. At start-up the source compares
+the two and issues warning `TsRADIOACTIVEBIND001` when `InitialActivity` falls
+outside the range from the liquid volume (medium minus cells) to the whole
+medium envelope, widened by 5%. A unit slip in either input (uL for mL, kBq for
+Bq, a half-length entered as a full length) therefore shows up as a ratio of
+1000, 0.001 or 8 in that warning. `s:So/<Source>/ModeParams/ActivityConsistencyCheck`
+takes `"Warn"` (default), `"Error"` (stop the run) or `"Off"`, and
+`u:So/<Source>/ModeParams/ActivityConsistencyTolerance` changes the 5%. The
+run metadata records both implied activities (`implied_initial_activity_bq`,
+`implied_initial_activity_liquid_bq`).
+
 **`activity_map`** - decay positions sampled from a voxelized DICOM activity
 map. Each voxel's activity value becomes a sampling weight:
 `topas-rpt` builds a cumulative probability distribution over all non-zero

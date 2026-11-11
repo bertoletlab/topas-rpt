@@ -11,12 +11,30 @@ All notable changes to `topas-rpt` are documented here. The format follows
   steps with 200 histories; every step with decays runs a history and Pb-212
   keeps decaying.
 - `tests/regtests/validate_abundance_restart.sh`.
+- `invitro_bind`: `InitialActivity` (total Bq; sets the decays and the dose)
+  is now compared at start-up with `ModeParams/Activity_permL` times the
+  medium volume (Bq/mL; until now used only for the binding kinetics). Nothing
+  tied the two together, so a unit slip in either one (uL for mL, kBq for Bq,
+  a half-length entered as a length) changed the dose by that factor without
+  any sign. A value outside the range from the liquid volume (medium minus
+  cells) to the whole medium envelope, widened by 5%, gives warning
+  `TsRADIOACTIVEBIND001` with both values and their ratio.
+  `ModeParams/ActivityConsistencyCheck` = `"Warn"` (default), `"Error"` or
+  `"Off"`; `ModeParams/ActivityConsistencyTolerance` sets the 5%. The run
+  metadata records `implied_initial_activity_bq`,
+  `implied_initial_activity_liquid_bq` and `activity_consistency_check`. The
+  check changes no result. It flags the `invitro_bind` regression decks, whose activities are
+  arbitrary test values.
 
 ### Changed
 - CI and the documented requirements move to OpenTOPAS 4.3.0 and Geant4
   11.3.2, the pair the regression baselines were already generated with. CI
   runs on both Ubuntu 24.04 (GCC 13) and 26.04 (GCC 15). Geant4 dataset paths
   are read from `geant4-config --datasets` instead of being listed by version.
+- `examples/canonical/invitro_bind_minimal.txt`: `InitialActivity` 5 -> 1.6 Bq,
+  the activity of its 0.08 uL medium at 20 kBq/mL. The binding kinetics are
+  unchanged (same concentration); doses scale by 0.32.
+- `tests/regtests/validate_activity_consistency.sh`.
 
 ### Removed
 - `patches/0002-geant4-fix-columns-icc-typo.patch` and
