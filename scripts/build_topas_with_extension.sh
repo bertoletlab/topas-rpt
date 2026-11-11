@@ -93,17 +93,22 @@ case "${QT_MODE}" in
     elif [[ ! -r "${GEANT4_CONFIG_FILE}" ]]; then
       echo "WARNING: cannot read ${GEANT4_CONFIG_FILE}; Qt is left to OpenTOPAS's own detection."
       QT_DESCRIPTION="left to OpenTOPAS (Geant4Config.cmake not readable)"
+      # Drop any Qt setting cached in a reused build directory, so OpenTOPAS decides afresh.
+      QT_ARGS=(-UTOPAS_USE_QT -UTOPAS_USE_QT6)
     else
       echo "WARNING: no Geant4_qt_FOUND in ${GEANT4_CONFIG_FILE}; Qt is left to OpenTOPAS's own detection."
       QT_DESCRIPTION="left to OpenTOPAS (Qt of Geant4 unknown)"
+      # Drop any Qt setting cached in a reused build directory, so OpenTOPAS decides afresh.
+      QT_ARGS=(-UTOPAS_USE_QT -UTOPAS_USE_QT6)
     fi
     ;;
   ON)
-    QT_ARGS=(-DTOPAS_USE_QT=ON)
-    QT_DESCRIPTION="ON (forced)"
     if [[ "${GEANT4_QT_MAJOR}" == 6 ]]; then
-      QT_ARGS+=(-DTOPAS_USE_QT6=ON)
+      QT_ARGS=(-DTOPAS_USE_QT=ON -DTOPAS_USE_QT6=ON)
       QT_DESCRIPTION="ON, Qt6 (forced)"
+    else
+      QT_ARGS=(-DTOPAS_USE_QT=ON -DTOPAS_USE_QT6=OFF)
+      QT_DESCRIPTION="ON (forced)"
     fi
     ;;
   OFF)
