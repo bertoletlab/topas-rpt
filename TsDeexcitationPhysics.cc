@@ -7,6 +7,7 @@
 
 #include "G4DeexPrecoParameters.hh"
 #include "G4EmParameters.hh"
+#include "G4Exception.hh"
 #include "G4LossTableManager.hh"
 #include "G4NuclearLevelData.hh"
 #include "G4NuclideTable.hh"
@@ -42,5 +43,11 @@ void TsDeexcitationPhysics::ConstructProcess()
     if (ad == nullptr || typeid(*ad) == typeid(G4UAtomicDeexcitation)) {
         man->SetAtomDeexcitation(new TsAtomicDeexcitation());
         man->ResetParameters();
+    } else {
+        G4ExceptionDescription msg;
+        msg << "tsrts_deexcitation keeps the atomic de-excitation another module installed ("
+            << typeid(*ad).name() << "). With Geant4 11.2 and earlier it can leave a stale "
+            << "vacancy that adds spurious daughter K x-rays to the next decay.";
+        G4Exception("TsDeexcitationPhysics::ConstructProcess()", "TsRADIOACTIVE024", JustWarning, msg);
     }
 }

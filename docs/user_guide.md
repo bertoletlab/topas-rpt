@@ -149,7 +149,9 @@ rebuilds the beta branches that the decay data tag as first-forbidden with the
 allowed spectrum shape. The Geant4 shape factor for those branches is a fit to
 Bi-210 data; it puts the mean beta energy of Tb-161 and Er-169 6 to 9% below
 ICRP 107, and `"allowed"` brings them within 2%. Nuclides without such a
-branch, including Lu-177, are unchanged.
+branch, including Lu-177, are unchanged. The endpoints are read from the
+standard Geant4 decay data, so `"allowed"` should not be combined with decay
+files given through `/grdm/setRadioactiveDecayFile`.
 
 ## How the output weighting works
 

@@ -82,7 +82,7 @@ public:
     G4DecayProducts* SampleDecayProducts(const G4ParticleDefinition* particle, G4DecayTable* decayTable);
     G4DecayProducts* DeexciteDaughterIons(G4DecayProducts* products);
     // True when DeexciteDaughters keeps this excited ion as an isomer: its mean life, read as
-    // the isotopic abundances read it, is above IsomerLifetimeThreshold.
+    // the isotopic abundances read it (MeanLifeOfNucleus), is above IsomerLifetimeThreshold.
     G4bool IsKeptIsomer(const G4Ions* ion) const;
     // FirstForbiddenBetaShape: decay table with first-forbidden beta branches made allowed.
     G4DecayTable* GetDecayTable(const G4ParticleDefinition* particle, const char* where);

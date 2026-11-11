@@ -122,22 +122,29 @@ G4double SampleDecayTimeWithinStep(G4double meanlife, G4double stepDuration)
     return -meanlife * std::log1p(G4UniformRand() * std::expm1(-stepDuration / meanlife));
 }
 
-// Meanlife (s) of an isotopic-abundance entry, "Name" or "Name[E in keV]" for an excited state,
-// read as GetNumberOfIndependentDecaysDuringThisStep reads it. -1 if unknown.
-G4double MeanLifeOfAbundanceEntry(const G4String& name)
+// Meanlife (s) of a nucleus: for an excited state the ion table's value for the level and its
+// floating level, then the PDG lifetime. -1 if unknown.
+G4double MeanLifeOfNucleus(const G4ParticleDefinition* particle)
 {
-    G4ParticleDefinition* particle = ResolveParticleDefinitionByName(name);
     if (!particle)
         return -1.;
     if (const auto* ion = dynamic_cast<const G4Ions*>(particle)) {
         if (ion->GetExcitationEnergy() > 0.) {
             G4double lifetime = G4IonTable::GetIonTable()->GetLifeTime(ion->GetAtomicNumber(), ion->GetAtomicMass(),
-                                                                      ion->GetExcitationEnergy());
+                                                                      ion->GetExcitationEnergy(),
+                                                                      ion->GetFloatLevelBase());
             if (lifetime != -1001.)
                 return lifetime / second;
         }
     }
     return particle->GetPDGLifeTime() / second;
+}
+
+// Meanlife (s) of an isotopic-abundance entry, "Name" or "Name[E in keV]" for an excited state,
+// read as GetNumberOfIndependentDecaysDuringThisStep reads it. -1 if unknown.
+G4double MeanLifeOfAbundanceEntry(const G4String& name)
+{
+    return MeanLifeOfNucleus(ResolveParticleDefinitionByName(name));
 }
 
 // exp(M) for a small dense matrix, by scaling and squaring of a Taylor series. M is a decay-chain
@@ -1306,12 +1313,8 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
     // isomer that DeexciteDaughters kept on purpose (such as Tc99[142.684] from Mo-99): it
     // decays with its own lifetime and decay table, as it does when it is the source ion.
     if (const auto* ion = dynamic_cast<const G4Ions*>(particle)) {
-        G4bool keepIsomer = false;
-        if (IsKeptIsomer(ion)) {
-            G4DecayTable* isomerTable = GetDecayTable(particle,
-                    "TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive");
-            keepIsomer = isomerTable && isomerTable->entries() > 0;
-        }
+        // LoadDecayTable gives every excited level a decay table (a full IT branch when it has no data).
+        const G4bool keepIsomer = IsKeptIsomer(ion);
         if (ion->GetExcitationEnergy() > 0. && !keepIsomer) {
             G4IonTable* ionTable = G4ParticleTable::GetParticleTable()->GetIonTable();
             if (ionTable) {
@@ -1767,8 +1770,9 @@ G4DecayTable* TsRadioactiveTimeGenerator::GetDecayTable(const G4ParticleDefiniti
     // daughter floating level, from the data file G4RadioactiveDecay read:
     // "<mode> <daughterEx> <flag> <BR> <Q> firstForbidden". The file is found and the parent
     // level matched as G4VRadioactiveDecay::LoadDecayTable does (G4FindDataDir, 10 eV, and
-    // the floating level when the ion has one). Decay files given with
-    // /grdm/setRadioactiveDecayFile are not seen here.
+    // the floating level when the ion has one). A decay file given with
+    // /grdm/setRadioactiveDecayFile is not read here: the endpoints still come from the
+    // standard file, so "allowed" must not be combined with user decay files.
     std::map<std::tuple<G4String, long, G4int>, G4double> endpointKeV;
 #if G4VERSION_NUMBER >= 1110
     const char* dir = G4FindDataDir("G4RADIOACTIVEDATA");
@@ -1881,19 +1885,22 @@ G4bool TsRadioactiveTimeGenerator::IsKeptIsomer(const G4Ions* ion) const
 {
     if (!fDeexciteDaughters || !ion || !(ion->GetExcitationEnergy() > 0.))
         return false;
-    // The ion table's lifetime for the level (with its floating level), as the isotopic
-    // abundances read it, then the PDG lifetime. Levels without one (-1, 0) are prompt.
-    G4double meanlife = G4IonTable::GetIonTable()->GetLifeTime(ion->GetAtomicNumber(), ion->GetAtomicMass(),
-                                                               ion->GetExcitationEnergy(),
-                                                               ion->GetFloatLevelBase());
-    if (meanlife == -1001.)
-        meanlife = ion->GetPDGLifeTime();
+    // Same lifetime as the isotopic abundances use (MeanLifeOfNucleus). Levels without one
+    // (-1, 0) are prompt.
+    const G4double meanlife = MeanLifeOfNucleus(ion) * second;
     return meanlife > fIsomerLifetimeThreshold;
 }
 
 G4DecayProducts* TsRadioactiveTimeGenerator::DeexciteDaughterIons(G4DecayProducts* products)
 {
     if (!fDeexciteDaughters || !products)
+        return products;
+    G4bool anyToDeexcite = false;
+    for (G4int i = 0; i < products->entries() && !anyToDeexcite; i++) {
+        const auto* ion = dynamic_cast<const G4Ions*>((*products)[i]->GetDefinition());
+        anyToDeexcite = ion && ion->GetExcitationEnergy() > 0. && !IsKeptIsomer(ion);
+    }
+    if (!anyToDeexcite)
         return products;
 
     G4DecayProducts* out = new G4DecayProducts(*products->GetParentParticle());
