@@ -8,3 +8,5 @@ date_utc=2026-02-11T05:21:20Z
 # 2026-11-09: bind_manual regenerated (Manual split kept after step 1), same toolchain as above.
 # 2026-11-09: all regtest and example baselines regenerated (primary decay time drawn within the step,
 #   uniform cytoplasm sampling), same toolchain as above.
+# 2026-11-10: bind_washout_multiple regenerated (steps after the last washout run one history
+#   instead of none), same toolchain as above.

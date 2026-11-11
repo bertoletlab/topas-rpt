@@ -51,24 +51,24 @@
       "step_duration_s": 3600,
       "n_decays_step": 3705.304379065685,
       "n_decays_first": 3485053387.373676,
-      "n_histories_step": 0,
+      "n_histories_step": 1,
       "correct_by_number_of_histories": true,
       "initial_activity_bq": 1000000,
       "effective_activity_bq": 1.029251216407135,
-      "primary_weight": 0
+      "primary_weight": 3705.304379065685
     },
     {
       "run_id": 4,
       "time_start_s": 14400,
       "time_end_s": 18000,
       "step_duration_s": 3600,
-      "n_decays_step": 3705.304379065693,
+      "n_decays_step": 5312.182944105846,
       "n_decays_first": 3485053387.373676,
-      "n_histories_step": 0,
+      "n_histories_step": 1,
       "correct_by_number_of_histories": true,
       "initial_activity_bq": 1000000,
-      "effective_activity_bq": 1.029251216407137,
-      "primary_weight": 0
+      "effective_activity_bq": 1.475606373362735,
+      "primary_weight": 5312.182944105846
     }
   ]
 }
