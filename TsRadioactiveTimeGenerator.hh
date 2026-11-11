@@ -38,6 +38,21 @@ public:
     TsRadioactiveTimeGenerator(TsParameterManager* pM, TsGeometryManager* gM, TsGeneratorManager* pgM, G4String sourceName);
     ~TsRadioactiveTimeGenerator();
 
+protected:
+    // Two-phase construction. Virtual calls made from a constructor reach only the class being
+    // constructed, so a subclass passes deferInitialization = true and calls Initialize() at the
+    // end of its own constructor; the public constructor calls it directly.
+    TsRadioactiveTimeGenerator(TsParameterManager* pM, TsGeometryManager* gM, TsGeneratorManager* pgM,
+                               G4String sourceName, G4bool deferInitialization);
+    // Reads the parameters (virtual ResolveParameters), sets up the timeline, the isotopic
+    // abundances, the atom count and the first step, calls FinishInitialization(), and writes the
+    // first run metadata. Runs once, after the whole object is constructed.
+    void Initialize();
+    // Hook for subclass set-up that needs the atom count and the first step (both known here).
+    virtual void FinishInitialization() {}
+
+public:
+
     void ResolveParameters();
     void GeneratePrimaries(G4Event* );
     void UpdateForNewRun(G4bool force);

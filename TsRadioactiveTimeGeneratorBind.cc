@@ -27,8 +27,16 @@
 
 TsRadioactiveTimeGeneratorBind::TsRadioactiveTimeGeneratorBind(TsParameterManager *pM, TsGeometryManager *gM,
                                                                TsGeneratorManager *pgM, G4String sourceName)
-        : TsRadioactiveTimeGenerator(pM, gM, pgM, sourceName),
+        : TsRadioactiveTimeGenerator(pM, gM, pgM, sourceName, true),
           fSumProb(false), fMediumIsSphere(false), SamplingPosition(new TsSamplingAtVolumes()) {
+    // The base class defers its set-up so that it can call this class's overrides.
+    Initialize();
+}
+
+TsRadioactiveTimeGeneratorBind::~TsRadioactiveTimeGeneratorBind() {}
+
+void TsRadioactiveTimeGeneratorBind::ResolveParameters() {
+    TsRadioactiveTimeGenerator::ResolveParameters();
 
     // This generator requires TsCellMonolayer or TsCell3D as its geometry component.
     G4String path = fComponent->GetFullParmName("Type");
@@ -64,14 +72,6 @@ TsRadioactiveTimeGeneratorBind::TsRadioactiveTimeGeneratorBind(TsParameterManage
         G4cerr << "CellGeometry must be Cylinder or Sphere" << G4endl;
         exit(1);
     }
-    
-    ResolveParameters();
-
-}
-
-TsRadioactiveTimeGeneratorBind::~TsRadioactiveTimeGeneratorBind() {}
-
-void TsRadioactiveTimeGeneratorBind::ResolveParameters() {
     fModeParamSources.clear();
     auto modeParam = [this](const G4String& key) { return GetFullParmName("ModeParams/" + key); };
     auto legacyParam = [this](const G4String& key) { return GetFullParmName(key); };
@@ -158,7 +158,9 @@ void TsRadioactiveTimeGeneratorBind::ResolveParameters() {
     fCompartmentProbabilities.cytoplasm = fIProbability;
     fCompartmentProbabilities.nucleus = fNProbability;
     fCompartmentProbabilities.degraded = fDProbability;
+}
 
+void TsRadioactiveTimeGeneratorBind::FinishInitialization() {
     TsInVitroBindKineticsState state;
     state.econcentration = &fEconcentration;
     state.mconcentration = &fMconcentration;
@@ -399,19 +401,6 @@ void TsRadioactiveTimeGeneratorBind::SetNewPositionForHistory() {
     }
     setPositionForHistory(fCurrentPosition);
 
-}
-
-void TsRadioactiveTimeGeneratorBind::GetAdaptedSource() {
-    // Get typed source.
-    fSource = (TsRadioactiveTimeSourceBind *) GetSource();
-    if (fFirstTimeGettingSource) {
-        if (fWriteIsotopicAbundance) {
-            SetUpIsotopicAbundanceFile();
-        }
-        // Set initial source isotopic abundance
-        fSource->SetIsotopicAbundanceNames(fOrderedIsotopes);
-    }
-    fFirstTimeGettingSource = false;
 }
 
 void TsRadioactiveTimeGeneratorBind::UpdateForNewRun(bool force) {

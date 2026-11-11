@@ -147,6 +147,12 @@ std::map<G4String, TsChainBookkeepingRegistry>& ChainBookkeepingRegistry()
 
 
 TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, TsGeometryManager* gM, TsGeneratorManager* pgM, G4String sourceName)
+: TsRadioactiveTimeGenerator(pM, gM, pgM, sourceName, false)
+{
+}
+
+TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, TsGeometryManager* gM, TsGeneratorManager* pgM,
+                                                       G4String sourceName, G4bool deferInitialization)
 :TsVGenerator(pM, gM, pgM, sourceName)
 {
     {
@@ -171,6 +177,12 @@ TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, T
     fIsotopicReporter.reset(new TsIsotopicAbundanceCsvReporter());
     fModeSummaryReporter.reset(new TsModeSummaryReporter());
 
+    if (!deferInitialization)
+        Initialize();
+}
+
+void TsRadioactiveTimeGenerator::Initialize()
+{
     ResolveParameters();
 
     fCurrentTime = fInitialTime;
@@ -227,6 +239,7 @@ TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, T
     G4cout << "Number of independent decays during first step: " << fNumberOfIndependentDecaysDuringFirstStep
                << G4endl;
     G4cout << "Initial number of atoms: " << fInitialNAtoms << " lambda: " << lambda << G4endl;
+    FinishInitialization();
     AppendCurrentRunMetadata();
     SaveRunMetadata();
     fFirstTimeGettingSource = true;

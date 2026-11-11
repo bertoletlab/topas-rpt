@@ -6,6 +6,33 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- `TsRadioactiveTimeGenerator` is now set up in two phases. Its constructor
+  only sets defaults; `Initialize()`, run once the whole object exists, reads
+  the parameters through the virtual `ResolveParameters()`, sets up the
+  timeline, abundances, atom count and first step, calls the new
+  `FinishInitialization()` hook, and writes the first run metadata. Before,
+  all of this ran inside the base constructor, where virtual calls reach only
+  the base class: `TsRadioactiveTimeGeneratorBind` read its parameters only
+  afterwards, its `GetAdaptedSource()` never ran, and the first
+  `run_metadata.json` had an empty `mode_settings`. Subclasses now pass
+  `deferInitialization = true` to the base constructor and call `Initialize()`
+  at the end of their own. Parameter files and outputs are unchanged, apart from
+  the fix below.
+
+### Fixed
+- `invitro_bind`: a single-step run wrote `run_metadata.json` with an empty
+  `mode_settings` (no binding model, activities, rates or washout times).
+
+### Removed
+- `TsRadioactiveTimeGeneratorBind::GetAdaptedSource()` and its own `fSource`
+  member, which hid the base class's `fSource` and were never used: the base
+  constructor called the base version, which also sets up the source of the
+  `invitro_bind` mode.
+
+### Added
+- `tests/regtests/validate_single_step_metadata.sh`.
+
 ## [1.1.0] - 2026-11-10
 
 ### Added
