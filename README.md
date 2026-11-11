@@ -54,10 +54,15 @@ cmake -S . -B build \
 cmake --build build --target install
 ```
 
-`-DTOPAS_USE_QT=ON` matters even for a batch build with no viewer open:
-OpenTOPAS's sequence manager references its Qt-backed session class
-unconditionally, so leaving this off fails at *link* time, after everything
-else has already compiled.
+Set `-DTOPAS_USE_QT` to match your Geant4 build: `ON` when Geant4 was built
+with Qt (as above), `OFF` when it was not. Both mismatches fail, even for a
+batch build with no viewer open: `ON` against a Geant4 without Qt does not
+compile (`qobject.h` not found), and `OFF` or leaving it unset against a Geant4
+with Qt can fail at *link* time on `TsQt5` symbols, since OpenTOPAS's own
+detection misses some Qt builds of Geant4. `geant4-config --has-feature qt`
+tells you which one you have; `scripts/build_topas_with_extension.sh` reads it
+from Geant4's CMake package (`TOPAS_USE_QT=auto`, the default; `ON` or `OFF`
+override it).
 
 GDCM 2.6.8 needs an older CMake to configure (its exported-target metadata
 predates a policy since tightened by CMake) - see
