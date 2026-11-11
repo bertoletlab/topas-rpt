@@ -1,5 +1,9 @@
 # Known Limitations
 
+## Known issue: daughter de-excitation is not simulated (1.1.0 and earlier)
+
+TOPAS-RPT samples each decay itself from the Geant4 decay tables, so the daughter nucleus can be left in an excited state. With electromagnetic physics alone, no process de-excites that nucleus, so releases up to and including 1.1.0 emitted no γ-rays, conversion electrons, X-rays or Auger electrons from daughters. Absorbed doses from nuclides with a sizeable share of these emissions were therefore underestimated. Compared with plain TOPAS using `g4radioactivedecay`, for a source in a 0.5 mm water sphere inside a 60 cm water box, 1.1.0 deposited 14% less energy within 0.5 mm and 26% less in total for 177Lu, 36% and 39% less for 161Tb, and about 98% less for 99mTc, whereas 211At and 225Ac agreed within 1%. Adding `g4radioactivedecay` to the physics list does not repair this, since it then decays the chain a second time. Who should check their results: any run with 177Lu, 161Tb, an isomeric source such as 99mTc, or a γ-emitting chain. A fix is planned for 1.2.0.
+
 ## Geant4 version support
 
 Full recursive daughter-chain sampling - the part of this extension that
@@ -12,10 +16,13 @@ to already be handled by ground-state normalization logic that runs earlier
 in the chain-sampling routine, so the guard was removed once verified against
 the full regression suite plus a targeted excited-state stress test.
 
-Geant4 11.2.2 remains the version this build and its CI are pinned to and
-tested against (see [Requirements](installation.md#requirements)). Promoting
-a newer Geant4 line to canonical is a separate decision from this fix and has
-not been made.
+Geant4 11.3.2 with OpenTOPAS 4.3.0 is the pair this build and its CI are
+pinned to and tested against (see [Requirements](installation.md#requirements)),
+on Ubuntu 24.04 and 26.04. The regression baselines were generated with that
+pair on macOS arm64, so CI compares Linux x86_64 results against them within
+the tolerances in `tests/regtests/baseline/tolerances.env`. Geant4 11.2.2 with OpenTOPAS 4.2.3 also builds, but needs the two patches
+dropped in the move (see `patches/README.md` and the git history), and its
+results are compared against baselines made with the newer data sets.
 
 ## Resolved: spurious immediate decay of isotopes Geant4 marks stable
 

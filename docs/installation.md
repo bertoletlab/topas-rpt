@@ -2,8 +2,8 @@
 
 ## Requirements
 
-- OpenTOPAS 4.2.3
-- Geant4 11.2.2, with a one-line patch (see [`patches/`](https://github.com/bertoletlab/topas-rpt/tree/main/patches)) - the version this build and its CI are pinned to and tested against (see [Known Limitations](known_limitations.md))
+- OpenTOPAS 4.3.0
+- Geant4 11.3.2 - the version this build and its CI are pinned to and tested against (see [Known Limitations](known_limitations.md))
 - GDCM 2.6.8, for DICOM-driven activity maps - see [Building GDCM](building_gdcm.md) if your system CMake is too recent to configure it directly
 - CMake (Ninja recommended)
 
@@ -16,7 +16,7 @@ divided-patient geometry. See
 patch and how to apply it (a couple of minutes, no rebuild of anything else required).
 
 ```bash
-git clone https://github.com/OpenTOPAS/OpenTOPAS --branch v4.2.3
+git clone https://github.com/OpenTOPAS/OpenTOPAS --branch v4.3.0
 cd OpenTOPAS
 git apply /path/to/topas-rpt/patches/0001-opentopas-harden-dicom-activity-map.patch
 

@@ -110,6 +110,8 @@ protected:
     G4double fNumberOfIndependentDecaysDuringFirstStep;
     G4double fNumberOfIndependentDecaysDuringThisStep;
     std::vector<G4double> fFractionsOfActivityAtTime0;
+    // FractionOfDecaysAtTime0 read from the abundance file on a restart, for the notice only.
+    G4double fFractionOfDecaysFromFile = -1.;
 
     G4String fEmitterParticleName;
 
