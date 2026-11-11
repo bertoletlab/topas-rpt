@@ -6,6 +6,18 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- CI and the documented requirements move to OpenTOPAS 4.3.0 and Geant4
+  11.3.2, the pair the regression baselines were already generated with. CI
+  runs on both Ubuntu 24.04 (GCC 13) and 26.04 (GCC 15). Geant4 dataset paths
+  are read from `geant4-config --datasets` instead of being listed by version.
+
+### Removed
+- `patches/0002-geant4-fix-columns-icc-typo.patch` and
+  `patches/0003-opentopas-zero-ke-momentum.patch`: Geant4 11.3.2 and OpenTOPAS
+  4.3.0 already contain both fixes. `0001` (DICOM activity map) still applies
+  to 4.3.0 and is kept.
+
 ## [1.1.0] - 2026-11-10
 
 ### Added

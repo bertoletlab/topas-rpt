@@ -12,10 +12,13 @@ to already be handled by ground-state normalization logic that runs earlier
 in the chain-sampling routine, so the guard was removed once verified against
 the full regression suite plus a targeted excited-state stress test.
 
-Geant4 11.2.2 remains the version this build and its CI are pinned to and
-tested against (see [Requirements](installation.md#requirements)). Promoting
-a newer Geant4 line to canonical is a separate decision from this fix and has
-not been made.
+Geant4 11.3.2 with OpenTOPAS 4.3.0 is the pair this build and its CI are
+pinned to and tested against (see [Requirements](installation.md#requirements)),
+on Ubuntu 24.04 and 26.04. The regression baselines were generated with that
+pair on macOS arm64, so CI compares Linux x86_64 results against them within
+the tolerances in `tests/regtests/baseline/tolerances.env`. Geant4 11.2.2 with OpenTOPAS 4.2.3 also builds, but needs the two patches
+dropped in the move (see `patches/README.md` and the git history), and its
+results are compared against baselines made with the newer data sets.
 
 ## Resolved: spurious immediate decay of isotopes Geant4 marks stable
 
