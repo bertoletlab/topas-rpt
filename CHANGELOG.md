@@ -6,6 +6,23 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
+  steps with 200 histories; every step with decays runs a history and Pb-212
+  keeps decaying.
+
+### Changed
+- CI and the documented requirements move to OpenTOPAS 4.3.0 and Geant4
+  11.3.2, the pair the regression baselines were already generated with. CI
+  runs on both Ubuntu 24.04 (GCC 13) and 26.04 (GCC 15). Geant4 dataset paths
+  are read from `geant4-config --datasets` instead of being listed by version.
+
+### Removed
+- `patches/0002-geant4-fix-columns-icc-typo.patch` and
+  `patches/0003-opentopas-zero-ke-momentum.patch`: Geant4 11.3.2 and OpenTOPAS
+  4.3.0 already contain both fixes. `0001` (DICOM activity map) still applies
+  to 4.3.0 and is kept.
+
 ### Fixed
 - `CorrectByNumberOfHistories = "True"`: once a step's scaled history count
   (the first step's count times its share of decays, truncated) reached 0, no
@@ -16,11 +33,6 @@ All notable changes to `topas-rpt` are documented here. The format follows
   decays than the first step divided by `NumberOfHistoriesInRun`, for their
   abundance files. Dose in those steps was 0 before (its share of the total
   is at most 1/`NumberOfHistoriesInRun` per step).
-
-### Added
-- `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
-  steps with 200 histories; every step with decays runs a history and Pb-212
-  keeps decaying.
 
 ## [1.1.0] - 2026-11-10
 
