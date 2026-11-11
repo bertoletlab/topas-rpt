@@ -205,12 +205,12 @@ TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, T
     }
     else {
         ReadIsotopicAbundanceFile();
-        // FractionOfDecaysAtTime0 needs a value for the first row. Without
-        // UseFractionOfActivityFromFile the column starts again at 1 (relative to this run's first
-        // step); with it, it continues from the value read from the file.
-        if (fFractionsOfActivityAtTime0.empty())
-            fFractionsOfActivityAtTime0.push_back(1.0);
-        fFractionOfDecaysScale = fFractionsOfActivityAtTime0[0];
+        // FractionOfDecaysAtTime0 undoes the normalisation of the scored quantities to this run's
+        // first step (CorrectByNumberOfHistories = False), so it starts at 1 in every run. The value
+        // read from the file (UseFractionOfActivityFromFile) is reported, not used.
+        if (!fFractionsOfActivityAtTime0.empty())
+            fFractionOfDecaysFromFile = fFractionsOfActivityAtTime0[0];
+        fFractionsOfActivityAtTime0.assign(1, 1.0);
     }
 
     // Get initial number of atoms
@@ -222,10 +222,12 @@ TsRadioactiveTimeGenerator::TsRadioactiveTimeGenerator(TsParameterManager* pM, T
         // already carry the decay since then: InitialActivity stays the activity at that time.
         // The fraction read from the file only sets where FractionOfDecaysAtTime0 continues.
         G4cout << " ---------- NOTICE --------" << G4endl;
-        G4cout << "UseFractionOfActivityFromFile: FractionOfDecaysAtTime0 continues from "
-               << fFractionOfDecaysScale << " (read from " << fReadIsotopicAbundanceFileName
-               << "). InitialActivity (" << fInitialActivity << " Bq) is the activity at the original"
-               << " time 0, since the isotopic abundances in the file are relative to it." << G4endl;
+        G4cout << "UseFractionOfActivityFromFile: the file gives FractionOfDecaysAtTime0 = "
+               << fFractionOfDecaysFromFile << " at the loaded time (" << fReadIsotopicAbundanceFileName
+               << "). It changes neither the decays nor this run's FractionOfDecaysAtTime0, which is"
+               << " relative to this run's first step. InitialActivity (" << fInitialActivity
+               << " Bq) is the activity at the original time 0, since the isotopic abundances in the"
+               << " file are relative to it." << G4endl;
     }
     // Get histories / activity weights
     fOriginalHistoriesPerStep = GetSource()->GetNumberOfHistoriesInRun();
@@ -1375,7 +1377,7 @@ void TsRadioactiveTimeGenerator::UpdateForNewRun(G4bool )
 
     MergeAbundanceDifferencesAcrossThreads();
     GetNumberOfIndependentDecaysDuringThisStep();
-    fFractionsOfActivityAtTime0.push_back(fFractionOfDecaysScale * fNumberOfIndependentDecaysDuringThisStep / fNumberOfIndependentDecaysDuringFirstStep);
+    fFractionsOfActivityAtTime0.push_back(fNumberOfIndependentDecaysDuringThisStep / fNumberOfIndependentDecaysDuringFirstStep);
     if (fCorrectByNumberOfHistories) {
         G4double correctionFactor = fNumberOfIndependentDecaysDuringThisStep / fNumberOfIndependentDecaysDuringFirstStep;
         if (fVerbosity > 1) G4cout << "New histories: " << (G4int)(fOriginalHistoriesPerStep * correctionFactor) << G4endl;

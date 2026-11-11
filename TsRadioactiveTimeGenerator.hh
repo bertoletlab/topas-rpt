@@ -110,10 +110,8 @@ protected:
     G4double fNumberOfIndependentDecaysDuringFirstStep;
     G4double fNumberOfIndependentDecaysDuringThisStep;
     std::vector<G4double> fFractionsOfActivityAtTime0;
-    // Multiplies the per-step decay ratios written to FractionOfDecaysAtTime0: 1, or for a run
-    // restarted with UseFractionOfActivityFromFile, the fraction read from the file, so the column
-    // stays relative to the original time 0.
-    G4double fFractionOfDecaysScale = 1.0;
+    // FractionOfDecaysAtTime0 read from the abundance file on a restart, for the notice only.
+    G4double fFractionOfDecaysFromFile = -1.;
 
     G4String fEmitterParticleName;
 
