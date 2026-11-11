@@ -76,17 +76,20 @@ if [[ -r "${GEANT4_CONFIG_FILE}" ]]; then
   GEANT4_QT_MAJOR="$(sed -n 's/.*find_dependency(Qt\([56]\)Core.*/\1/p' "${GEANT4_CONFIG_FILE}" | head -1)"
 fi
 
+# Qt6 or not: set when the Geant4 config names the Qt version, left to OpenTOPAS otherwise
+# (also clearing a cached value).
+case "${GEANT4_QT_MAJOR}" in
+  6) QT6_ARGS=(-DTOPAS_USE_QT6=ON); QT_VERSION_DESCRIPTION="Qt6" ;;
+  5) QT6_ARGS=(-DTOPAS_USE_QT6=OFF); QT_VERSION_DESCRIPTION="Qt5" ;;
+  *) QT6_ARGS=(-UTOPAS_USE_QT6); QT_VERSION_DESCRIPTION="Qt, version left to OpenTOPAS" ;;
+esac
+
 QT_ARGS=()
 case "${QT_MODE}" in
   auto)
     if [[ "${GEANT4_QT}" == ON ]]; then
-      if [[ "${GEANT4_QT_MAJOR}" == 6 ]]; then
-        QT_ARGS=(-DTOPAS_USE_QT=ON -DTOPAS_USE_QT6=ON)
-        QT_DESCRIPTION="ON, Qt6 (Geant4 built with Qt6)"
-      else
-        QT_ARGS=(-DTOPAS_USE_QT=ON -DTOPAS_USE_QT6=OFF)
-        QT_DESCRIPTION="ON (Geant4 built with Qt${GEANT4_QT_MAJOR:-5})"
-      fi
+      QT_ARGS=(-DTOPAS_USE_QT=ON "${QT6_ARGS[@]}")
+      QT_DESCRIPTION="ON (Geant4 built with ${QT_VERSION_DESCRIPTION})"
     elif [[ "${GEANT4_QT}" == OFF ]]; then
       QT_ARGS=(-DTOPAS_USE_QT=OFF -DTOPAS_USE_QT6=OFF)
       QT_DESCRIPTION="OFF (Geant4 built without Qt)"
@@ -103,13 +106,12 @@ case "${QT_MODE}" in
     fi
     ;;
   ON)
-    if [[ "${GEANT4_QT_MAJOR}" == 6 ]]; then
-      QT_ARGS=(-DTOPAS_USE_QT=ON -DTOPAS_USE_QT6=ON)
-      QT_DESCRIPTION="ON, Qt6 (forced)"
-    else
-      QT_ARGS=(-DTOPAS_USE_QT=ON -DTOPAS_USE_QT6=OFF)
-      QT_DESCRIPTION="ON (forced)"
+    if [[ "${GEANT4_QT}" == OFF ]]; then
+      echo "WARNING: TOPAS_USE_QT=ON, but ${GEANT4_CONFIG_FILE} says Geant4 was built without Qt;"
+      echo "         the build will likely fail with \"qobject.h\" not found."
     fi
+    QT_ARGS=(-DTOPAS_USE_QT=ON "${QT6_ARGS[@]}")
+    QT_DESCRIPTION="ON (forced; ${QT_VERSION_DESCRIPTION})"
     ;;
   OFF)
     QT_ARGS=(-DTOPAS_USE_QT=OFF -DTOPAS_USE_QT6=OFF)
