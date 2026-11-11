@@ -137,7 +137,7 @@ All notable changes to `topas-rpt` are documented here. The format follows
   `Ph/<ListName>/Modules`.
 - With `tsrts_deexcitation`, a source in a finite phantom containing hydrogen emitted spurious
   daughter K x-rays and K Auger electrons. With the Auger cascade active,
-  `G4UAtomicDeexcitation::GenerateParticles` (Geant4 11.2.2 and 11.3.2) stores the vacancy before
+  `G4UAtomicDeexcitation::GenerateParticles` (Geant4 11.2 and earlier) stores the vacancy before
   it returns for Z < 6, and nothing clears it; with `DeexcitationIgnoreCut`, Livermore Compton
   scattering on hydrogen makes that call. When the photon then escapes, the event ends and the
   next decay's atomic relaxation (`G4ITDecay`, `G4ECDecay`) processes the stale vacancy as a
@@ -146,7 +146,9 @@ All notable changes to `topas-rpt` are documented here. The format follows
   graphite, without hydrogen, showed nothing. The module now installs `TsAtomicDeexcitation`, a
   `G4UAtomicDeexcitation` that returns before storing the vacancy, in place of the one the EM
   module installed. The same stale vacancy also added a spurious K cascade of the next atom
-  relaxed within the same event; that goes too.
+  relaxed within the same event; that goes too. Geant4 11.3.0 clears the vacancy list at the
+  start of every call, so the fix matters only with Geant4 11.2 (99mTc in water, 11.2.2: 0.178
+  Tc K x-rays per decay without it, 0.073 with it and in vacuum; 11.3.2: 0.073 either way).
 - `CorrectByNumberOfHistories = "True"`: once a step's scaled history count
   (the first step's count times its share of decays, truncated) reached 0, no
   history updated the isotopic abundances, so the decay chain froze and every

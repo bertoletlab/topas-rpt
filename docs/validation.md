@@ -57,7 +57,9 @@ install it first if a step fails unexpectedly.
   `FirstForbiddenBetaShape = "allowed"`, the Tb-161 mean beta energy comes to
   ICRP 107, Lu-177 is unchanged, and an unknown value stops the run.
 - **No stale vacancy** (`validate_no_stale_vacancy.sh`) - a Tc-99m source in
-  water emits the same Tc K x-ray yield as in vacuum.
+  water emits the same Tc K x-ray yield as in vacuum. Geant4 11.3 and later
+  clear the stale vacancy themselves, so the test guards builds against
+  Geant4 11.2.
 - **`activity_map` contract** - optional, skips cleanly without
   `ACTIVITYMAP_CT_DICOM_DIR`/`ACTIVITYMAP_NM_DICOM_DIR` set to real DICOM
   data.

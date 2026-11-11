@@ -4,9 +4,11 @@ set -euo pipefail
 # Validates that tsrts_deexcitation leaves no stale atomic vacancy for the next decay.
 # A Tc-99m point source sits in a 1 um vacuum bubble at the centre of a water cube of 100 mm
 # half-side; Tc K x-rays leaving the bubble per decay must match the same source in vacuum.
-# G4UAtomicDeexcitation (Geant4 11.2.2, 11.3.2) keeps the vacancy of a Compton scatter on
+# G4UAtomicDeexcitation (Geant4 11.2 and earlier) keeps the vacancy of a Compton scatter on
 # hydrogen, and when that photon escapes the next decay emits it as a Tc K cascade:
 # without TsAtomicDeexcitation the water run gives 2.4 times the vacuum yield (0.181 against 0.074).
+# Geant4 11.3 clears the vacancy list itself, so there this test passes with or without the
+# class; it guards builds against Geant4 11.2.
 #
 # Usage:
 #   tests/regtests/validate_no_stale_vacancy.sh /path/to/topas
