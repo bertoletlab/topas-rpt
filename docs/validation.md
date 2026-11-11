@@ -18,6 +18,11 @@ install it first if a step fails unexpectedly.
   their names imply.
 - **Metadata schema** - every run's `run_metadata.json` matches the documented
   schema.
+- **Activity consistency** (`validate_activity_consistency.sh`) -
+  `invitro_bind` warns when `InitialActivity` does not match
+  `ModeParams/Activity_permL` times the medium volume (x1000, /1000, x8 slips),
+  stops with `"Error"`, stays silent with `"Off"`, and leaves the dose
+  unchanged.
 - **`activity_map` contract** - optional, skips cleanly without
   `ACTIVITYMAP_CT_DICOM_DIR`/`ACTIVITYMAP_NM_DICOM_DIR` set to real DICOM
   data.
