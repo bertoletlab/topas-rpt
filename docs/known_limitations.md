@@ -1,5 +1,9 @@
 # Known Limitations
 
+## Known issue: daughter de-excitation is not simulated (1.1.0 and earlier)
+
+TOPAS-RPT samples each decay itself from the Geant4 decay tables, so the daughter nucleus can be left in an excited state. With electromagnetic physics alone, no process de-excites that nucleus, so releases up to and including 1.1.0 emitted no γ-rays, conversion electrons, X-rays or Auger electrons from daughters. Absorbed doses from nuclides with a sizeable share of these emissions were therefore underestimated. Compared with plain TOPAS using `g4radioactivedecay`, for a source in a 0.5 mm water sphere inside a 60 cm water box, 1.1.0 deposited 14% less energy within 0.5 mm and 26% less in total for 177Lu, 36% and 39% less for 161Tb, and about 98% less for 99mTc, whereas 211At and 225Ac agreed within 1%. Adding `g4radioactivedecay` to the physics list does not repair this, since it then decays the chain a second time. Who should check their results: any run with 177Lu, 161Tb, an isomeric source such as 99mTc, or a γ-emitting chain. A fix is planned for 1.2.0.
+
 ## Geant4 version support
 
 Full recursive daughter-chain sampling - the part of this extension that
