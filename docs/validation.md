@@ -36,6 +36,30 @@ install it first if a step fails unexpectedly.
   `AbundanceUpdate = "Analytic"`, Pb-212, Bi-212 and Tl-208 follow the Bateman
   solution, the abundance file is identical for different seeds and thread
   counts, and an unknown value stops the run.
+- **Daughter de-excitation** (`validate_deexcite_daughters.sh`) - with
+  `DeexciteDaughters` and the `tsrts_deexcitation` module, a Lu-177 source
+  emits the Hf-177 208 keV gamma, K conversion electrons and K x-rays at their
+  ICRP 107 yields; without the flag it emits none; the flag without the module
+  stops with `TsRADIOACTIVE020`.
+- **Energy per decay** (`validate_deexcitation_energy.sh`) - a source in a
+  0.5 mm water sphere inside a 60 cm water box deposits, per decay, the same
+  energy in the sphere (within 4%) and in total (within 3%) as Geant4's own
+  radioactive decay (`g4radioactivedecay`), for Lu-177 and for Pb-212 with its
+  chain; Lu-177 without `DeexciteDaughters` must fall at least 15% short in
+  total (26% measured).
+- **Recoil** (`validate_deexcitation_recoil.sh`) - Am-241 decays mostly to
+  excited levels of Np-237; the recoil energy of the Np-237 ions per decay is
+  the same with and without `DeexciteDaughters` (within 2%).
+- **Isomer in the chain** (`validate_deexcitation_isomer_chain.sh`) - with
+  `IncludeWholeDecayChain`, the Tc-99m that Mo-99 feeds and `DeexciteDaughters`
+  keeps is decayed in the chain: about 0.8 gammas of 140.5 keV per Mo-99 decay.
+- **First-forbidden beta shape** (`validate_first_forbidden_shape.sh`) - with
+  `FirstForbiddenBetaShape = "allowed"`, the Tb-161 mean beta energy comes to
+  ICRP 107, Lu-177 is unchanged, and an unknown value stops the run.
+- **No stale vacancy** (`validate_no_stale_vacancy.sh`) - a Tc-99m source in
+  water emits the same Tc K x-ray yield as in vacuum. Geant4 11.3 and later
+  clear the stale vacancy themselves, so the test guards builds against
+  Geant4 11.2.
 - **`activity_map` contract** - optional, skips cleanly without
   `ACTIVITYMAP_CT_DICOM_DIR`/`ACTIVITYMAP_NM_DICOM_DIR` set to real DICOM
   data.

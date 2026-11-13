@@ -7,6 +7,33 @@ All notable changes to `topas-rpt` are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- `So/<Source>/DeexciteDaughters` (default False) and `So/<Source>/IsomerLifetimeThreshold`
+  (default 1 min, mean life): the excited daughter nucleus of every sampled decay is
+  cascaded through `G4ITDecay` (photon evaporation, internal conversion, atomic
+  relaxation) to its ground state or to a longer-lived isomer, and every gamma,
+  conversion electron, x-ray and Auger electron is emitted as a primary. Applied to the
+  first decay and to every recursive chain decay.
+- `tsrts_deexcitation` physics module (`TsDeexcitationPhysics`): the nuclear
+  de-excitation settings of `G4RadioactiveDecayPhysics` (internal-conversion shell data,
+  isomer production, Auger, de-excitation below cuts) without `G4Radioactivation`.
+- `So/<Source>/FirstForbiddenBetaShape` (`"geant4"`, default, or `"allowed"`): with
+  `"allowed"`, every beta branch the decay data tag `firstForbidden` is rebuilt as an
+  allowed transition with its branching ratio, endpoint and daughter level. Geant4 11.2
+  (`G4BetaDecayCorrections::ShapeFactor`) shapes those branches with a fit to 210Bi data
+  that its own comment marks as not valid for other nuclides; it puts the mean beta energy
+  of 161Tb at 0.91 and of 169Er at 0.94 of ICRP 107, which treats non-unique
+  first-forbidden transitions as allowed. With `"allowed"` they come to 1.010 and 1.018.
+  Nuclides without such a branch are unchanged.
+- `tests/regtests/validate_deexcite_daughters.sh`, `tests/regtests/validate_first_forbidden_shape.sh`,
+  `tests/regtests/validate_no_stale_vacancy.sh`.
+- `tests/regtests/validate_deexcitation_energy.sh`: energy per decay in a 0.5 mm
+  water sphere and in total against `g4radioactivedecay`, for Lu-177 and for Pb-212
+  with its chain; Lu-177 without `DeexciteDaughters` must fall short. The four
+  de-excitation tests run in the suite (`validate_all_features_vs_legacy.sh`), and
+  the user guide has a "Daughter de-excitation" section.
+- `tests/regtests/validate_deexcitation_recoil.sh` (Am-241 recoil with and without
+  `DeexciteDaughters`) and `tests/regtests/validate_deexcitation_isomer_chain.sh`
+  (Mo-99 to Tc-99m in the chain).
 - `tests/regtests/validate_zero_history_steps.sh`: Pb-212 over 12 one-day
   steps with 200 histories; every step with decays runs a history and Pb-212
   keeps decaying.
@@ -79,6 +106,53 @@ All notable changes to `topas-rpt` are documented here. The format follows
   `invitro_bind` mode.
 
 ### Fixed
+- Without `g4radioactivedecay`, sources emitted the daughter ion still excited and nothing
+  de-excited it, so gammas, conversion electrons and x-rays were missing (177Lu: beta
+  energy alone, 0.91 of the ICRP 107 non-penetrating energy, no photons). Adding
+  `g4radioactivedecay` instead also decays radioactive ground-state daughters during
+  tracking, which turns first-decay sources into chain sources (211At 1.85, 213Bi 9.2,
+  212Pb 23 times the first-decay energy). `DeexciteDaughters` gives the first decay
+  alone: within 2% of ICRP 107 for all 25 nuclides checked (161Tb and 169Er with
+  `FirstForbiddenBetaShape = "allowed"`; 6-7% low without it), and within 1% of
+  `g4radioactivedecay` where the daughter is stable. Opt-in, so existing decks are
+  unchanged.
+- `DeexciteDaughters`: the de-excitation products were created at rest, so a daughter
+  left excited by an alpha decay lost its recoil (Am-241: 92.6 keV per decay without the
+  flag, 0.35 keV with it). They now move with the recoiling nucleus, as in
+  `G4VRadioactiveDecay`.
+- `DeexciteDaughters` with `IncludeWholeDecayChain`: an isomer kept by the de-excitation
+  (Tc-99m from Mo-99) was replaced by its ground state in the chain, so it never decayed
+  (0.04 gammas of 140.5 keV per Mo-99 decay instead of 0.83). It now decays with its own
+  lifetime and carries over between steps as its own abundance entry. Before Geant4
+  11.3, the chain now decays such an isomer through the source's own isomeric-transition
+  decay, as the first decay already did (the IT channel of the decay table has no photon
+  evaporation and stopped the run). The isomer cut reads the ion table's lifetime for the
+  level. `AbundanceUpdate = "Analytic"` still carries isomers as their ground state between
+  steps and warns (`TsRADIOACTIVE044`) when combined with `DeexciteDaughters` and the chain.
+- `FirstForbiddenBetaShape = "allowed"` finds the decay data as Geant4 does
+  (`G4FindDataDir`), matches the parent level within 10 eV and on its floating level,
+  keys branches by daughter floating level, and warns (`TsRADIOACTIVE023`) when the file
+  of a radioactive nuclide cannot be read instead of keeping the Geant4 shapes silently.
+- `DeexciteDaughters` without the `tsrts_deexcitation` module now stops with
+  `TsRADIOACTIVE020` on Geant4 11.3 as well. The check looked only at the
+  internal-conversion data flag, which Geant4 11.3 turns on by default, so it never
+  fired there, and runs went ahead without the module's isomer, Auger and
+  stale-vacancy settings. It now also checks that the module is in
+  `Ph/<ListName>/Modules`.
+- With `tsrts_deexcitation`, a source in a finite phantom containing hydrogen emitted spurious
+  daughter K x-rays and K Auger electrons. With the Auger cascade active,
+  `G4UAtomicDeexcitation::GenerateParticles` (Geant4 11.2 and earlier) stores the vacancy before
+  it returns for Z < 6, and nothing clears it; with `DeexcitationIgnoreCut`, Livermore Compton
+  scattering on hydrogen makes that call. When the photon then escapes, the event ends and the
+  next decay's atomic relaxation (`G4ITDecay`, `G4ECDecay`) processes the stale vacancy as a
+  daughter K vacancy. 99mTc in a soft-tissue cube of 197.6 mm half-side emitted 0.117 Tc K x-rays per
+  decay against 0.062 in vacuum, and 3.4% more electron energy per decay than in a 2 m medium;
+  graphite, without hydrogen, showed nothing. The module now installs `TsAtomicDeexcitation`, a
+  `G4UAtomicDeexcitation` that returns before storing the vacancy, in place of the one the EM
+  module installed. The same stale vacancy also added a spurious K cascade of the next atom
+  relaxed within the same event; that goes too. Geant4 11.3.0 clears the vacancy list at the
+  start of every call, so the fix matters only with Geant4 11.2 (99mTc in water, 11.2.2: 0.178
+  Tc K x-rays per decay without it, 0.073 with it and in vacuum; 11.3.2: 0.073 either way).
 - `scripts/build_topas_with_extension.sh` forced `-DTOPAS_USE_QT=ON`, so the
   build failed against a Geant4 built without Qt (`qobject.h` not found). The
   script now follows the Geant4 build (`Geant4_qt_FOUND` and the Qt version in

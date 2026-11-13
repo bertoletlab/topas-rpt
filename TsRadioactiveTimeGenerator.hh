@@ -32,6 +32,8 @@ class G4ITDecay;
 #include <memory>
 #include <set>
 
+class G4Ions;
+
 class TsRadioactiveTimeGenerator : public TsVGenerator
 {
 public:
@@ -75,6 +77,15 @@ public:
     void ReadIsotopicAbundanceFile();
 
     G4VDecayChannel* GetDecayChannelManually(G4DecayTable* decayTable);
+    // DeexciteDaughters: cascade excited daughter ions to the ground state (or an isomer).
+    // One decay of particle from decayTable (isomeric transitions through fITDecay before Geant4 11.3).
+    G4DecayProducts* SampleDecayProducts(const G4ParticleDefinition* particle, G4DecayTable* decayTable);
+    G4DecayProducts* DeexciteDaughterIons(G4DecayProducts* products);
+    // True when DeexciteDaughters keeps this excited ion as an isomer: its mean life, read as
+    // the isotopic abundances read it (MeanLifeOfNucleus), is above IsomerLifetimeThreshold.
+    G4bool IsKeptIsomer(const G4Ions* ion) const;
+    // FirstForbiddenBetaShape: decay table with first-forbidden beta branches made allowed.
+    G4DecayTable* GetDecayTable(const G4ParticleDefinition* particle, const char* where);
 
     void GetNumberOfIndependentDecaysDuringThisStep();
     void EvolveAbundancesAnalytically(G4double stepDuration);
@@ -151,6 +162,10 @@ protected:
     // decay chain each step instead of the decays sampled by the histories.
     G4bool fAnalyticAbundanceUpdate = false;
     G4bool fIncludeWholeDecayChain;
+    G4bool fDeexciteDaughters;
+    G4double fIsomerLifetimeThreshold;
+    G4bool fAllowedShapeForFirstForbidden;
+    std::map<const G4ParticleDefinition*, G4DecayTable*> fPatchedDecayTables;
 
     G4bool fReadIsotopicAbundanceFromFile;
     G4String fReadIsotopicAbundanceFileName;

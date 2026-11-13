@@ -28,10 +28,17 @@
 #include "G4VisExtent.hh"
 #include "G4TransportationManager.hh"
 #include "G4Version.hh"
+#if G4VERSION_NUMBER >= 1110
+#include "G4EnvironmentUtils.hh"
+#endif
+#include <tuple>
 #include "G4VSolid.hh"
 #include "G4PhotonEvaporation.hh"
 #include "G4ITDecay.hh"
 #include "G4NuclearDecay.hh"
+#include <cstdlib>
+#include "G4BetaPlusDecay.hh"
+#include "G4BetaMinusDecay.hh"
 
 #include <cmath>
 #include <cstring>
@@ -115,22 +122,29 @@ G4double SampleDecayTimeWithinStep(G4double meanlife, G4double stepDuration)
     return -meanlife * std::log1p(G4UniformRand() * std::expm1(-stepDuration / meanlife));
 }
 
-// Meanlife (s) of an isotopic-abundance entry, "Name" or "Name[E in keV]" for an excited state,
-// read as GetNumberOfIndependentDecaysDuringThisStep reads it. -1 if unknown.
-G4double MeanLifeOfAbundanceEntry(const G4String& name)
+// Meanlife (s) of a nucleus: for an excited state the ion table's value for the level and its
+// floating level, then the PDG lifetime. -1 if unknown.
+G4double MeanLifeOfNucleus(const G4ParticleDefinition* particle)
 {
-    G4ParticleDefinition* particle = ResolveParticleDefinitionByName(name);
     if (!particle)
         return -1.;
     if (const auto* ion = dynamic_cast<const G4Ions*>(particle)) {
         if (ion->GetExcitationEnergy() > 0.) {
             G4double lifetime = G4IonTable::GetIonTable()->GetLifeTime(ion->GetAtomicNumber(), ion->GetAtomicMass(),
-                                                                      ion->GetExcitationEnergy());
+                                                                      ion->GetExcitationEnergy(),
+                                                                      ion->GetFloatLevelBase());
             if (lifetime != -1001.)
                 return lifetime / second;
         }
     }
     return particle->GetPDGLifeTime() / second;
+}
+
+// Meanlife (s) of an isotopic-abundance entry, "Name" or "Name[E in keV]" for an excited state,
+// read as GetNumberOfIndependentDecaysDuringThisStep reads it. -1 if unknown.
+G4double MeanLifeOfAbundanceEntry(const G4String& name)
+{
+    return MeanLifeOfNucleus(ResolveParticleDefinitionByName(name));
 }
 
 // exp(M) for a small dense matrix, by scaling and squaring of a Taylor series. M is a decay-chain
@@ -417,6 +431,46 @@ void TsRadioactiveTimeGenerator::ResolveParameters()
     fIncludeWholeDecayChain = true;
     if (fPm->ParameterExists(GetFullParmName("IncludeWholeDecayChain")))
         fIncludeWholeDecayChain = fPm->GetBooleanParameter(GetFullParmName("IncludeWholeDecayChain"));
+    // Without g4radioactivedecay, the excited daughter ion a decay channel returns is never
+    // de-excited, so its gammas, conversion electrons and x-rays are lost. DeexciteDaughters
+    // cascades it here through G4ITDecay (photon evaporation, internal conversion, atomic
+    // relaxation) down to the ground state, or to a level living longer than
+    // IsomerLifetimeThreshold (mean life), which is emitted as it is. The default of one
+    // minute follows ICRP 107, which folds Y-89m (15.7 s) into Zr-89 but lists Ba-137m
+    // (2.55 min) and Cd-111m (48.5 min) as nuclides of their own.
+    fDeexciteDaughters = false;
+    if (fPm->ParameterExists(GetFullParmName("DeexciteDaughters")))
+        fDeexciteDaughters = fPm->GetBooleanParameter(GetFullParmName("DeexciteDaughters"));
+    fIsomerLifetimeThreshold = 1. * minute;
+    if (fPm->ParameterExists(GetFullParmName("IsomerLifetimeThreshold")))
+        fIsomerLifetimeThreshold = fPm->GetDoubleParameter(GetFullParmName("IsomerLifetimeThreshold"), "Time");
+    // Geant4 (11.2 G4BetaDecayCorrections::ShapeFactor) gives every beta branch its data
+    // tag "firstForbidden" a shape factor fitted to Bi-210, which its own comment says is
+    // not valid for other nuclides; it softens e.g. Tb-161 (mean beta 0.91 of ICRP 107)
+    // and Er-169 (0.94). "allowed" rebuilds those branches with the allowed shape, the
+    // ICRP 107 treatment of non-unique first-forbidden transitions.
+    fAllowedShapeForFirstForbidden = false;
+    if (fPm->ParameterExists(GetFullParmName("FirstForbiddenBetaShape"))) {
+        G4String shape = fPm->GetStringParameter(GetFullParmName("FirstForbiddenBetaShape"));
+        G4StrUtil::to_lower(shape);
+        if (shape == "allowed")
+            fAllowedShapeForFirstForbidden = true;
+        else if (shape != "geant4") {
+            G4ExceptionDescription msg;
+            msg << GetFullParmName("FirstForbiddenBetaShape") << " = \"" << shape
+                << "\": expected \"geant4\" (default) or \"allowed\".";
+            G4Exception("TsRadioactiveTimeGenerator::ResolveParameters()", "TsRADIOACTIVE021",
+                        FatalException, msg);
+        }
+    }
+    if (fDeexciteDaughters) {
+        // Initialise() reads the internal-conversion flag from G4DeexPrecoParameters; the
+        // flags G4RadioactiveDecay sets afterwards are set afterwards here too.
+        fPhotonEvaporation->Initialise();
+        fPhotonEvaporation->RDMForced(true);
+        fPhotonEvaporation->SetICM(true);
+        fITDecay->SetARM(true);
+    }
     fRecursivelyIncludeChildren = true;
     if (fPm->ParameterExists(GetFullParmName("RecursivelyIncludeChildren")))
         fRecursivelyIncludeChildren = fPm->GetBooleanParameter(GetFullParmName("RecursivelyIncludeChildren"));
@@ -465,6 +519,17 @@ void TsRadioactiveTimeGenerator::ResolveParameters()
                     "TsRADIOACTIVE002", FatalException, msg);
     } else if (modeId == TsModeFactory::ModeId::Unknown) {
         fMode = "uniform";
+    }
+    if (fIsOutputWriter && fAnalyticAbundanceUpdate && fDeexciteDaughters && fIncludeWholeDecayChain) {
+        // The analytic update follows excited daughters as their ground state, so an isomer the
+        // de-excitation keeps (Tc-99m from Mo-99) drops out of the abundances between steps.
+        G4ExceptionDescription msg;
+        msg << "AbundanceUpdate = \"Analytic\" with DeexciteDaughters: isomers kept by the "
+            << "de-excitation (such as Tc-99m from Mo-99) are carried between steps as their ground "
+            << "state, so their decays in later steps are lost. Use AbundanceUpdate = \"MonteCarlo\" "
+            << "for a chain through an isomer.";
+        G4Exception("TsRadioactiveTimeGenerator::ResolveParameters()", "TsRADIOACTIVE044",
+                    JustWarning, msg);
     }
     if (fAnalyticAbundanceUpdate && modeId == TsModeFactory::ModeId::Diffusion) {
         // Diffusion removes progeny by biological clearance and desorption, which the decay chain
@@ -1126,40 +1191,16 @@ void TsRadioactiveTimeGenerator::GeneratePrimaries(G4Event* anEvent)
     if (fVerbosity > 1) G4cout << "The intra-step time for this decay is " << fIntraStepTime << " s" << G4endl;
 
     // Load decay table
-    G4DecayTable* decayTable = fDecay->LoadDecayTable(AsIonOrThrow(
-            fParticleDefinition, "TsRadioactiveTimeGenerator::GeneratePrimaries"));
-    G4DecayProducts* decayProducts = nullptr;
-#if G4VERSION_NUMBER >= 1130
-    decayProducts =
-            static_cast<TsRadioactivationAccessor*>(fDecay)->SampleDecayProducts(*fParticleDefinition, decayTable);
-#else
-    G4VDecayChannel* decayChannel = decayTable->SelectADecayChannel();
-    if (decayChannel == nullptr)
-        decayChannel = GetDecayChannelManually(decayTable);
-    if (decayChannel == nullptr) {
-        if (fVerbosity > 0)
-            G4cout << "WARNING: Could not select decay channel for "
-                   << fParticleDefinition->GetParticleName() << ". Skipping this history." << G4endl;
-        return;
-    }
-    // IT channels in decay tables lack a G4PhotonEvaporation pointer,
-    // so calling DecayIt() on them directly causes a null dereference.
-    // Mirror G4RadioactiveDecay behavior: use our own fITDecay member
-    // which was initialized with a proper G4PhotonEvaporation.
-    G4NuclearDecay* nucDecay = dynamic_cast<G4NuclearDecay*>(decayChannel);
-    if (nucDecay && nucDecay->GetDecayMode() == IT) {
-        fITDecay->SetupDecay(fParticleDefinition);
-        decayProducts = fITDecay->DecayIt(0.0);
-    } else {
-        decayProducts = decayChannel->DecayIt();
-    }
-#endif
+    G4DecayTable* decayTable = GetDecayTable(fParticleDefinition,
+            "TsRadioactiveTimeGenerator::GeneratePrimaries");
+    G4DecayProducts* decayProducts = SampleDecayProducts(fParticleDefinition, decayTable);
     if (!decayProducts) {
         if (fVerbosity > 0)
             G4cout << "WARNING: Null decay products for "
                    << fParticleDefinition->GetParticleName() << ". Skipping this history." << G4endl;
         return;
     }
+    decayProducts = DeexciteDaughterIons(decayProducts);
 
     const G4int nDecayProducts = decayProducts->entries();
     std::vector<G4String> particleNames;
@@ -1268,9 +1309,13 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
     if (!isNucleus) return;
 
     // Some excited-state ions can crash decay-channel selection in recursive handling.
-    // For chain propagation we fall back to the ground state of the same Z/A.
+    // For chain propagation we fall back to the ground state of the same Z/A, except for an
+    // isomer that DeexciteDaughters kept on purpose (such as Tc99[142.684] from Mo-99): it
+    // decays with its own lifetime and decay table, as it does when it is the source ion.
     if (const auto* ion = dynamic_cast<const G4Ions*>(particle)) {
-        if (ion->GetExcitationEnergy() > 0.) {
+        // LoadDecayTable gives every excited level a decay table (a full IT branch when it has no data).
+        const G4bool keepIsomer = IsKeptIsomer(ion);
+        if (ion->GetExcitationEnergy() > 0. && !keepIsomer) {
             G4IonTable* ionTable = G4ParticleTable::GetParticleTable()->GetIonTable();
             if (ionTable) {
                 G4ParticleDefinition* ground = ionTable->GetIon(ion->GetAtomicNumber(), ion->GetAtomicMass(), 0.);
@@ -1285,8 +1330,8 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
         }
     }
 
-    G4DecayTable* decayTable = fDecay->LoadDecayTable(AsIonOrThrow(
-            particle, "TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive"));
+    G4DecayTable* decayTable = GetDecayTable(particle,
+            "TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive");
     if (!decayTable) {
         if (fVerbosity > 1)
             G4cout << "No decay table available for " << particle->GetParticleName()
@@ -1324,33 +1369,22 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
         }
     }
 
-    G4bool hasLifetime = particle->GetPDGLifeTime() > 0;
-    if (fVerbosity > 2) G4cout << "has lifetime? " << hasLifetime << " Lifetime (h): " << particle->GetPDGLifeTime() / (3600. * s) << G4endl;
+    // Same mean life as the isomer cut and the abundances (MeanLifeOfNucleus); for a ground state
+    // it is the PDG lifetime.
+    const G4double chainMeanLife = MeanLifeOfNucleus(particle);
+    G4bool hasLifetime = chainMeanLife > 0;
+    if (fVerbosity > 2) G4cout << "has lifetime? " << hasLifetime << " Lifetime (h): " << chainMeanLife / 3600. << G4endl;
     if (!hasLifetime)
     {
         // Simulate all products immediately
-        G4DecayProducts* decayProducts = nullptr;
-#if G4VERSION_NUMBER >= 1130
-        decayProducts =
-                static_cast<TsRadioactivationAccessor*>(fDecay)->SampleDecayProducts(*particle, decayTable);
-#else
-        G4VDecayChannel* decayChannel = decayTable->SelectADecayChannel();
-        if (decayChannel == nullptr)
-            decayChannel = GetDecayChannelManually(decayTable);
-        if (decayChannel == nullptr) {
-            if (fVerbosity > 1)
-                G4cout << "WARNING: Could not select decay channel for recursive isotope "
-                       << particle->GetParticleName() << "." << G4endl;
-            return;
-        }
-        decayProducts = decayChannel->DecayIt();
-#endif
+        G4DecayProducts* decayProducts = SampleDecayProducts(particle, decayTable);
         if (!decayProducts) {
             if (fVerbosity > 1)
                 G4cout << "WARNING: Null decay products for recursive isotope "
                        << particle->GetParticleName() << "." << G4endl;
             return;
         }
+        decayProducts = DeexciteDaughterIons(decayProducts);
         if (fVerbosity > 2) G4cout << "no, but has " << decayProducts->entries() << " decay products" << G4endl;
         if (fVerbosity > 0) G4cout << "Decaying: " << particle->GetParticleName() << G4endl;
         fEmitterParticleName = particle->GetParticleName();
@@ -1398,34 +1432,20 @@ void TsRadioactiveTimeGenerator::AddRecursivelyToIsotopeListIfRadioactive(G4Even
     else
     {
         // Sample decay time and add if within step
-        G4double meanlife = particle->GetPDGLifeTime()/second;
+        G4double meanlife = chainMeanLife;
         G4double lambda = 1 / meanlife;
         G4double decayTime = -log(G4UniformRand()) / lambda;
         if (fIntraStepTime + decayTime < fNextTime - fCurrentTime)
         {
             fIntraStepTime += decayTime;
-            G4DecayProducts* decayProducts = nullptr;
-#if G4VERSION_NUMBER >= 1130
-            decayProducts =
-                    static_cast<TsRadioactivationAccessor*>(fDecay)->SampleDecayProducts(*particle, decayTable);
-#else
-            G4VDecayChannel* decayChannel = decayTable->SelectADecayChannel();
-            if (decayChannel == nullptr)
-                decayChannel = GetDecayChannelManually(decayTable);
-            if (decayChannel == nullptr) {
-                if (fVerbosity > 1)
-                    G4cout << "WARNING: Could not select timed decay channel for recursive isotope "
-                           << particle->GetParticleName() << "." << G4endl;
-                return;
-            }
-            decayProducts = decayChannel->DecayIt();
-#endif
+            G4DecayProducts* decayProducts = SampleDecayProducts(particle, decayTable);
             if (!decayProducts) {
                 if (fVerbosity > 1)
                     G4cout << "WARNING: Null timed decay products for recursive isotope "
                            << particle->GetParticleName() << "." << G4endl;
                 return;
             }
+            decayProducts = DeexciteDaughterIons(decayProducts);
             if (fVerbosity > 2) G4cout << "yes, and has " << decayProducts->entries() << " decay products" << G4endl;
             if (fVerbosity > 0) G4cout << "Decaying: " << particle->GetParticleName() << G4endl;
             if (fVerbosity > 1) G4cout << "The intra-step time for this decay is " << fIntraStepTime << " s" << G4endl;
@@ -1738,6 +1758,193 @@ void TsRadioactiveTimeGenerator::ReadIsotopicAbundanceFile() {
     if (fUseFractionOfActivityFromFile)
         fFractionsOfActivityAtTime0.push_back(itFractionOfActivityAtTime0Prev->second + ratio * (itFractionOfActivityAtTime0->second - itFractionOfActivityAtTime0Prev->second));
 }
+
+G4DecayTable* TsRadioactiveTimeGenerator::GetDecayTable(const G4ParticleDefinition* particle, const char* where)
+{
+    const G4Ions* ion = AsIonOrThrow(particle, where);
+    G4DecayTable* table = fDecay->LoadDecayTable(ion);
+    if (!fAllowedShapeForFirstForbidden || !table || table->entries() == 0)
+        return table;
+    auto cached = fPatchedDecayTables.find(particle);
+    if (cached != fPatchedDecayTables.end())
+        return cached->second;
+
+    // Endpoint (keV) of each first-forbidden branch, by decay mode, daughter level (eV) and
+    // daughter floating level, from the data file G4RadioactiveDecay read:
+    // "<mode> <daughterEx> <flag> <BR> <Q> firstForbidden". The file is found and the parent
+    // level matched as G4VRadioactiveDecay::LoadDecayTable does (G4FindDataDir, 10 eV, and
+    // the floating level when the ion has one). A decay file given with
+    // /grdm/setRadioactiveDecayFile is not read here: the endpoints still come from the
+    // standard file, so "allowed" must not be combined with user decay files.
+    std::map<std::tuple<G4String, long, G4int>, G4double> endpointKeV;
+#if G4VERSION_NUMBER >= 1110
+    const char* dir = G4FindDataDir("G4RADIOACTIVEDATA");
+#else
+    const char* dir = std::getenv("G4RADIOACTIVEDATA");
+#endif
+    if (!dir) {
+        G4ExceptionDescription msg;
+        msg << "FirstForbiddenBetaShape = \"allowed\" reads the decay data file, but "
+            << "G4RADIOACTIVEDATA is not set.";
+        G4Exception("TsRadioactiveTimeGenerator::GetDecayTable()", "TsRADIOACTIVE022",
+                    FatalException, msg);
+    } else {
+        std::ostringstream path;
+        path << dir << "/z" << ion->GetAtomicNumber() << ".a" << ion->GetAtomicMass();
+        std::ifstream in(path.str());
+        if (!in.good()) {
+            G4ExceptionDescription msg;
+            msg << "FirstForbiddenBetaShape = \"allowed\": cannot read " << path.str()
+                << ", so " << particle->GetParticleName() << " keeps the Geant4 beta shapes.";
+            G4Exception("TsRadioactiveTimeGenerator::GetDecayTable()", "TsRADIOACTIVE023",
+                        JustWarning, msg);
+        }
+        const G4Ions::G4FloatLevelBase parentFloat = ion->GetFloatLevelBase();
+        G4String line;
+        G4bool inParent = false;
+        while (std::getline(in, line)) {
+            if (line.empty() || line[0] == '#')
+                continue;
+            std::istringstream ls(line);
+            if (line[0] == 'P') {
+                G4String rec, pflag;
+                G4double ex;
+                ls >> rec >> ex >> pflag;
+                if (inParent)
+                    break;
+                inParent = std::abs(ex * keV - ion->GetExcitationEnergy()) < 10. * eV;
+                if (inParent && parentFloat != G4Ions::G4FloatLevelBase::no_Float && !pflag.empty())
+                    inParent = parentFloat == G4Ions::FloatLevelBase(pflag.back());
+                continue;
+            }
+            G4String mode, flag, type;
+            G4double dEx, br, q;
+            if (inParent && (ls >> mode >> dEx >> flag >> br >> q >> type) && type == "firstForbidden" &&
+                !flag.empty())
+                endpointKeV[{mode, std::lround(dEx * 1000.), (G4int)G4Ions::FloatLevelBase(flag.back())}] = q;
+        }
+    }
+
+    G4DecayTable* patched = table;
+    if (!endpointKeV.empty()) {
+        // Channels the original table owns are shared, so neither table is ever deleted.
+        patched = new G4DecayTable();
+        for (G4int i = 0; i < table->entries(); i++) {
+            G4VDecayChannel* ch = table->GetDecayChannel(i);
+            auto* nd = dynamic_cast<G4NuclearDecay*>(ch);
+            G4String mode = nd ? (nd->GetDecayMode() == BetaMinus ? "BetaMinus"
+                                  : nd->GetDecayMode() == BetaPlus ? "BetaPlus" : "") : "";
+            auto hit = mode.empty() ? endpointKeV.end()
+                     : endpointKeV.find({mode, std::lround(nd->GetDaughterExcitation() / keV * 1000.),
+                                         (G4int)nd->GetFloatingLevel()});
+            if (hit == endpointKeV.end()) {
+                patched->Insert(ch);
+                continue;
+            }
+            G4double q = hit->second * keV, ex = nd->GetDaughterExcitation();
+            if (mode == "BetaMinus")
+                patched->Insert(new G4BetaMinusDecay(ion, ch->GetBR(), q, ex, nd->GetFloatingLevel(), allowed));
+            else
+                patched->Insert(new G4BetaPlusDecay(ion, ch->GetBR(), q, ex, nd->GetFloatingLevel(), allowed));
+            if (fVerbosity > 0)
+                G4cout << particle->GetParticleName() << ": " << mode << " branch to " << ex / keV
+                       << " keV (BR " << ch->GetBR() << ") given the allowed beta shape" << G4endl;
+        }
+    }
+    fPatchedDecayTables[particle] = patched;
+    return patched;
+}
+
+
+G4DecayProducts* TsRadioactiveTimeGenerator::SampleDecayProducts(const G4ParticleDefinition* particle,
+                                                                 G4DecayTable* decayTable)
+{
+    if (!particle || !decayTable)
+        return nullptr;
+#if G4VERSION_NUMBER >= 1130
+    return static_cast<TsRadioactivationAccessor*>(fDecay)->SampleDecayProducts(*particle, decayTable);
+#else
+    G4VDecayChannel* decayChannel = decayTable->SelectADecayChannel();
+    if (decayChannel == nullptr)
+        decayChannel = GetDecayChannelManually(decayTable);
+    if (decayChannel == nullptr) {
+        if (fVerbosity > 0)
+            G4cout << "WARNING: Could not select decay channel for " << particle->GetParticleName() << "." << G4endl;
+        return nullptr;
+    }
+    // IT channels in decay tables lack a G4PhotonEvaporation pointer, so calling DecayIt() on
+    // them directly dereferences null. Mirror G4RadioactiveDecay: use fITDecay, which owns one.
+    // The first decay and every chain decay (a kept isomer such as Tc-99m) go through here.
+    G4NuclearDecay* nucDecay = dynamic_cast<G4NuclearDecay*>(decayChannel);
+    if (nucDecay && nucDecay->GetDecayMode() == IT) {
+        fITDecay->SetupDecay(particle);
+        return fITDecay->DecayIt(0.0);
+    }
+    return decayChannel->DecayIt();
+#endif
+}
+
+G4bool TsRadioactiveTimeGenerator::IsKeptIsomer(const G4Ions* ion) const
+{
+    if (!fDeexciteDaughters || !ion || !(ion->GetExcitationEnergy() > 0.))
+        return false;
+    // Same lifetime as the isotopic abundances use (MeanLifeOfNucleus). Levels without one
+    // (-1, 0) are prompt.
+    const G4double meanlife = MeanLifeOfNucleus(ion) * second;
+    return meanlife > fIsomerLifetimeThreshold;
+}
+
+G4DecayProducts* TsRadioactiveTimeGenerator::DeexciteDaughterIons(G4DecayProducts* products)
+{
+    if (!fDeexciteDaughters || !products)
+        return products;
+    G4bool anyToDeexcite = false;
+    for (G4int i = 0; i < products->entries() && !anyToDeexcite; i++) {
+        const auto* ion = dynamic_cast<const G4Ions*>((*products)[i]->GetDefinition());
+        anyToDeexcite = ion && ion->GetExcitationEnergy() > 0. && !IsKeptIsomer(ion);
+    }
+    if (!anyToDeexcite)
+        return products;
+
+    G4DecayProducts* out = new G4DecayProducts(*products->GetParentParticle());
+    std::vector<G4DynamicParticle*> pending;
+    for (G4int i = 0; i < products->entries(); i++)
+        pending.push_back(new G4DynamicParticle(*(*products)[i]));
+    delete products;
+
+    // One G4ITDecay call is one transition; the lower level goes back on the stack.
+    G4int transitions = 0;
+    while (!pending.empty()) {
+        G4DynamicParticle* dp = pending.back();
+        pending.pop_back();
+        const G4Ions* ion = dynamic_cast<const G4Ions*>(dp->GetDefinition());
+        G4bool cascade = ion && ion->GetExcitationEnergy() > 0. && transitions < 1000 &&
+                         !IsKeptIsomer(ion);
+        if (cascade) {
+            fITDecay->SetupDecay(ion);
+            G4DecayProducts* step = fITDecay->DecayIt(0.);
+            if (step && step->entries() > 1) {
+                transitions++;
+                // G4ITDecay builds the transition at rest; carry the products along with the
+                // recoiling ion they replace, as G4VRadioactiveDecay does, so that its recoil
+                // energy (about 100 keV after an alpha decay) stays in the event.
+                if (dp->GetKineticEnergy() > 0.)
+                    step->Boost(dp->GetTotalEnergy(), dp->GetMomentumDirection());
+                for (G4int j = 0; j < step->entries(); j++)
+                    pending.push_back(new G4DynamicParticle(*(*step)[j]));
+                delete step;
+                delete dp;
+                continue;
+            }
+            delete step;  // no transition possible: keep the ion as it is
+            if (fVerbosity > 1)
+                G4cout << "WARNING: no de-excitation for " << ion->GetParticleName() << G4endl;
+        }
+        out->PushProducts(dp);
+    }
+    return out;
+}
+
 
 G4VDecayChannel* TsRadioactiveTimeGenerator::GetDecayChannelManually(G4DecayTable* decayTable)
 {
