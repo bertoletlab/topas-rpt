@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Validates So/<Source>/DeexciteDaughters (1.1.0): a Lu-177 point source in vacuum must emit
+# Validates So/<Source>/DeexciteDaughters (1.2.0): a Lu-177 point source in vacuum must emit
 # the de-excitation products of Hf-177 (113 and 208 keV gammas, K-shell conversion
 # electrons, Hf K x-rays) only when the flag and the tsrts_deexcitation module are set, and
 # the flag without the module must stop with TsRADIOACTIVE020.

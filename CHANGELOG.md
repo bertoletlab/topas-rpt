@@ -6,6 +6,8 @@ All notable changes to `topas-rpt` are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-13
+
 ### Added
 - `So/<Source>/DeexciteDaughters` (default False) and `So/<Source>/IsomerLifetimeThreshold`
   (default 1 min, mean life): the excited daughter nucleus of every sampled decay is

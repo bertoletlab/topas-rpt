@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Validates So/<Source>/FirstForbiddenBetaShape (1.1.0). Tb-161 decays almost entirely
+# Validates So/<Source>/FirstForbiddenBetaShape (1.2.0). Tb-161 decays almost entirely
 # through branches its Geant4 data tag "firstForbidden"; Geant4 11.2 shapes them with a
 # Bi-210 fit, which puts the mean beta energy near 140 keV, against 154.6 keV in ICRP 107.
 # With "allowed" the mean must come within 3% of ICRP 107; Lu-177, which has no such
