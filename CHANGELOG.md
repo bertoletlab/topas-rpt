@@ -153,6 +153,12 @@ All notable changes to `topas-rpt` are documented here. The format follows
   relaxed within the same event; that goes too. Geant4 11.3.0 clears the vacancy list at the
   start of every call, so the fix matters only with Geant4 11.2 (99mTc in water, 11.2.2: 0.178
   Tc K x-rays per decay without it, 0.073 with it and in vacuum; 11.3.2: 0.073 either way).
+- `scripts/build_topas_with_extension.sh` forced `-DTOPAS_USE_QT=ON`, so the
+  build failed against a Geant4 built without Qt (`qobject.h` not found). The
+  script now follows the Geant4 build (`Geant4_qt_FOUND` and the Qt version in
+  its CMake package): `TOPAS_USE_QT` and `TOPAS_USE_QT6` `ON` with Qt6, `ON`
+  and `OFF` with Qt5, both `OFF` without Qt. `TOPAS_USE_QT=ON` or `OFF`
+  overrides it. The README says when each setting applies.
 - `CorrectByNumberOfHistories = "True"`: once a step's scaled history count
   (the first step's count times its share of decays, truncated) reached 0, no
   history updated the isotopic abundances, so the decay chain froze and every
